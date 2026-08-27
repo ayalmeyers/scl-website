@@ -41,6 +41,29 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* ---------- flowing interactive background ---------- */
+/* A quiet, continuously-drifting field of light that sits behind the
+   entire page (not just the hero) and shifts with scroll position and
+   pointer movement, in the spirit of axiom.peppermint.id's living
+   background. Painted on <canvas id="bg-flow">, fixed to the viewport,
+   blended with `screen` so it reads as soft ambient light over every
+   section regardless of that section's own background color, while
+   staying completely out of the way of text and controls. */
+#bg-flow {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 50;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  opacity: 0.9;
+}
+.site-header { z-index: 100; }
+@media (prefers-reduced-motion: reduce) {
+  #bg-flow { opacity: 0.6; }
+}
 img { max-width: 100%; display: block; }
 a { color: inherit; text-decoration: none; }
 ul { list-style: none; margin: 0; padding: 0; }
