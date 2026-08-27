@@ -231,10 +231,11 @@ function initAttractorBackground() {
     var cx = width * 0.58;
     var cy = height * 0.5;
 
-    ctx.globalCompositeOperation = "lighter";
-    drawTrail(trail1, angle, tilt, scale, cx, cy, "rgba(203,179,93,0.16)");
-    drawTrail(trail2, angle, tilt, scale, cx, cy, "rgba(228,205,125,0.10)");
-    ctx.globalCompositeOperation = "source-over";
+    // Light background: normal alpha blending (not additive "lighter")
+    // so overlapping strokes deepen into a richer dark blue, the way
+    // overlapping pen strokes darken on paper.
+    drawTrail(trail1, angle, tilt, scale, cx, cy, "rgba(29,53,87,0.4)");
+    drawTrail(trail2, angle, tilt, scale, cx, cy, "rgba(44,77,120,0.22)");
   }
 
   if (reduceMotion) {
