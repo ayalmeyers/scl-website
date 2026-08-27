@@ -77,18 +77,38 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  initFlowingBackground();
+  initAttractorBackground();
+  initClock();
 });
 
 // ---------------------------------------------------------------------
-// Flowing interactive background
-// A slow, continuous field of soft light drifting behind the whole page,
-// nudged by scroll position and pointer movement — the ambient "moves
-// with the page" effect. Kept intentionally quiet: a few large, heavily
-// feathered blobs, low alpha, no hard edges.
+// Live clock readout in the header, e.g. "CEST 14:32".
 // ---------------------------------------------------------------------
-function initFlowingBackground() {
-  var canvas = document.getElementById("bg-flow");
+function initClock() {
+  var el = document.getElementById("hdr-clock");
+  if (!el) return;
+  function tick() {
+    var d = new Date();
+    var tz = (d.toLocaleTimeString("en-US", { timeZoneName: "short" }).split(" ").pop() || "").toUpperCase();
+    var h = String(d.getHours()).padStart(2, "0");
+    var m = String(d.getMinutes()).padStart(2, "0");
+    el.textContent = tz + " " + h + ":" + m;
+  }
+  tick();
+  setInterval(tick, 15000);
+}
+
+// ---------------------------------------------------------------------
+// Live attractor background
+// A fixed, full-page canvas continuously integrates the Lorenz system
+// (the classic chaos-theory "butterfly" equations) and renders the
+// trailing trajectory as thin gold strokes, viewed through a camera
+// that slowly auto-rotates and additionally turns with scroll position
+// — the animated backdrop "flows and moves with the page". Pure math,
+// original rendering code; no external assets or libraries.
+// ---------------------------------------------------------------------
+function initAttractorBackground() {
+  var canvas = document.getElementById("attractor-bg");
   if (!canvas || !canvas.getContext) return;
   var ctx = canvas.getContext("2d");
 
@@ -98,24 +118,10 @@ function initFlowingBackground() {
 
   var dpr = Math.min(window.devicePixelRatio || 1, 1.5);
   var width = 0, height = 0;
-  var docHeight = 0;
-
-  var pointer = { x: 0.5, y: 0.5, tx: 0.5, ty: 0.5 };
-  var scrollY = window.scrollY || 0;
-
-  // Each blob drifts along its own slow, looping orbit (Lissajous-style)
-  // and is nudged slightly by scroll depth and pointer position.
-  var blobs = [
-    { bx: 0.18, by: 0.22, r: 0.55, sx: 0.017, sy: 0.013, px: 0,   py: 1.7, parallax: 0.06, alpha: 0.16 },
-    { bx: 0.82, by: 0.16, r: 0.48, sx: 0.011, sy: 0.019, px: 1.1, py: 0,   parallax: 0.10, alpha: 0.14 },
-    { bx: 0.5,  by: 0.65, r: 0.62, sx: 0.014, sy: 0.010, px: 2.3, py: 0.6, parallax: 0.14, alpha: 0.12 },
-    { bx: 0.85, by: 0.85, r: 0.5,  sx: 0.020, sy: 0.016, px: 0.4, py: 2.1, parallax: 0.18, alpha: 0.13 }
-  ];
 
   function resize() {
     width = window.innerWidth;
     height = window.innerHeight;
-    docHeight = Math.max(document.documentElement.scrollHeight, height);
     canvas.width = Math.floor(width * dpr);
     canvas.height = Math.floor(height * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -123,14 +129,47 @@ function initFlowingBackground() {
   resize();
   window.addEventListener("resize", resize);
 
-  window.addEventListener(
-    "scroll",
-    function () {
-      scrollY = window.scrollY || 0;
-    },
-    { passive: true }
-  );
+  // Lorenz system parameters (the standard chaotic regime).
+  var sigma = 10, rho = 28, beta = 8 / 3;
+  var dt = 0.006;
+  var stepsPerFrame = reduceMotion ? 0 : 3;
 
+  // Two nearby starting points, so the classic "sensitive dependence on
+  // initial conditions" shows up as the two trails slowly diverging.
+  var p1 = { x: 0.6, y: 0.6, z: 0.6 };
+  var p2 = { x: 0.6001, y: 0.6, z: 0.6 };
+
+  var MAX_POINTS = 24000;
+  var trail1 = [];
+  var trail2 = [];
+
+  function step(p) {
+    var dx = sigma * (p.y - p.x);
+    var dy = p.x * (rho - p.z) - p.y;
+    var dz = p.x * p.y - beta * p.z;
+    return { x: p.x + dx * dt, y: p.y + dy * dt, z: p.z + dz * dt };
+  }
+
+  function seedTrail() {
+    // Run a warm-up pass first so the initial spiral-in transient (before
+    // the trajectory settles onto the attractor) is discarded rather than
+    // showing up as a stray thread through the finished butterfly.
+    for (var w = 0; w < 3000; w++) {
+      p1 = step(p1);
+      p2 = step(p2);
+    }
+    // Pre-compute a long run instantly so the page doesn't open on an
+    // empty canvas — matches the fully-formed butterfly seen on load.
+    for (var i = 0; i < MAX_POINTS; i++) {
+      p1 = step(p1);
+      p2 = step(p2);
+      trail1.push({ x: p1.x, y: p1.y, z: p1.z });
+      trail2.push({ x: p2.x, y: p2.y, z: p2.z });
+    }
+  }
+  seedTrail();
+
+  var pointer = { tx: 0.5, ty: 0.5, x: 0.5, y: 0.5 };
   window.addEventListener(
     "pointermove",
     function (e) {
@@ -140,49 +179,80 @@ function initFlowingBackground() {
     { passive: true }
   );
 
+  var scrollY = window.scrollY || 0;
+  window.addEventListener(
+    "scroll",
+    function () {
+      scrollY = window.scrollY || 0;
+    },
+    { passive: true }
+  );
+
+  function project(pt, angle, tilt, scale, cx, cy) {
+    var cosA = Math.cos(angle), sinA = Math.sin(angle);
+    var rx = pt.x * cosA - pt.y * sinA;
+    var ry = pt.x * sinA + pt.y * cosA;
+    var cosT = Math.cos(tilt), sinT = Math.sin(tilt);
+    var rz = pt.z * cosT - ry * sinT;
+    return {
+      x: cx + rx * scale,
+      y: cy - (rz - 25) * scale
+    };
+  }
+
+  function drawTrail(trail, angle, tilt, scale, cx, cy, hue) {
+    ctx.beginPath();
+    var prev = null;
+    for (var i = 0; i < trail.length; i++) {
+      var proj = project(trail[i], angle, tilt, scale, cx, cy);
+      if (prev) {
+        ctx.moveTo(prev.x, prev.y);
+        ctx.lineTo(proj.x, proj.y);
+      }
+      prev = proj;
+    }
+    ctx.strokeStyle = hue;
+    ctx.lineWidth = 0.7;
+    ctx.stroke();
+  }
+
   function draw(t) {
     ctx.clearRect(0, 0, width, height);
 
-    // Ease pointer toward its target for a soft, trailing feel.
-    pointer.x += (pointer.tx - pointer.x) * 0.03;
-    pointer.y += (pointer.ty - pointer.y) * 0.03;
+    pointer.x += (pointer.tx - pointer.x) * 0.02;
+    pointer.y += (pointer.ty - pointer.y) * 0.02;
 
-    var scrollFrac = docHeight > height ? scrollY / (docHeight - height) : 0;
+    var autoAngle = t * 0.00003;
+    var scrollAngle = scrollY * 0.0006;
+    var angle = autoAngle + scrollAngle + (pointer.x - 0.5) * 0.3;
+    var tilt = 0.35 + (pointer.y - 0.5) * 0.2;
 
-    for (var i = 0; i < blobs.length; i++) {
-      var b = blobs[i];
-      var wob = Math.min(width, height);
-      var x =
-        b.bx * width +
-        Math.sin(t * b.sx + b.px) * wob * 0.14 +
-        (pointer.x - 0.5) * wob * b.parallax;
-      var y =
-        b.by * height +
-        Math.cos(t * b.sy + b.py) * wob * 0.14 +
-        (pointer.y - 0.5) * wob * b.parallax +
-        (scrollFrac - 0.5) * height * b.parallax * 1.4;
-      var radius = wob * b.r;
+    var scale = Math.min(width, height) * 0.017;
+    var cx = width * 0.58;
+    var cy = height * 0.5;
 
-      var g = ctx.createRadialGradient(x, y, 0, x, y, radius);
-      g.addColorStop(0, "rgba(245,244,240," + b.alpha + ")");
-      g.addColorStop(0.55, "rgba(245,244,240," + b.alpha * 0.35 + ")");
-      g.addColorStop(1, "rgba(245,244,240,0)");
-      ctx.fillStyle = g;
-      ctx.beginPath();
-      ctx.arc(x, y, radius, 0, Math.PI * 2);
-      ctx.fill();
-    }
+    ctx.globalCompositeOperation = "lighter";
+    drawTrail(trail1, angle, tilt, scale, cx, cy, "rgba(203,179,93,0.16)");
+    drawTrail(trail2, angle, tilt, scale, cx, cy, "rgba(228,205,125,0.10)");
+    ctx.globalCompositeOperation = "source-over";
   }
 
   if (reduceMotion) {
-    // Respect reduced-motion: render one still frame, no animation loop.
     draw(0);
     return;
   }
 
   var rafId = null;
   function loop(now) {
-    draw(now * 0.001 * 8); // scale time so the drift stays gentle
+    for (var i = 0; i < stepsPerFrame; i++) {
+      p1 = step(p1);
+      p2 = step(p2);
+      trail1.push({ x: p1.x, y: p1.y, z: p1.z });
+      trail2.push({ x: p2.x, y: p2.y, z: p2.z });
+      if (trail1.length > MAX_POINTS) trail1.shift();
+      if (trail2.length > MAX_POINTS) trail2.shift();
+    }
+    draw(now);
     rafId = window.requestAnimationFrame(loop);
   }
   rafId = window.requestAnimationFrame(loop);

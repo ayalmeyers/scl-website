@@ -7,12 +7,12 @@
 <meta name="description" content="Strategic Communication Lab (SCL) is a coaching, counsel, and consulting practice that helps leaders and teams align communication with intended results." />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-<canvas id="bg-flow" aria-hidden="true"></canvas>
+<canvas id="attractor-bg" aria-hidden="true"></canvas>
 
 <header class="site-header">
   <div class="nav-inner">
@@ -20,6 +20,7 @@
       <strong>Strategic Communication Lab</strong>
       <span>Coaches · Counsel · Consultants</span>
     </a>
+    <span id="hdr-clock" class="hdr-clock" aria-hidden="true"></span>
     <nav class="nav-links">
       <a href="who-we-are.html" data-nav>Who We Are</a>
       <a href="what-we-do.html" data-nav>What We Do</a>
@@ -37,13 +38,13 @@
   <section class="hero">
     <div class="hero-inner">
       <span class="eyebrow reveal">Strategic Communication Lab</span>
-      <h1 class="reveal reveal-delay-1">Aligning communication with <em>intended results.</em></h1>
-      <p class="lede reveal reveal-delay-2">Communication is as much about clearly expressing your thoughts as it is about ensuring that others hear precisely what you mean. SCL works with leaders and teams navigating significant deals, major change, and ambitious goals — as coaches, as counsel, and as consultants.</p>
+      <h1 class="reveal reveal-delay-1">Aligning<br>communication<br>with <em>results.</em></h1>
       <div class="hero-actions reveal reveal-delay-3">
         <a href="what-we-do.html" class="btn btn-primary">What We Do <span class="arrow">→</span></a>
         <a href="contact.html" class="btn btn-ghost">Start a Conversation</a>
       </div>
     </div>
+    <p class="hero-blurb reveal reveal-delay-2">A coaching, counsel, and consulting<br>practice for leaders navigating high-stakes<br>communication, change, and growth.</p>
     <div class="scroll-cue">
       <span class="line"></span>
       <span>Scroll to learn more</span>
@@ -86,7 +87,7 @@
   <hr class="rule container" />
 
   <!-- WHAT WE DO -->
-  <section class="section-alt">
+  <section class="section-light">
     <div class="container">
       <div class="section-head reveal">
         <span class="eyebrow">What We Do</span>
