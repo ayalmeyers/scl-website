@@ -63,193 +63,167 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   // ---------------------------------------------------------------------
-  // Who We Are: click a team card to open a shared bio panel with photo,
-  // role, and full biography (sourced from each card's inline <template>).
+  // Who We Are: click a team card to expand it inline, right where it
+  // was clicked — the photo scales in and the bio opens beneath it.
+  // Only one card is expanded at a time.
   // ---------------------------------------------------------------------
-  var teamCards = document.querySelectorAll("[data-team-card]");
-  var teamBio = document.querySelector("#team-bio");
-  if (teamCards.length && teamBio) {
-    var teamBioPhoto = document.querySelector("#team-bio-photo");
-    var teamBioRole = document.querySelector("#team-bio-role");
-    var teamBioName = document.querySelector("#team-bio-name");
-    var teamBioText = document.querySelector("#team-bio-text");
-    var teamBioClose = document.querySelector("#team-bio-close");
-    var activeCard = null;
+  var teamCardWraps = document.querySelectorAll(".team-card-wrap");
+  if (teamCardWraps.length) {
+    var activeWrap = null;
 
-    function initials(name) {
-      return name
-        .split(/\s+/)
-        .map(function (w) { return w.replace(/[^A-Za-z]/g, "").charAt(0); })
-        .join("")
-        .toUpperCase();
+    function closeWrap(wrap) {
+      wrap.classList.remove("is-active");
+      var btn = wrap.querySelector("[data-team-card]");
+      if (btn) btn.setAttribute("aria-expanded", "false");
     }
 
-    function closeBio() {
-      teamBio.classList.remove("is-open");
-      if (activeCard) {
-        activeCard.classList.remove("is-active");
-        activeCard.setAttribute("aria-expanded", "false");
-      }
-      activeCard = null;
-    }
-
-    function openBio(card) {
-      var name = card.querySelector("h3") ? card.querySelector("h3").textContent : "";
-      var role = card.getAttribute("data-role") || "";
-      var photo = card.getAttribute("data-photo") || "";
-      var tpl = card.querySelector("template");
-
-      teamBioName.textContent = name;
-      teamBioRole.textContent = role;
-      teamBioText.innerHTML = tpl ? tpl.innerHTML : "";
-
-      if (photo) {
-        teamBioPhoto.innerHTML = "";
-        var img = document.createElement("img");
-        img.src = photo;
-        img.alt = name;
-        img.loading = "lazy";
-        teamBioPhoto.appendChild(img);
-      } else {
-        teamBioPhoto.textContent = initials(name);
-        teamBioPhoto.style.display = "flex";
-        teamBioPhoto.style.alignItems = "center";
-        teamBioPhoto.style.justifyContent = "center";
-        teamBioPhoto.style.fontFamily = "var(--display)";
-        teamBioPhoto.style.fontWeight = "500";
-        teamBioPhoto.style.fontSize = "2.6rem";
-        teamBioPhoto.style.color = "var(--green)";
-      }
-
-      if (activeCard && activeCard !== card) {
-        activeCard.classList.remove("is-active");
-        activeCard.setAttribute("aria-expanded", "false");
-      }
-      card.classList.add("is-active");
-      card.setAttribute("aria-expanded", "true");
-      activeCard = card;
-      teamBio.classList.add("is-open");
-
+    function openWrap(wrap) {
+      if (activeWrap && activeWrap !== wrap) closeWrap(activeWrap);
+      wrap.classList.add("is-active");
+      var btn = wrap.querySelector("[data-team-card]");
+      if (btn) btn.setAttribute("aria-expanded", "true");
+      activeWrap = wrap;
       window.requestAnimationFrame(function () {
         var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-        teamBio.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "nearest" });
+        wrap.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "nearest" });
       });
     }
 
-    teamCards.forEach(function (card) {
-      card.setAttribute("aria-expanded", "false");
-      card.addEventListener("click", function () {
-        if (activeCard === card) {
-          closeBio();
+    teamCardWraps.forEach(function (wrap) {
+      var btn = wrap.querySelector("[data-team-card]");
+      if (!btn) return;
+      btn.addEventListener("click", function () {
+        if (wrap.classList.contains("is-active")) {
+          closeWrap(wrap);
+          activeWrap = null;
         } else {
-          openBio(card);
+          openWrap(wrap);
         }
       });
     });
 
-    if (teamBioClose) teamBioClose.addEventListener("click", closeBio);
     document.addEventListener("keydown", function (e) {
-      if (e.key === "Escape" && activeCard) closeBio();
+      if (e.key === "Escape" && activeWrap) {
+        closeWrap(activeWrap);
+        activeWrap = null;
+      }
     });
   }
 
-  // ---------------------------------------------------------------------
-  // Lead-routing config.
-  //
-  // SCL_LEAD_SUBJECT is the standard subject line every real lead email
-  // should carry. Power Automate (or any mail-rule tool) can then filter
-  // on this exact string to route the message — e.g. into a "Sales"
-  // bucket in Microsoft Planner. See the setup guide for the two-flow
-  // recipe (HTTP trigger -> send email, then email arrival -> create
-  // Planner task).
-  //
-  // POWER_AUTOMATE_ENDPOINT is intentionally blank. This site is static
-  // (GitHub Pages) and has no server of its own, so until this is set to
-  // a real Power Automate "When an HTTP request is received" URL, the
-  // form cannot actually deliver anywhere — it only shows the on-page
-  // confirmation message below. Paste the flow's HTTP POST URL here once
-  // it exists to make submissions real.
-  // ---------------------------------------------------------------------
+  initAttractorBackground();
+  initClock();
+  initContactDrawer();
+});
+
+// ---------------------------------------------------------------------
+// Contact drawer: a pop-out panel that slides in over a dimmed backdrop,
+// instead of navigating to a separate contact page. Every "Contact Us"
+// link site-wide is intercepted to open this panel in place; on
+// contact.html itself (reached directly, e.g. a bookmark) the same panel
+// renders pinned open over the page, and its close control returns to
+// the homepage since there's no underlying page to reveal there.
+// ---------------------------------------------------------------------
+function initContactDrawer() {
+  var isContactPage = document.body.hasAttribute("data-contact-page");
+  var built = false;
+  var scrim, drawer;
+
+  function drawerMarkup() {
+    return (
+      '<div class="contact-drawer-top">' +
+      '  <span class="eyebrow">Get In Touch</span>' +
+      '  <button type="button" class="drawer-close" id="drawer-close">Close <span class="key">↵</span></button>' +
+      "</div>" +
+      '<fieldset class="reason-toggle">' +
+      "  <legend>I&#39;m reaching out about</legend>" +
+      '  <label class="reason-option"><input type="radio" name="reason" value="client" id="reason-client" checked /><span>Working with SCL</span></label>' +
+      '  <label class="reason-option"><input type="radio" name="reason" value="vendor" id="reason-vendor" /><span>Selling something to SCL</span></label>' +
+      "</fieldset>" +
+      '<div id="client-panel">' +
+      "  <h2>Tell us about your goals</h2>" +
+      '  <p class="sub">The more context you share, the faster we can match you with the right consultant.</p>' +
+      '  <form id="contact-form" novalidate>' +
+      '    <div class="drawer-grid">' +
+      "      <div>" +
+      '        <label for="name">Name*</label>' +
+      '        <input type="text" id="name" name="name" autocomplete="name" required />' +
+      "      </div>" +
+      "      <div>" +
+      '        <label for="company">Company</label>' +
+      '        <input type="text" id="company" name="company" autocomplete="organization" />' +
+      "      </div>" +
+      "      <div>" +
+      '        <label for="email">Email*</label>' +
+      '        <input type="email" id="email" name="email" autocomplete="email" required />' +
+      "      </div>" +
+      "      <div>" +
+      '        <label for="phone">Phone</label>' +
+      '        <input type="tel" id="phone" name="phone" autocomplete="tel" />' +
+      "      </div>" +
+      '      <div class="full">' +
+      '        <label for="interest">Subject</label>' +
+      '        <select id="interest" name="interest">' +
+      '          <option value="">Select an area (optional)</option>' +
+      '          <option value="Executive Coaching">Executive Coaching</option>' +
+      '          <option value="Leadership Counsel">Leadership Counsel</option>' +
+      '          <option value="Strategic Communication Consulting">Strategic Communication Consulting</option>' +
+      '          <option value="Media &amp; Pitch Training">Media &amp; Pitch Training</option>' +
+      '          <option value="Speaking / Facilitation">Speaking / Facilitation</option>' +
+      '          <option value="Careers at SCL">Careers at SCL</option>' +
+      '          <option value="Other">Other</option>' +
+      "        </select>" +
+      "      </div>" +
+      '      <div class="full">' +
+      '        <label for="message">Message*</label>' +
+      '        <textarea id="message" name="message" required></textarea>' +
+      "      </div>" +
+      "    </div>" +
+      '    <div class="hp-field" aria-hidden="true">' +
+      '      <label for="website">Leave this field blank</label>' +
+      '      <input type="text" id="website" name="website" tabindex="-1" autocomplete="off" />' +
+      "    </div>" +
+      '    <label class="consent-row">' +
+      '      <input type="checkbox" id="consent" name="consent" required />' +
+      "      <span>I agree to be contacted about my enquiry.</span>" +
+      "    </label>" +
+      '    <div class="drawer-submit-row">' +
+      '      <p id="form-note"></p>' +
+      '      <button type="submit" class="drawer-send">Send <span class="key">↳</span></button>' +
+      "    </div>" +
+      "  </form>" +
+      "</div>" +
+      '<div id="vendor-panel" hidden>' +
+      "  <h2>Have something to sell?</h2>" +
+      '  <p class="sub">We&#39;re always excited by new ideas, but we won&#39;t respond to pitches through this form. Please send your proposal to the address below instead.</p>' +
+      '  <p class="vendor-email"><a href="mailto:newideas@vendor-pitches.example">newideas@vendor-pitches.example</a></p>' +
+      "</div>"
+    );
+  }
+
+  // ---- Lead-routing config (see previous inline comment for context). ----
   var SCL_LEAD_SUBJECT = "[SCL Website Lead] New Contact Form Submission";
   var POWER_AUTOMATE_ENDPOINT = "";
 
-  // "I'm reaching out about" toggle: routes vendors/salespeople away from
-  // the real lead form entirely, toward a deliberately unmonitored address.
-  var reasonClient = document.querySelector("#reason-client");
-  var reasonVendor = document.querySelector("#reason-vendor");
-  var clientPanel = document.querySelector("#client-panel");
-  var vendorPanel = document.querySelector("#vendor-panel");
-  function applyReason() {
-    var isVendor = reasonVendor && reasonVendor.checked;
-    if (clientPanel) clientPanel.hidden = !!isVendor;
-    if (vendorPanel) vendorPanel.hidden = !isVendor;
-  }
-  if (reasonClient && reasonVendor) {
-    reasonClient.addEventListener("change", applyReason);
-    reasonVendor.addEventListener("change", applyReason);
-    applyReason();
-  }
-
-  // Vendor/pitch gate: a second, independent bot filter (its own
-  // honeypot-free math check) so the deflected "sell to us" path is
-  // guarded the same way the real contact form is, even though nothing
-  // it collects is ever sent anywhere.
-  var vendorChallengeEl = document.querySelector("#vendor-challenge");
-  var vendorAnswerEl = document.querySelector("#vendor-captcha-answer");
-  var vendorErrorEl = document.querySelector("#vendor-captcha-error");
-  var vendorRevealBtn = document.querySelector("#vendor-reveal-btn");
-  var vendorEmailEl = document.querySelector("#vendor-email");
-  var vendorGateEl = document.querySelector("#vendor-gate");
-  var vendorExpectedSum = 0;
-  function newVendorChallenge(keepError) {
-    var a = 2 + Math.floor(Math.random() * 8);
-    var b = 2 + Math.floor(Math.random() * 8);
-    vendorExpectedSum = a + b;
-    if (vendorChallengeEl) vendorChallengeEl.textContent = a + " + " + b;
-    if (vendorAnswerEl) vendorAnswerEl.value = "";
-    if (!keepError && vendorErrorEl) vendorErrorEl.classList.remove("is-shown");
-  }
-  if (vendorChallengeEl) newVendorChallenge();
-  if (vendorRevealBtn) {
-    vendorRevealBtn.addEventListener("click", function () {
-      var answer = vendorAnswerEl ? parseInt(vendorAnswerEl.value, 10) : NaN;
-      if (answer !== vendorExpectedSum) {
-        if (vendorErrorEl) vendorErrorEl.classList.add("is-shown");
-        newVendorChallenge(true);
-        if (vendorAnswerEl) vendorAnswerEl.focus();
-        return;
-      }
-      if (vendorEmailEl) vendorEmailEl.hidden = false;
-      if (vendorGateEl) vendorGateEl.hidden = true;
-    });
-  }
-
-  // Contact form: static hosting has no backend of its own — submissions
-  // POST to POWER_AUTOMATE_ENDPOINT once it's configured (see above), and
-  // always show a quiet on-page confirmation either way. A lightweight,
-  // dependency-free spam guard runs first: a honeypot field real visitors
-  // never see or fill, plus a simple arithmetic check that stops basic
-  // scripted submissions without requiring any third-party CAPTCHA
-  // service or key.
-  var form = document.querySelector("#contact-form");
-  if (form) {
-    var challengeEl = document.querySelector("#captcha-challenge");
-    var answerEl = document.querySelector("#captcha-answer");
-    var captchaErrorEl = document.querySelector("#captcha-error");
-    var refreshBtn = document.querySelector("#captcha-refresh");
-    var honeypotEl = document.querySelector("#website");
-    var expectedSum = 0;
-
-    function newChallenge(keepError) {
-      var a = 2 + Math.floor(Math.random() * 8);
-      var b = 2 + Math.floor(Math.random() * 8);
-      expectedSum = a + b;
-      if (challengeEl) challengeEl.textContent = a + " + " + b;
-      if (answerEl) answerEl.value = "";
-      if (!keepError && captchaErrorEl) captchaErrorEl.classList.remove("is-shown");
+  function wireForm() {
+    var reasonClient = document.querySelector("#reason-client");
+    var reasonVendor = document.querySelector("#reason-vendor");
+    var clientPanel = document.querySelector("#client-panel");
+    var vendorPanel = document.querySelector("#vendor-panel");
+    function applyReason() {
+      var isVendor = reasonVendor && reasonVendor.checked;
+      if (clientPanel) clientPanel.hidden = !!isVendor;
+      if (vendorPanel) vendorPanel.hidden = !isVendor;
     }
-    if (challengeEl) newChallenge();
-    if (refreshBtn) refreshBtn.addEventListener("click", function () { newChallenge(false); });
+    if (reasonClient && reasonVendor) {
+      reasonClient.addEventListener("change", applyReason);
+      reasonVendor.addEventListener("change", applyReason);
+      applyReason();
+    }
+
+    var form = document.querySelector("#contact-form");
+    if (!form) return;
+    var honeypotEl = document.querySelector("#website");
+    var consentEl = document.querySelector("#consent");
 
     form.addEventListener("submit", function (e) {
       e.preventDefault();
@@ -266,9 +240,6 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
 
-      // Basic required-field check (the form uses novalidate so this
-      // custom messaging stays visually consistent with the rest of the
-      // page instead of the browser's default validation bubbles).
       var nameEl = document.querySelector("#name");
       var emailEl = document.querySelector("#email");
       var messageEl = document.querySelector("#message");
@@ -283,16 +254,11 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
 
-      // Arithmetic check.
-      var answer = answerEl ? parseInt(answerEl.value, 10) : NaN;
-      if (answer !== expectedSum) {
-        if (captchaErrorEl) captchaErrorEl.classList.add("is-shown");
+      if (consentEl && !consentEl.checked) {
         if (note) {
           note.className = "is-error";
-          note.textContent = "Please double-check the verification question above.";
+          note.textContent = "Please confirm you agree to be contacted before sending.";
         }
-        newChallenge(true);
-        if (answerEl) answerEl.focus();
         return;
       }
 
@@ -313,8 +279,6 @@ document.addEventListener("DOMContentLoaded", function () {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload)
         }).catch(function () {
-          // Network/flow error: the on-page message below still shows a
-          // confirmation, so also surface the phone number as a fallback.
           if (note) {
             note.className = "is-error";
             note.textContent =
@@ -326,84 +290,80 @@ document.addEventListener("DOMContentLoaded", function () {
       if (note && note.className !== "is-error") {
         note.className = "is-success";
         note.textContent = POWER_AUTOMATE_ENDPOINT
-          ? "Thank you — your message is on its way. A consultant will follow up within one business day."
-          : "Thank you — your message has been noted. This is a static preview site, so for now please reach us directly at the phone number above while the contact form is connected.";
+          ? "Success! Your message is on its way — a consultant will follow up within one business day."
+          : "Success! Your message has been noted. This is a static preview site, so for now please reach us directly at the phone number above while the contact form is connected.";
       }
       form.reset();
-      newChallenge();
     });
   }
 
-  initAttractorBackground();
-  initClock();
-  initWeightedScroll();
-});
+  function build() {
+    if (built) return;
+    if (isContactPage) {
+      scrim = document.querySelector("#contact-drawer-scrim");
+      drawer = document.querySelector("#contact-drawer");
+    } else {
+      scrim = document.createElement("div");
+      scrim.className = "contact-drawer-scrim";
+      scrim.id = "contact-drawer-scrim";
+      drawer = document.createElement("div");
+      drawer.className = "contact-drawer";
+      drawer.id = "contact-drawer";
+      document.body.appendChild(scrim);
+      document.body.appendChild(drawer);
+    }
+    drawer.innerHTML = drawerMarkup();
+    wireForm();
 
-// ---------------------------------------------------------------------
-// Weighted scroll: gives wheel-driven scrolling a sense of mass — the
-// page eases toward each new position instead of jumping the full wheel
-// delta in one frame, so quick flicks feel like they carry momentum and
-// settle rather than snap. Desktop wheel input only (touchscreens already
-// have native momentum scrolling, and adding a second layer of easing on
-// top fights it); fully skipped under prefers-reduced-motion. Because it
-// drives the *real* window.scrollTo rather than transforming the DOM,
-// window.scrollY stays accurate for the reveal observer, header, and
-// Lorenz-attractor camera below.
-// ---------------------------------------------------------------------
-function initWeightedScroll() {
-  var reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  var coarsePointer = window.matchMedia("(pointer: coarse)").matches;
-  if (reducedMotion || coarsePointer) return;
+    var closeBtn = document.querySelector("#drawer-close");
+    if (closeBtn) closeBtn.addEventListener("click", closeDrawer);
+    scrim.addEventListener("click", function () {
+      if (!isContactPage) closeDrawer();
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") closeDrawer();
+    });
 
-  var current = window.scrollY;
-  var target = current;
-  var raf = null;
-  var EASE = 0.11;
-  var syncTimer = null;
-
-  function maxScroll() {
-    return Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+    built = true;
   }
 
-  function frame() {
-    current += (target - current) * EASE;
-    if (Math.abs(target - current) < 0.4) current = target;
-    window.scrollTo(0, current);
-    raf = current !== target ? window.requestAnimationFrame(frame) : null;
+  function openDrawer() {
+    build();
+    scrim.classList.add("is-open");
+    drawer.classList.add("is-open");
+    document.body.classList.add("contact-drawer-locked");
+    window.requestAnimationFrame(function () {
+      var nameEl = document.querySelector("#name");
+      if (nameEl) nameEl.focus({ preventScroll: true });
+    });
   }
 
-  window.addEventListener(
-    "wheel",
-    function (e) {
-      if (e.ctrlKey) return; // leave pinch-zoom untouched
-      e.preventDefault();
-      var delta = e.deltaMode === 1 ? e.deltaY * 18 : e.deltaY;
-      target = Math.min(maxScroll(), Math.max(0, target + delta));
-      if (!raf) raf = window.requestAnimationFrame(frame);
-    },
-    { passive: false }
-  );
+  function closeDrawer() {
+    if (isContactPage) {
+      window.location.href = "index.html";
+      return;
+    }
+    if (scrim) scrim.classList.remove("is-open");
+    if (drawer) drawer.classList.remove("is-open");
+    document.body.classList.remove("contact-drawer-locked");
+  }
 
-  window.addEventListener("resize", function () {
-    target = Math.min(maxScroll(), target);
+  // Every "Contact Us" link, anywhere on the page, opens the drawer
+  // instead of navigating — except when the user is explicitly asking
+  // for a new tab/window (modifier click or middle click).
+  document.addEventListener("click", function (e) {
+    var a = e.target.closest ? e.target.closest("a") : null;
+    if (!a) return;
+    if (e.defaultPrevented || e.button === 1 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    var isContactLink = /(^|\/)contact\.html$/.test(a.pathname || "");
+    if (!isContactLink) return;
+    e.preventDefault();
+    openDrawer();
   });
 
-  // If the page moves by some other means (anchor jump, keyboard, browser
-  // back/forward), resync our virtual position once scrolling settles so
-  // the next wheel tick continues from the real spot instead of yanking
-  // the page back to a stale target.
-  window.addEventListener(
-    "scroll",
-    function () {
-      if (raf) return;
-      window.clearTimeout(syncTimer);
-      syncTimer = window.setTimeout(function () {
-        current = window.scrollY;
-        target = current;
-      }, 60);
-    },
-    { passive: true }
-  );
+  if (isContactPage) {
+    openDrawer();
+  }
 }
 
 // ---------------------------------------------------------------------
