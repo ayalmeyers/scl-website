@@ -49,9 +49,22 @@
   <section>
     <div class="container contact-grid">
       <div class="contact-card reveal">
-        <h2>Tell us about your goals</h2>
-        <p class="sub">The more context you share, the faster we can match you with the right consultant.</p>
-        <form id="contact-form" novalidate>
+        <fieldset class="reason-toggle">
+          <legend>I'm reaching out about</legend>
+          <label class="reason-option">
+            <input type="radio" name="reason" value="client" id="reason-client" checked />
+            <span>Working with SCL</span>
+          </label>
+          <label class="reason-option">
+            <input type="radio" name="reason" value="vendor" id="reason-vendor" />
+            <span>Selling something to SCL</span>
+          </label>
+        </fieldset>
+
+        <div id="client-panel">
+          <h2>Tell us about your goals</h2>
+          <p class="sub">The more context you share, the faster we can match you with the right consultant.</p>
+          <form id="contact-form" novalidate>
           <div class="form-grid">
             <div>
               <label for="name">Name</label>
@@ -107,7 +120,24 @@
             <button type="submit" class="btn btn-primary">Send Message <span class="arrow">→</span></button>
             <p id="form-note"></p>
           </div>
-        </form>
+          </form>
+        </div>
+
+        <div id="vendor-panel" hidden>
+          <h2>Have something to sell?</h2>
+          <p class="sub">We're always excited by new ideas, but we won't respond to pitches through this form. Please send your proposal to the address below instead.</p>
+          <div class="vendor-gate" id="vendor-gate">
+            <label for="vendor-captcha-answer">Quick check — <span class="captcha-challenge" id="vendor-challenge">4 + 7</span> =</label>
+            <div class="vendor-gate-row">
+              <input type="text" inputmode="numeric" id="vendor-captcha-answer" autocomplete="off" />
+              <button type="button" class="btn btn-ghost accent" id="vendor-reveal-btn">Reveal contact details <span class="arrow">→</span></button>
+            </div>
+            <span class="field-error" id="vendor-captcha-error">That doesn't look right — please try again.</span>
+          </div>
+          <p class="vendor-email" id="vendor-email" hidden>
+            <a href="mailto:newideas@vendor-pitches.example">newideas@vendor-pitches.example</a>
+          </p>
+        </div>
       </div>
 
       <aside class="contact-aside reveal reveal-delay-1">

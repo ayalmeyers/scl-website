@@ -62,11 +62,84 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  // Contact form: static hosting has no backend — show a quiet confirmation.
-  // A lightweight, dependency-free spam guard runs first: a honeypot field
-  // real visitors never see or fill, plus a simple arithmetic check that
-  // stops basic scripted submissions without requiring any third-party
-  // CAPTCHA service or key.
+  // ---------------------------------------------------------------------
+  // Lead-routing config.
+  //
+  // SCL_LEAD_SUBJECT is the standard subject line every real lead email
+  // should carry. Power Automate (or any mail-rule tool) can then filter
+  // on this exact string to route the message — e.g. into a "Sales"
+  // bucket in Microsoft Planner. See the setup guide for the two-flow
+  // recipe (HTTP trigger -> send email, then email arrival -> create
+  // Planner task).
+  //
+  // POWER_AUTOMATE_ENDPOINT is intentionally blank. This site is static
+  // (GitHub Pages) and has no server of its own, so until this is set to
+  // a real Power Automate "When an HTTP request is received" URL, the
+  // form cannot actually deliver anywhere — it only shows the on-page
+  // confirmation message below. Paste the flow's HTTP POST URL here once
+  // it exists to make submissions real.
+  // ---------------------------------------------------------------------
+  var SCL_LEAD_SUBJECT = "[SCL Website Lead] New Contact Form Submission";
+  var POWER_AUTOMATE_ENDPOINT = "";
+
+  // "I'm reaching out about" toggle: routes vendors/salespeople away from
+  // the real lead form entirely, toward a deliberately unmonitored address.
+  var reasonClient = document.querySelector("#reason-client");
+  var reasonVendor = document.querySelector("#reason-vendor");
+  var clientPanel = document.querySelector("#client-panel");
+  var vendorPanel = document.querySelector("#vendor-panel");
+  function applyReason() {
+    var isVendor = reasonVendor && reasonVendor.checked;
+    if (clientPanel) clientPanel.hidden = !!isVendor;
+    if (vendorPanel) vendorPanel.hidden = !isVendor;
+  }
+  if (reasonClient && reasonVendor) {
+    reasonClient.addEventListener("change", applyReason);
+    reasonVendor.addEventListener("change", applyReason);
+    applyReason();
+  }
+
+  // Vendor/pitch gate: a second, independent bot filter (its own
+  // honeypot-free math check) so the deflected "sell to us" path is
+  // guarded the same way the real contact form is, even though nothing
+  // it collects is ever sent anywhere.
+  var vendorChallengeEl = document.querySelector("#vendor-challenge");
+  var vendorAnswerEl = document.querySelector("#vendor-captcha-answer");
+  var vendorErrorEl = document.querySelector("#vendor-captcha-error");
+  var vendorRevealBtn = document.querySelector("#vendor-reveal-btn");
+  var vendorEmailEl = document.querySelector("#vendor-email");
+  var vendorGateEl = document.querySelector("#vendor-gate");
+  var vendorExpectedSum = 0;
+  function newVendorChallenge(keepError) {
+    var a = 2 + Math.floor(Math.random() * 8);
+    var b = 2 + Math.floor(Math.random() * 8);
+    vendorExpectedSum = a + b;
+    if (vendorChallengeEl) vendorChallengeEl.textContent = a + " + " + b;
+    if (vendorAnswerEl) vendorAnswerEl.value = "";
+    if (!keepError && vendorErrorEl) vendorErrorEl.classList.remove("is-shown");
+  }
+  if (vendorChallengeEl) newVendorChallenge();
+  if (vendorRevealBtn) {
+    vendorRevealBtn.addEventListener("click", function () {
+      var answer = vendorAnswerEl ? parseInt(vendorAnswerEl.value, 10) : NaN;
+      if (answer !== vendorExpectedSum) {
+        if (vendorErrorEl) vendorErrorEl.classList.add("is-shown");
+        newVendorChallenge(true);
+        if (vendorAnswerEl) vendorAnswerEl.focus();
+        return;
+      }
+      if (vendorEmailEl) vendorEmailEl.hidden = false;
+      if (vendorGateEl) vendorGateEl.hidden = true;
+    });
+  }
+
+  // Contact form: static hosting has no backend of its own — submissions
+  // POST to POWER_AUTOMATE_ENDPOINT once it's configured (see above), and
+  // always show a quiet on-page confirmation either way. A lightweight,
+  // dependency-free spam guard runs first: a honeypot field real visitors
+  // never see or fill, plus a simple arithmetic check that stops basic
+  // scripted submissions without requiring any third-party CAPTCHA
+  // service or key.
   var form = document.querySelector("#contact-form");
   if (form) {
     var challengeEl = document.querySelector("#captcha-challenge");
@@ -76,16 +149,16 @@ document.addEventListener("DOMContentLoaded", function () {
     var honeypotEl = document.querySelector("#website");
     var expectedSum = 0;
 
-    function newChallenge() {
+    function newChallenge(keepError) {
       var a = 2 + Math.floor(Math.random() * 8);
       var b = 2 + Math.floor(Math.random() * 8);
       expectedSum = a + b;
       if (challengeEl) challengeEl.textContent = a + " + " + b;
       if (answerEl) answerEl.value = "";
-      if (captchaErrorEl) captchaErrorEl.classList.remove("is-shown");
+      if (!keepError && captchaErrorEl) captchaErrorEl.classList.remove("is-shown");
     }
     if (challengeEl) newChallenge();
-    if (refreshBtn) refreshBtn.addEventListener("click", newChallenge);
+    if (refreshBtn) refreshBtn.addEventListener("click", function () { newChallenge(false); });
 
     form.addEventListener("submit", function (e) {
       e.preventDefault();
@@ -127,15 +200,43 @@ document.addEventListener("DOMContentLoaded", function () {
           note.className = "is-error";
           note.textContent = "Please double-check the verification question above.";
         }
-        newChallenge();
+        newChallenge(true);
         if (answerEl) answerEl.focus();
         return;
       }
 
-      if (note) {
+      var payload = {
+        subject: SCL_LEAD_SUBJECT,
+        name: nameEl.value.trim(),
+        company: document.querySelector("#company").value.trim(),
+        email: emailEl.value.trim(),
+        phone: document.querySelector("#phone").value.trim(),
+        interest: document.querySelector("#interest").value,
+        message: messageEl.value.trim(),
+        submittedAt: new Date().toISOString()
+      };
+
+      if (POWER_AUTOMATE_ENDPOINT) {
+        fetch(POWER_AUTOMATE_ENDPOINT, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        }).catch(function () {
+          // Network/flow error: the on-page message below still shows a
+          // confirmation, so also surface the phone number as a fallback.
+          if (note) {
+            note.className = "is-error";
+            note.textContent =
+              "We couldn't confirm delivery just now — please call 1-877-266-6522 so we don't miss you.";
+          }
+        });
+      }
+
+      if (note && note.className !== "is-error") {
         note.className = "is-success";
-        note.textContent =
-          "Thank you — your message has been noted. This is a static preview site, so for now please reach us directly at the phone number above while the contact form is connected.";
+        note.textContent = POWER_AUTOMATE_ENDPOINT
+          ? "Thank you — your message is on its way. A consultant will follow up within one business day."
+          : "Thank you — your message has been noted. This is a static preview site, so for now please reach us directly at the phone number above while the contact form is connected.";
       }
       form.reset();
       newChallenge();

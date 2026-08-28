@@ -327,6 +327,8 @@ p:last-child { margin-bottom: 0; }
 .btn-primary:hover { color: var(--green-bright); }
 .btn-ghost { color: var(--ink); opacity: 0.8; }
 .btn-ghost:hover { opacity: 1; }
+.btn-ghost.accent { color: var(--green); opacity: 1; }
+.btn-ghost.accent:hover { color: var(--green-bright); }
 .btn .arrow { transition: transform 0.3s ease; }
 .btn:hover .arrow { transform: translateX(4px); }
 
@@ -857,6 +859,79 @@ select {
   max-width: 44ch;
 }
 .contact-card input, .contact-card select, .contact-card textarea { background: var(--bg); }
+
+.reason-toggle {
+  border: none;
+  padding: 0;
+  margin: 0 0 2rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+}
+.reason-toggle legend {
+  width: 100%;
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  margin-bottom: 0.8rem;
+  padding: 0;
+}
+.reason-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  border: 1px solid var(--line-strong);
+  padding: 0.6rem 1rem;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+.reason-option input { accent-color: var(--green); margin: 0; }
+.reason-option:has(input:checked) {
+  color: var(--ink);
+  border-color: var(--green);
+}
+
+.vendor-gate { max-width: 32rem; }
+.vendor-gate label {
+  display: block;
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  margin-bottom: 0.6rem;
+}
+.vendor-gate .captcha-challenge { color: var(--ink); }
+.vendor-gate-row {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.vendor-gate-row input {
+  width: 6rem;
+  flex: none;
+  background: var(--bg);
+}
+.vendor-gate-row .btn {
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.vendor-email {
+  margin-top: 1.6rem;
+  font-family: var(--mono);
+  font-size: 0.95rem;
+}
+.vendor-email a { color: var(--green); border-bottom: 1px solid var(--green); }
+.vendor-email a:hover { color: var(--green-bright); border-color: var(--green-bright); }
 
 /* honeypot: kept in the tab order out of view, real visitors never touch it */
 .hp-field {
