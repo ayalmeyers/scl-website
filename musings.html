@@ -26,7 +26,6 @@
       <a href="what-we-do.html" data-nav>What We Do</a>
       <a href="our-clients.html" data-nav>Our Clients</a>
       <a href="musings.html" data-nav class="is-active">Musings</a>
-      <a href="test.html" data-nav>Test</a>
       <a href="contact.html" class="nav-cta" data-nav>Contact Us</a>
     </nav>
     <button class="nav-toggle" aria-label="Toggle navigation"><span></span><span></span><span></span></button>
@@ -42,33 +41,35 @@
     </div>
   </section>
 
-  <section>
-    <div class="container">
-      <div class="post-grid reveal">
-        <div class="post-row">
-          <span class="date">Musings</span>
-          <div>
-            <h3>Managing Virtual Impressions: The 5 Cs</h3>
-            <p class="excerpt">What you say is important, but how you come across when you say it matters even more — a framework for virtual presence.</p>
-          </div>
+  <section class="musings-scroll" id="musings-scroll">
+    <div class="musings-scroll-inner">
+      <span class="musings-scroll-label eyebrow">Musings</span>
+      <div class="musings-track" id="musings-track">
+
+        <article class="musings-card">
+          <div class="musings-card-tag">01 / 03</div>
+          <div class="musings-card-visual"><canvas></canvas></div>
+          <h3>Managing Virtual Impressions: The 5 Cs</h3>
+          <p class="excerpt">What you say is important, but how you come across when you say it matters even more — a framework for virtual presence.</p>
           <a href="managing-virtual-impressions.html" class="read">Read →</a>
-        </div>
-        <div class="post-row">
-          <span class="date">Musings</span>
-          <div>
-            <h3>Finding the Right Mix: Leadership vs. "Executiveship"</h3>
-            <p class="excerpt">Execution appears to have come at the expense of leadership. Neither is enough alone — it's the balance that makes a team great.</p>
-          </div>
+        </article>
+
+        <article class="musings-card">
+          <div class="musings-card-tag">02 / 03</div>
+          <div class="musings-card-visual"><canvas></canvas></div>
+          <h3>Finding the Right Mix: Leadership vs. "Executiveship"</h3>
+          <p class="excerpt">Execution appears to have come at the expense of leadership. Neither is enough alone — it's the balance that makes a team great.</p>
           <a href="great-leadership.html" class="read">Read →</a>
-        </div>
-        <div class="post-row">
-          <span class="date">Musings</span>
-          <div>
-            <h3>Listen to be Heard</h3>
-            <p class="excerpt">To be heard, first be willing to hear. Generous listening is the foundation of persuasive communication.</p>
-          </div>
+        </article>
+
+        <article class="musings-card">
+          <div class="musings-card-tag">03 / 03</div>
+          <div class="musings-card-visual"><canvas></canvas></div>
+          <h3>Listen to be Heard</h3>
+          <p class="excerpt">To be heard, first be willing to hear. Generous listening is the foundation of persuasive communication.</p>
           <a href="learn-to-listen.html" class="read">Read →</a>
-        </div>
+        </article>
+
       </div>
     </div>
   </section>
@@ -118,5 +119,72 @@
 </footer>
 
 <script src="main.js"></script>
+<script>
+(function () {
+  function draw(canvas, painter) {
+    if (!canvas) return;
+    var ctx = canvas.getContext('2d');
+    var w = canvas.width = canvas.offsetWidth;
+    var h = canvas.height = canvas.offsetHeight;
+    ctx.fillStyle = '#eef2ec';
+    ctx.fillRect(0, 0, w, h);
+    ctx.fillStyle = '#12211a';
+    painter(ctx, w, h);
+  }
+  function ditherBranching(ctx, w, h) {
+    for (var i = 0; i < 6000; i++) {
+      var x = Math.random() * w, y = Math.random() * h;
+      var distCenter = Math.hypot(x - w / 2, y - h / 2);
+      if (Math.random() > distCenter / (w / 1.5)) ctx.fillRect(x, y, 1.2, 1.2);
+    }
+  }
+  function ditherWaves(ctx, w, h) {
+    for (var x = 0; x < w; x += 2) {
+      for (var y = 0; y < h; y += 2) {
+        var wave = Math.sin(x * 0.05) * Math.cos(y * 0.05) * 20;
+        if (Math.sin((x + y + wave) * 0.08) > 0.4) ctx.fillRect(x, y, 1, 1);
+      }
+    }
+  }
+  function bifurcation(ctx, w, h) {
+    for (var x = 0; x < w; x++) {
+      var r = 2.8 + (x / w) * 1.2, xVal = 0.5;
+      for (var i = 0; i < 80; i++) xVal = r * xVal * (1 - xVal);
+      for (var i2 = 0; i2 < 60; i2++) {
+        xVal = r * xVal * (1 - xVal);
+        var y = h - xVal * h;
+        if (Math.random() > 0.25) ctx.fillRect(x, y, 1, 1);
+      }
+    }
+  }
+
+  function init() {
+    var canvases = document.querySelectorAll('.musings-card-visual canvas');
+    var painters = [ditherBranching, ditherWaves, bifurcation];
+    canvases.forEach(function (c, i) { draw(c, painters[i % painters.length]); });
+
+    var container = document.getElementById('musings-scroll');
+    var track = document.getElementById('musings-track');
+    if (!container || !track) return;
+
+    function onScroll() {
+      if (window.innerWidth <= 900) { track.style.transform = ''; return; }
+      var rect = container.getBoundingClientRect();
+      var totalScroll = container.offsetHeight - window.innerHeight;
+      var progress = Math.min(Math.max(-rect.top / totalScroll, 0), 1);
+      track.style.transform = 'translateX(' + (-progress * 700) + 'px)';
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    onScroll();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
 </body>
 </html>
