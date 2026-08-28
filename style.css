@@ -19,6 +19,8 @@
   --line-strong:  rgba(18, 33, 26, 0.26);
   --green:         #2e6b46;
   --green-bright:  #3f8c5c;
+  --green-highlight:       #bfe3cd; /* same hue as --green, lightened into a legible marker-highlight tint */
+  --green-highlight-hover: #a6d6b8;
 
   --blue:         #1d3557;
   --blue-bright:  #2c4d78;
@@ -212,16 +214,33 @@ p:last-child { margin-bottom: 0; }
     height: 100vh;
     width: min(78vw, 340px);
     background: var(--bg);
+    /* Solid backing layer independent of the header's backdrop-filter and
+       any GPU-layer compositing quirks (seen on some mobile browsers as
+       page content ghosting through the open menu): painted on its own
+       pseudo-element so the panel is opaque no matter how the browser
+       layers the fixed, transform-animated parent. */
+    isolation: isolate;
     flex-direction: column;
     justify-content: center;
     align-items: flex-start;
     gap: 2rem;
     padding: 3rem var(--pad);
-    transform: translateX(100%);
+    transform: translate3d(100%, 0, 0);
+    -webkit-transform: translate3d(100%, 0, 0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
     transition: transform 0.45s cubic-bezier(.65,0,.35,1);
     box-shadow: -20px 0 60px rgba(0,0,0,0.5);
+    z-index: 200;
   }
-  .nav-links.is-open { transform: translateX(0); }
+  .nav-links::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--bg);
+    z-index: -1;
+  }
+  .nav-links.is-open { transform: translate3d(0, 0, 0); -webkit-transform: translate3d(0, 0, 0); }
   .nav-toggle { display: block; }
 }
 
@@ -332,6 +351,22 @@ p:last-child { margin-bottom: 0; }
 .btn .arrow { transition: transform 0.3s ease; }
 .btn:hover .arrow { transform: translateX(4px); }
 
+/* Highlighted CTA: the label keeps the site's original ink text color —
+   it just sits on a "results." green highlight box behind it, like a
+   marker highlight rather than an inverted button. The box uses a
+   lightened tint of the same green (the deep brand green is too dark for
+   ink text to stay readable on) so the highlight reads clearly at a
+   glance. Used for the hero's "Start a Conversation" and the homepage's
+   closing "Contact Us" band. */
+.btn-highlight {
+  color: var(--ink);
+  background: var(--green-highlight);
+  padding: 0.85rem 1.5rem;
+  transition: background 0.3s ease, transform 0.3s cubic-bezier(.2,.8,.2,1);
+}
+.btn-highlight:hover { background: var(--green-highlight-hover); color: var(--ink); transform: translateY(-2px); }
+.btn-highlight .arrow { color: var(--ink); }
+
 /* ---------- sections ---------- */
 section { padding: var(--section-pad) 0; position: relative; }
 .section-alt { background: transparent; }
@@ -430,8 +465,11 @@ hr.rule {
 .pillar h3 { font-family: var(--display); font-size: 1.5rem; font-weight: 500; margin-bottom: 0.9rem; letter-spacing: -0.01em; }
 .pillar p { color: var(--ink-dim); font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; line-height: 1.75; }
 .section-light .pillar p { color: var(--paper-dim); }
-.pillar a.more {
-  display: inline-block;
+.pillar a.more,
+.pillar .more {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
   margin-top: 1.3rem;
   font-family: var(--mono);
   font-size: 0.68rem;
@@ -440,9 +478,75 @@ hr.rule {
   color: var(--green);
   border-bottom: none;
 }
-.section-light .pillar a.more { color: #9fe0b8; }
+.pillar .more .arrow { transition: transform 0.3s ease; }
+.section-light .pillar a.more,
+.section-light .pillar .more { color: #9fe0b8; }
 
 .section-alt .pillar, .section-alt .card { background: transparent; }
+
+/* pillar cards that are themselves the click target (What We Do / Musings
+   teasers on the homepage) — the whole tile is seamlessly clickable, not
+   just the small "Learn More" line. */
+a.pillar.pillar-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.35s cubic-bezier(.2,.8,.2,1);
+}
+a.pillar.pillar-link:hover,
+a.pillar.pillar-link:focus-visible { transform: translateY(-4px); }
+a.pillar.pillar-link:hover .more .arrow,
+a.pillar.pillar-link:focus-visible .more .arrow { transform: translateX(5px); }
+
+/* full-width "seamless" link band used to extend a homepage teaser section
+   into its dedicated page — a large, obviously-clickable click target
+   rather than a small inline text link. */
+.teaser-cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-top: 3rem;
+  padding: 1.5rem 1.8rem;
+  border: 1px solid var(--line);
+  background: transparent;
+  text-decoration: none;
+  transition: background 0.35s ease, border-color 0.35s ease;
+}
+.section-light .teaser-cta { border-color: var(--paper-line); }
+.teaser-cta-label {
+  font-family: var(--display);
+  font-size: clamp(1.05rem, 2vw, 1.3rem);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  transition: color 0.35s ease;
+}
+.section-light .teaser-cta-label { color: var(--paper-ink); }
+.teaser-cta .arrow-circle {
+  flex: none;
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--line-strong);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink);
+  transition: background 0.35s ease, border-color 0.35s ease, color 0.35s ease, transform 0.35s cubic-bezier(.2,.8,.2,1);
+}
+.teaser-cta .arrow-circle .arrow { transition: transform 0.35s ease; }
+.teaser-cta:hover,
+.teaser-cta:focus-visible { background: var(--green); border-color: var(--green); }
+.teaser-cta:hover .teaser-cta-label,
+.teaser-cta:focus-visible .teaser-cta-label { color: var(--paper-ink); }
+.teaser-cta:hover .arrow-circle,
+.teaser-cta:focus-visible .arrow-circle {
+  background: var(--paper-ink);
+  border-color: var(--paper-ink);
+  color: var(--green);
+  transform: rotate(45deg);
+}
 
 /* ---------- quote / testimonial ---------- */
 .quote-block {
@@ -658,6 +762,112 @@ hr.rule {
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--ink-dim);
+}
+
+/* team cards double as toggle buttons that open a shared bio panel */
+.team-card {
+  display: block;
+  width: 100%;
+  background: none;
+  border: none;
+  border-top: 1px solid var(--green);
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  transition: transform 0.35s cubic-bezier(.2,.8,.2,1), opacity 0.3s ease;
+}
+.team-card:hover,
+.team-card:focus-visible { transform: translateY(-3px); }
+.team-card:hover .avatar,
+.team-card:focus-visible .avatar { opacity: 0.9; }
+.team-card .avatar { transition: opacity 0.3s ease, box-shadow 0.3s ease; }
+.team-card template { display: none; }
+.team-card-cue {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.9rem;
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--green);
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.team-card-cue .arrow { transition: transform 0.3s ease; }
+.team-card:hover .team-card-cue,
+.team-card:focus-visible .team-card-cue,
+.team-card.is-active .team-card-cue { opacity: 1; transform: translateY(0); }
+.team-card:hover .team-card-cue .arrow,
+.team-card.is-active .team-card-cue .arrow { transform: translateX(4px); }
+.team-card.is-active { border-top-color: var(--green-bright); }
+.team-card.is-active .avatar { box-shadow: 0 0 0 2px var(--green-bright); }
+.team-card.is-active .team-card-cue { color: var(--green-bright); }
+
+.team-bio {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition: grid-template-rows 0.5s cubic-bezier(.2,.8,.2,1), opacity 0.4s ease, margin 0.5s ease;
+  margin-top: 0;
+}
+.team-bio.is-open { grid-template-rows: 1fr; opacity: 1; margin-top: 2.4rem; }
+.team-bio-inner {
+  min-height: 0;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: clamp(1.6rem, 4vw, 3.2rem);
+  position: relative;
+  background: var(--bg-alt);
+  border: 1px solid var(--line);
+  padding: clamp(1.8rem, 4vw, 3rem);
+}
+@media (max-width: 700px) { .team-bio-inner { grid-template-columns: 1fr; } }
+.team-bio-photo {
+  width: 100%;
+  aspect-ratio: 1/1;
+  background: var(--paper);
+  overflow: hidden;
+}
+.team-bio-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.team-bio-content .eyebrow { display: block; margin-bottom: 0.6rem; }
+.team-bio-content h3 {
+  font-family: var(--display);
+  font-size: clamp(1.6rem, 3vw, 2.1rem);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  margin-bottom: 1.1rem;
+}
+.team-bio-text p {
+  margin-bottom: 1rem;
+  line-height: 1.7;
+  color: var(--ink-dim);
+  max-width: 62ch;
+}
+.team-bio-text p:last-child { margin-bottom: 0; }
+.team-bio-text em { font-style: italic; color: var(--ink); }
+.team-bio-close {
+  position: absolute;
+  top: clamp(1rem, 2vw, 1.6rem);
+  right: clamp(1rem, 2vw, 1.6rem);
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--line-strong);
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 0.85rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.25s ease, transform 0.25s ease;
+}
+.team-bio-close:hover { background: var(--green); color: var(--paper-ink); transform: rotate(90deg); }
+@media (prefers-reduced-motion: reduce) {
+  .team-card, .team-card-cue, .team-bio, .team-bio-close { transition: none !important; }
 }
 
 /* ---------- blog / musings ---------- */

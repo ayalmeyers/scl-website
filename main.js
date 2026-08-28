@@ -63,6 +63,97 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   // ---------------------------------------------------------------------
+  // Who We Are: click a team card to open a shared bio panel with photo,
+  // role, and full biography (sourced from each card's inline <template>).
+  // ---------------------------------------------------------------------
+  var teamCards = document.querySelectorAll("[data-team-card]");
+  var teamBio = document.querySelector("#team-bio");
+  if (teamCards.length && teamBio) {
+    var teamBioPhoto = document.querySelector("#team-bio-photo");
+    var teamBioRole = document.querySelector("#team-bio-role");
+    var teamBioName = document.querySelector("#team-bio-name");
+    var teamBioText = document.querySelector("#team-bio-text");
+    var teamBioClose = document.querySelector("#team-bio-close");
+    var activeCard = null;
+
+    function initials(name) {
+      return name
+        .split(/\s+/)
+        .map(function (w) { return w.replace(/[^A-Za-z]/g, "").charAt(0); })
+        .join("")
+        .toUpperCase();
+    }
+
+    function closeBio() {
+      teamBio.classList.remove("is-open");
+      if (activeCard) {
+        activeCard.classList.remove("is-active");
+        activeCard.setAttribute("aria-expanded", "false");
+      }
+      activeCard = null;
+    }
+
+    function openBio(card) {
+      var name = card.querySelector("h3") ? card.querySelector("h3").textContent : "";
+      var role = card.getAttribute("data-role") || "";
+      var photo = card.getAttribute("data-photo") || "";
+      var tpl = card.querySelector("template");
+
+      teamBioName.textContent = name;
+      teamBioRole.textContent = role;
+      teamBioText.innerHTML = tpl ? tpl.innerHTML : "";
+
+      if (photo) {
+        teamBioPhoto.innerHTML = "";
+        var img = document.createElement("img");
+        img.src = photo;
+        img.alt = name;
+        img.loading = "lazy";
+        teamBioPhoto.appendChild(img);
+      } else {
+        teamBioPhoto.textContent = initials(name);
+        teamBioPhoto.style.display = "flex";
+        teamBioPhoto.style.alignItems = "center";
+        teamBioPhoto.style.justifyContent = "center";
+        teamBioPhoto.style.fontFamily = "var(--display)";
+        teamBioPhoto.style.fontWeight = "500";
+        teamBioPhoto.style.fontSize = "2.6rem";
+        teamBioPhoto.style.color = "var(--green)";
+      }
+
+      if (activeCard && activeCard !== card) {
+        activeCard.classList.remove("is-active");
+        activeCard.setAttribute("aria-expanded", "false");
+      }
+      card.classList.add("is-active");
+      card.setAttribute("aria-expanded", "true");
+      activeCard = card;
+      teamBio.classList.add("is-open");
+
+      window.requestAnimationFrame(function () {
+        var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        teamBio.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "nearest" });
+      });
+    }
+
+    teamCards.forEach(function (card) {
+      card.setAttribute("aria-expanded", "false");
+      card.addEventListener("click", function () {
+        if (activeCard === card) {
+          closeBio();
+        } else {
+          openBio(card);
+        }
+      });
+    });
+
+    if (teamBioClose) teamBioClose.addEventListener("click", closeBio);
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && activeCard) closeBio();
+    });
+  }
+
+  // ---------------------------------------------------------------------
   // Lead-routing config.
   //
   // SCL_LEAD_SUBJECT is the standard subject line every real lead email
@@ -245,7 +336,75 @@ document.addEventListener("DOMContentLoaded", function () {
 
   initAttractorBackground();
   initClock();
+  initWeightedScroll();
 });
+
+// ---------------------------------------------------------------------
+// Weighted scroll: gives wheel-driven scrolling a sense of mass — the
+// page eases toward each new position instead of jumping the full wheel
+// delta in one frame, so quick flicks feel like they carry momentum and
+// settle rather than snap. Desktop wheel input only (touchscreens already
+// have native momentum scrolling, and adding a second layer of easing on
+// top fights it); fully skipped under prefers-reduced-motion. Because it
+// drives the *real* window.scrollTo rather than transforming the DOM,
+// window.scrollY stays accurate for the reveal observer, header, and
+// Lorenz-attractor camera below.
+// ---------------------------------------------------------------------
+function initWeightedScroll() {
+  var reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var coarsePointer = window.matchMedia("(pointer: coarse)").matches;
+  if (reducedMotion || coarsePointer) return;
+
+  var current = window.scrollY;
+  var target = current;
+  var raf = null;
+  var EASE = 0.11;
+  var syncTimer = null;
+
+  function maxScroll() {
+    return Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+  }
+
+  function frame() {
+    current += (target - current) * EASE;
+    if (Math.abs(target - current) < 0.4) current = target;
+    window.scrollTo(0, current);
+    raf = current !== target ? window.requestAnimationFrame(frame) : null;
+  }
+
+  window.addEventListener(
+    "wheel",
+    function (e) {
+      if (e.ctrlKey) return; // leave pinch-zoom untouched
+      e.preventDefault();
+      var delta = e.deltaMode === 1 ? e.deltaY * 18 : e.deltaY;
+      target = Math.min(maxScroll(), Math.max(0, target + delta));
+      if (!raf) raf = window.requestAnimationFrame(frame);
+    },
+    { passive: false }
+  );
+
+  window.addEventListener("resize", function () {
+    target = Math.min(maxScroll(), target);
+  });
+
+  // If the page moves by some other means (anchor jump, keyboard, browser
+  // back/forward), resync our virtual position once scrolling settles so
+  // the next wheel tick continues from the real spot instead of yanking
+  // the page back to a stale target.
+  window.addEventListener(
+    "scroll",
+    function () {
+      if (raf) return;
+      window.clearTimeout(syncTimer);
+      syncTimer = window.setTimeout(function () {
+        current = window.scrollY;
+        target = current;
+      }, 60);
+    },
+    { passive: true }
+  );
+}
 
 // ---------------------------------------------------------------------
 // Live clock readout in the header, e.g. "CEST 14:32".
