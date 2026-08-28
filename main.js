@@ -63,17 +63,82 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   // Contact form: static hosting has no backend — show a quiet confirmation.
+  // A lightweight, dependency-free spam guard runs first: a honeypot field
+  // real visitors never see or fill, plus a simple arithmetic check that
+  // stops basic scripted submissions without requiring any third-party
+  // CAPTCHA service or key.
   var form = document.querySelector("#contact-form");
   if (form) {
+    var challengeEl = document.querySelector("#captcha-challenge");
+    var answerEl = document.querySelector("#captcha-answer");
+    var captchaErrorEl = document.querySelector("#captcha-error");
+    var refreshBtn = document.querySelector("#captcha-refresh");
+    var honeypotEl = document.querySelector("#website");
+    var expectedSum = 0;
+
+    function newChallenge() {
+      var a = 2 + Math.floor(Math.random() * 8);
+      var b = 2 + Math.floor(Math.random() * 8);
+      expectedSum = a + b;
+      if (challengeEl) challengeEl.textContent = a + " + " + b;
+      if (answerEl) answerEl.value = "";
+      if (captchaErrorEl) captchaErrorEl.classList.remove("is-shown");
+    }
+    if (challengeEl) newChallenge();
+    if (refreshBtn) refreshBtn.addEventListener("click", newChallenge);
+
     form.addEventListener("submit", function (e) {
       e.preventDefault();
       var note = document.querySelector("#form-note");
+
+      // Honeypot tripped — behave as a bot would expect (quiet success)
+      // without actually processing anything further.
+      if (honeypotEl && honeypotEl.value) {
+        if (note) {
+          note.className = "is-success";
+          note.textContent = "Thank you — your message has been noted.";
+        }
+        form.reset();
+        return;
+      }
+
+      // Basic required-field check (the form uses novalidate so this
+      // custom messaging stays visually consistent with the rest of the
+      // page instead of the browser's default validation bubbles).
+      var nameEl = document.querySelector("#name");
+      var emailEl = document.querySelector("#email");
+      var messageEl = document.querySelector("#message");
+      var missing = [nameEl, emailEl, messageEl].some(function (el) {
+        return el && !el.value.trim();
+      });
+      if (missing) {
+        if (note) {
+          note.className = "is-error";
+          note.textContent = "Please fill in your name, email, and message before sending.";
+        }
+        return;
+      }
+
+      // Arithmetic check.
+      var answer = answerEl ? parseInt(answerEl.value, 10) : NaN;
+      if (answer !== expectedSum) {
+        if (captchaErrorEl) captchaErrorEl.classList.add("is-shown");
+        if (note) {
+          note.className = "is-error";
+          note.textContent = "Please double-check the verification question above.";
+        }
+        newChallenge();
+        if (answerEl) answerEl.focus();
+        return;
+      }
+
       if (note) {
+        note.className = "is-success";
         note.textContent =
           "Thank you — your message has been noted. This is a static preview site, so for now please reach us directly at the phone number above while the contact form is connected.";
-        note.classList.add("is-visible");
       }
       form.reset();
+      newChallenge();
     });
   }
 

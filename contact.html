@@ -36,53 +36,123 @@
   <section class="page-hero">
     <div class="container">
       <span class="eyebrow reveal">Contact Us</span>
-      <h1 class="reveal reveal-delay-1">Let's discuss how we can best assist you.</h1>
-      <p class="lede reveal reveal-delay-2">SCL maintains a team of deeply experienced consultants, coaches, and facilitators ready to be deployed against small and large engagements anywhere in the world.</p>
+      <h1 class="reveal reveal-delay-1">Let's start the conversation.</h1>
+      <p class="lede reveal reveal-delay-2">Tell us about the communication challenge or opportunity in front of you. A consultant will follow up personally with next steps tailored to your goals — no automated queue, no sales script.</p>
+      <ul class="tag-list trust-row reveal reveal-delay-3">
+        <li>Response within 1 business day</li>
+        <li>Confidential by default</li>
+        <li>Engagements worldwide</li>
+      </ul>
     </div>
   </section>
 
   <section>
-    <div class="container two-col">
-      <div class="reveal">
-        <form id="contact-form">
+    <div class="container contact-grid">
+      <div class="contact-card reveal">
+        <h2>Tell us about your goals</h2>
+        <p class="sub">The more context you share, the faster we can match you with the right consultant.</p>
+        <form id="contact-form" novalidate>
           <div class="form-grid">
             <div>
               <label for="name">Name</label>
-              <input type="text" id="name" name="name" required />
+              <input type="text" id="name" name="name" autocomplete="name" required />
             </div>
             <div>
               <label for="company">Company</label>
-              <input type="text" id="company" name="company" />
+              <input type="text" id="company" name="company" autocomplete="organization" />
             </div>
             <div>
               <label for="email">Email</label>
-              <input type="email" id="email" name="email" required />
+              <input type="email" id="email" name="email" autocomplete="email" required />
             </div>
             <div>
               <label for="phone">Phone</label>
-              <input type="tel" id="phone" name="phone" />
+              <input type="tel" id="phone" name="phone" autocomplete="tel" />
+            </div>
+            <div class="full">
+              <label for="interest">What can we help with?</label>
+              <select id="interest" name="interest">
+                <option value="">Select an area (optional)</option>
+                <option value="Executive Coaching">Executive Coaching</option>
+                <option value="Leadership Counsel">Leadership Counsel</option>
+                <option value="Strategic Communication Consulting">Strategic Communication Consulting</option>
+                <option value="Media &amp; Pitch Training">Media &amp; Pitch Training</option>
+                <option value="Speaking / Facilitation">Speaking / Facilitation</option>
+                <option value="Careers at SCL">Careers at SCL</option>
+                <option value="Other">Other</option>
+              </select>
             </div>
             <div class="full">
               <label for="message">How can we help?</label>
               <textarea id="message" name="message" required></textarea>
             </div>
           </div>
-          <button type="submit" class="btn btn-primary" style="margin-top: 1.6rem; border: none; cursor: pointer;">Send Message <span class="arrow">→</span></button>
-          <p id="form-note" class="reveal" style="margin-top: 1.2rem; color: var(--ink-soft); font-size: 0.95rem;"></p>
+
+          <!-- Honeypot: hidden from real visitors; if it's filled in, the submission is treated as spam. -->
+          <div class="hp-field" aria-hidden="true">
+            <label for="website">Leave this field blank</label>
+            <input type="text" id="website" name="website" tabindex="-1" autocomplete="off" />
+          </div>
+
+          <div class="captcha-row">
+            <div>
+              <label for="captcha-answer">Quick check — <span class="captcha-challenge" id="captcha-challenge">4 + 7</span> =</label>
+              <input type="text" inputmode="numeric" id="captcha-answer" name="captcha-answer" autocomplete="off" required />
+              <span class="field-error" id="captcha-error">That doesn't look right — please try again.</span>
+            </div>
+            <button type="button" class="captcha-refresh" id="captcha-refresh">New question</button>
+          </div>
+
+          <div class="form-submit-row">
+            <button type="submit" class="btn btn-primary">Send Message <span class="arrow">→</span></button>
+            <p id="form-note"></p>
+          </div>
         </form>
       </div>
-      <aside class="reveal reveal-delay-1">
-        <div class="footer-col" style="margin-bottom: 2.4rem;">
-          <h4 style="color: var(--gold);">Call Us</h4>
-          <a href="tel:18772666522" style="color: var(--navy); font-family: var(--serif); font-size: 1.3rem; margin-bottom: 0;">1-877-266-6522</a>
+
+      <aside class="contact-aside reveal reveal-delay-1">
+        <div class="aside-card">
+          <h4>Prefer to talk now?</h4>
+          <a href="tel:18772666522" class="aside-phone">1-877-266-6522</a>
+          <p class="aside-hours">Weekdays, 9am – 6pm ET</p>
         </div>
-        <div class="footer-col" style="margin-bottom: 2.4rem;">
-          <h4 style="color: var(--gold);">Connect</h4>
-          <a href="https://www.linkedin.com/company/independent-coach-and-leadership-development-specialist/" target="_blank" rel="noopener" style="color: var(--navy);">LinkedIn</a>
+
+        <div class="aside-card">
+          <h4>What Happens Next</h4>
+          <div class="steps">
+            <div class="step">
+              <span class="num">01</span>
+              <div class="step-body">
+                <strong>We respond</strong>
+                <span>Within one business day, from a consultant — not a queue.</span>
+              </div>
+            </div>
+            <div class="step">
+              <span class="num">02</span>
+              <div class="step-body">
+                <strong>A discovery call</strong>
+                <span>A brief, no-pressure conversation to understand your goals.</span>
+              </div>
+            </div>
+            <div class="step">
+              <span class="num">03</span>
+              <div class="step-body">
+                <strong>A tailored plan</strong>
+                <span>A clear scope and next steps built around your objectives.</span>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="footer-col">
-          <h4 style="color: var(--gold);">Careers</h4>
-          <p style="color: var(--ink-soft); font-family: var(--serif); font-size: 1rem;">SCL's value is driven by our skillful, dynamic consultants. We're always glad to hear from experienced communication consulting professionals — reach out via the form.</p>
+
+        <div class="aside-card aside-quote">
+          <h4>In Their Words</h4>
+          <blockquote>"Insightful, actionable, inspiring, motivational — their guidance has been central to our leadership effectiveness."</blockquote>
+          <cite>Managing Director, International Financial Institution</cite>
+        </div>
+
+        <div class="aside-card">
+          <h4>Connect</h4>
+          <a href="https://www.linkedin.com/company/independent-coach-and-leadership-development-specialist/" target="_blank" rel="noopener">LinkedIn →</a>
         </div>
       </aside>
     </div>
