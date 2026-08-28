@@ -15,7 +15,6 @@
 
   <!-- Three.js CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-
   <script>
     tailwind.config = {
       theme: {
@@ -40,9 +39,7 @@
       }
     }
   </script>
-
   <style>
-    /* Global Reset & Precise Layout Tweaks */
     body {
       overflow-x: hidden;
       background-color: #0A0A0A;
@@ -53,8 +50,6 @@
       color: #000000;
       box-shadow: 0 0 0 2px #FFE600;
     }
-
-    /* Custom scrollbar */
     ::-webkit-scrollbar {
       width: 4px;
     }
@@ -64,13 +59,14 @@
     ::-webkit-scrollbar-thumb {
       background: #222;
     }
+    .card-stack-shadow {
+      box-shadow: -10px 10px 30px rgba(0,0,0,0.8);
+    }
   </style>
 </head>
 <body class="font-sans relative">
-
   <!-- 3D WebGL Lorenz Background Canvas -->
   <canvas id="webgl-canvas" class="fixed inset-0 pointer-events-none z-0"></canvas>
-
   <!-- Sticky Navigation & Telemetry Bar -->
   <header class="fixed top-0 left-0 right-0 z-50 px-6 py-4 flex justify-between items-start font-mono text-[11px] uppercase tracking-wider text-white bg-transparent pointer-events-auto">
     <!-- Brand Logo & Name -->
@@ -80,19 +76,16 @@
       </svg>
       <span class="text-base font-bold lowercase tracking-tight font-sans">lorem ipsum</span>
     </a>
-
     <!-- Center Status Cluster 1: Realtime Clock -->
     <div id="live-clock" class="hidden md:block text-neutral-400">
-      CEST 01:02 AM
+      CEST 01:18 AM
     </div>
-
     <!-- Center Status Cluster 2: Telemetry Badges -->
     <div class="hidden lg:block text-right leading-tight text-neutral-400 space-y-0.5">
       <div>LOREM / IPSUM:<span class="text-white">DOLOR</span></div>
       <div>SIT AMET:<span class="text-white">CONSECTETUR</span></div>
       <div>ADIPISCING:<span class="text-white">ELIT</span></div>
     </div>
-
     <!-- Right Links -->
     <nav class="flex items-center gap-6">
       <a href="#lorem" class="hover:text-amber-400 transition-colors">LOREM</a>
@@ -100,9 +93,7 @@
       <a href="#dolor" class="hover:text-amber-400 transition-colors">DOLOR</a>
     </nav>
   </header>
-
   <main class="relative z-10">
-
     <!-- HERO SECTION -->
     <section class="min-h-screen flex flex-col justify-between pt-32 pb-12 px-8 sm:px-16">
       <div class="w-full flex justify-end mt-12">
@@ -115,7 +106,6 @@
           </p>
         </div>
       </div>
-
       <!-- Bottom Scroll Prompt -->
       <div class="flex items-end justify-between border-l-2 border-amber-400/80 pl-4 py-1">
         <div class="font-mono text-[10px] uppercase tracking-widest text-neutral-400 leading-tight">
@@ -123,8 +113,6 @@
         </div>
       </div>
     </section>
-
-
     <!-- ABOUT INTRO SECTION -->
     <section class="min-h-screen flex flex-col justify-center px-8 sm:px-16 py-24">
       <div class="max-w-4xl">
@@ -137,11 +125,8 @@
         </div>
       </div>
     </section>
-
-
-    <!-- ELECTRIC YELLOW MANIFESTO SECTION -->
+    <!-- MANIFESTO SECTION -->
     <section class="min-h-screen flex flex-col justify-center px-8 sm:px-16 py-24 max-w-6xl">
-      <!-- High Contrast Electric Yellow Highlighted Block -->
       <div class="mb-12 space-y-3">
         <div>
           <span class="yellow-highlight px-3 py-1 text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight inline-block">
@@ -154,8 +139,6 @@
           </span>
         </div>
       </div>
-
-      <!-- Uppercase Monospace Paragraphs -->
       <div class="font-mono text-xs sm:text-sm leading-relaxed text-neutral-300 max-w-2xl space-y-6 uppercase tracking-wide mb-12">
         <p>
           LOREM IPSUM DOLOR SIT AMET, CONSECTETUR ADIPISCING ELIT. SED DO EIUSMOD TEMPOR INCIDIDUNT UT LABORE ET DOLORE MAGNA ALIQUA.
@@ -164,8 +147,6 @@
           UT ENIM AD MINIM VENIAM, QUIS NOSTRUD EXERCITATION ULLAMCO LABORIS NISI UT ALIQUIP EX EA COMMODO CONSEQUAT.
         </p>
       </div>
-
-      <!-- Bracketed Protocol Bullet List -->
       <div class="border-l border-amber-400/60 pl-6 space-y-2.5 font-mono text-xs uppercase tracking-wider text-white">
         <div>• LOREM IPSUM DOLOR</div>
         <div>• SIT AMET CONSECTETUR</div>
@@ -174,103 +155,70 @@
         <div>• INCIDIDUNT UT LABORE</div>
       </div>
     </section>
+    <!-- OBSERVED SYSTEMS (STICKY HORIZONTAL STACKING CARDS DECK) -->
+    <section id="observed-systems-container" class="relative h-[300vh]">
+      <div class="sticky top-0 h-screen overflow-hidden flex flex-col justify-center px-8 sm:px-16">
+        <div class="font-mono text-xs uppercase tracking-widest text-neutral-400 mb-8 absolute top-12 left-8 sm:left-16">
+          LOREM IPSUM
+        </div>
+        <!-- Cards Deck Track -->
+        <div id="cards-track" class="relative w-full max-w-6xl mx-auto h-[550px] flex items-center transition-transform duration-75">
 
-
-    <!-- OBSERVED SYSTEMS & CARD AX-03 -->
-    <section class="min-h-screen flex flex-col justify-center px-8 sm:px-16 py-24 relative">
-      <div class="font-mono text-xs uppercase tracking-widest text-neutral-400 mb-12">
-        LOREM IPSUM
-      </div>
-
-      <!-- Stacked AX-03 Card Container -->
-      <div class="relative max-w-2xl mx-auto w-full">
-        <!-- Layered Backdrop Card Shadow -->
-        <div class="absolute -top-3 -left-3 inset-0 bg-neutral-300 -z-10"></div>
-
-        <!-- Main White Panel -->
-        <div class="bg-white text-black p-8 sm:p-12 border border-white shadow-2xl">
-          <div class="font-mono text-xs uppercase tracking-widest text-neutral-600 mb-6">
-            AX-00
-          </div>
-
-          <!-- Dithered Bifurcation Plot Canvas Graphic -->
-          <div class="relative w-full h-64 bg-neutral-100 mb-8 border border-neutral-300 overflow-hidden">
-            <canvas id="bifurcation-canvas" class="w-full h-full block"></canvas>
-            <!-- Orange Target Node -->
-            <div class="absolute top-[38%] right-[42%] w-2.5 h-2.5 bg-orange-node rounded-full shadow-sm animate-pulse"></div>
-            <!-- Axis Markings -->
-            <div class="absolute bottom-1 left-2 font-mono text-[9px] text-neutral-500">0.0000</div>
-            <div class="absolute bottom-1 left-24 font-mono text-[9px] text-neutral-500">1.23456</div>
-            <div class="absolute bottom-1 right-20 font-mono text-[9px] text-neutral-500">a</div>
-            <div class="absolute bottom-1 right-2 font-mono text-[9px] text-neutral-500">9.9</div>
-          </div>
-
-          <!-- Card Header Title -->
-          <h3 class="text-3xl sm:text-4xl font-bold tracking-tight text-black mb-8 leading-tight">
-            Lorem Ipsum Dolor<br>in Decision Systems
-          </h3>
-
-          <!-- Footer Columns -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-6 border-t border-neutral-200 font-mono text-[10px] uppercase tracking-wider text-black leading-relaxed">
-            <div>
-              LOREM IPSUM DOLOR SIT AMET, CONSECTETUR ADIPISCING ELIT SED DO EIUSMOD.
+          <!-- Card AX-01 -->
+          <div class="card-item absolute left-0 w-[450px] sm:w-[540px] bg-white text-black p-8 sm:p-10 border border-white card-stack-shadow transition-all duration-300 transform" style="z-index: 10;">
+            <div class="font-mono text-xs uppercase tracking-widest text-neutral-600 mb-4">AX-01</div>
+            <div class="relative w-full h-56 bg-neutral-100 mb-6 border border-neutral-200 overflow-hidden">
+              <canvas id="card-canvas-1" class="w-full h-full block"></canvas>
             </div>
-            <div>
-              UT ENIM AD MINIM VENIAM, QUIS NOSTRUD EXERCITATION ULLAMCO LABORIS.
+            <h3 class="text-2xl sm:text-3xl font-bold tracking-tight text-black mb-6 leading-tight">
+              Lorem Ipsum Dolor<br>in Cognitive Drift
+            </h3>
+            <div class="grid grid-cols-2 gap-4 pt-4 border-t border-neutral-200 font-mono text-[9px] uppercase tracking-wider text-black leading-relaxed">
+              <div>LOREM IPSUM DOLOR SIT AMET, CONSECTETUR ADIPISCING.</div>
+              <div>SED DO EIUSMOD TEMPOR INCIDIDUNT UT LABORE.</div>
+            </div>
+          </div>
+          <!-- Card AX-02 -->
+          <div class="card-item absolute left-[350px] sm:left-[450px] w-[450px] sm:w-[540px] bg-white text-black p-8 sm:p-10 border border-white card-stack-shadow transition-all duration-300 transform" style="z-index: 20;">
+            <div class="font-mono text-xs uppercase tracking-widest text-neutral-600 mb-4">AX-02</div>
+            <div class="relative w-full h-56 bg-neutral-100 mb-6 border border-neutral-200 overflow-hidden">
+              <canvas id="card-canvas-2" class="w-full h-full block"></canvas>
+              <div class="absolute top-[45%] right-[35%] w-2.5 h-2.5 bg-orange-node rounded-full animate-ping"></div>
+            </div>
+            <h3 class="text-2xl sm:text-3xl font-bold tracking-tight text-black mb-6 leading-tight">
+              Consectetur Adipiscing<br>in Abstract Reasoning
+            </h3>
+            <div class="grid grid-cols-2 gap-4 pt-4 border-t border-neutral-200 font-mono text-[9px] uppercase tracking-wider text-black leading-relaxed">
+              <div>UT ENIM AD MINIM VENIAM, QUIS NOSTRUD EXERCITATION.</div>
+              <div>ULLAMCO LABORIS NISI UT ALIQUIP EX EA COMMODO.</div>
+            </div>
+          </div>
+          <!-- Card AX-03 -->
+          <div class="card-item absolute left-[700px] sm:left-[900px] w-[450px] sm:w-[540px] bg-white text-black p-8 sm:p-10 border border-white card-stack-shadow transition-all duration-300 transform" style="z-index: 30;">
+            <div class="font-mono text-xs uppercase tracking-widest text-neutral-600 mb-4">AX-03</div>
+            <div class="relative w-full h-56 bg-neutral-100 mb-6 border border-neutral-200 overflow-hidden">
+              <canvas id="card-canvas-3" class="w-full h-full block"></canvas>
+              <div class="absolute top-[38%] right-[42%] w-2.5 h-2.5 bg-orange-node rounded-full animate-pulse"></div>
+              <div class="absolute bottom-1 left-2 font-mono text-[9px] text-neutral-500">0.8054</div>
+              <div class="absolute bottom-1 left-24 font-mono text-[9px] text-neutral-500">3.55033</div>
+              <div class="absolute bottom-1 right-2 font-mono text-[9px] text-neutral-500">3.8</div>
+            </div>
+            <h3 class="text-2xl sm:text-3xl font-bold tracking-tight text-black mb-6 leading-tight">
+              Bifurcation Points<br>in Decision Systems
+            </h3>
+            <div class="grid grid-cols-2 gap-4 pt-4 border-t border-neutral-200 font-mono text-[9px] uppercase tracking-wider text-black leading-relaxed">
+              <div>AT SPECIFIC THRESHOLDS, MINIMAL VARIATIONS PRODUCE DIVERGENCE.</div>
+              <div>WHAT WE PERCEIVE AS CHOICE MAY BE A TRANSITION.</div>
             </div>
           </div>
         </div>
       </div>
     </section>
-
-
-    <!-- OBSERVATION MATRIX GRID -->
-    <section class="py-24 px-8 sm:px-16 border-t border-b border-neutral-800 my-12 bg-black/60 backdrop-blur-sm">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 divide-y md:divide-y-0 md:divide-x divide-neutral-800">
-
-        <!-- AX-01 -->
-        <div class="pt-6 md:pt-0 md:pr-8 flex flex-col justify-between">
-          <div>
-            <div class="font-mono text-xs text-neutral-500 mb-2">AX-01</div>
-            <h4 class="text-xl font-bold text-white mb-4">Lorem Ipsum Dolor Sit Amet</h4>
-            <p class="font-mono text-xs uppercase leading-relaxed text-neutral-400">
-              LOREM IPSUM DOLOR SIT AMET, CONSECTETUR ADIPISCING ELIT. SED DO EIUSMOD TEMPOR INCIDIDUNT UT LABORE ET DOLORE MAGNA ALIQUA.
-            </p>
-          </div>
-        </div>
-
-        <!-- AX-02 -->
-        <div class="pt-6 md:pt-0 md:px-8 flex flex-col justify-between">
-          <div>
-            <div class="font-mono text-xs text-neutral-500 mb-2">AX-02</div>
-            <h4 class="text-xl font-bold text-white mb-4">Consectetur Adipiscing Elit</h4>
-            <p class="font-mono text-xs uppercase leading-relaxed text-neutral-400">
-              UT ENIM AD MINIM VENIAM, QUIS NOSTRUD EXERCITATION ULLAMCO LABORIS NISI UT ALIQUIP EX EA COMMODO CONSEQUAT.
-            </p>
-          </div>
-        </div>
-
-        <!-- AX-03 -->
-        <div class="pt-6 md:pt-0 md:pl-8 flex flex-col justify-between">
-          <div>
-            <div class="font-mono text-xs text-neutral-500 mb-2">AX-03</div>
-            <h4 class="text-xl font-bold text-white mb-4">Duis Aute Irure Dolor</h4>
-            <p class="font-mono text-xs uppercase leading-relaxed text-neutral-400">
-              DUIS AUTE IRURE DOLOR IN REPREHENDERIT IN VOLUPTATE VELIT ESSE CILLUM DOLORE EU FUGIAT NULLA PARIATUR.
-            </p>
-          </div>
-        </div>
-
-      </div>
-    </section>
-
-
     <!-- SYSTEM VARIABLES METRICS GRID -->
     <section class="py-24 px-8 sm:px-16 max-w-6xl mx-auto">
       <p class="font-mono text-sm uppercase leading-relaxed text-neutral-300 max-w-3xl mb-16">
         LOREM IPSUM DOLOR SIT AMET, CONSECTETUR ADIPISCING ELIT, SED DO EIUSMOD TEMPOR INCIDIDUNT UT LABORE ET DOLORE MAGNA ALIQUA. UT ENIM AD MINIM VENIAM.
       </p>
-
       <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div class="border border-neutral-800 p-6 bg-neutral-950/50">
           <div class="font-mono text-xs text-neutral-500">01A</div>
@@ -279,7 +227,6 @@
             LOREM IPSUM DOLOR SIT AMET, CONSECTETUR ADIPISCING ELIT. SED DO EIUSMOD TEMPOR INCIDIDUNT.
           </p>
         </div>
-
         <div class="border border-neutral-800 p-6 bg-neutral-950/50">
           <div class="font-mono text-xs text-neutral-500">02B</div>
           <div class="font-mono text-sm font-bold text-white my-2">DOLOR SIT</div>
@@ -287,7 +234,6 @@
             UT ENIM AD MINIM VENIAM, QUIS NOSTRUD EXERCITATION ULLAMCO LABORIS NISI UT ALIQUIP.
           </p>
         </div>
-
         <div class="border border-neutral-800 p-6 bg-neutral-950/50">
           <div class="font-mono text-xs text-neutral-500">03C</div>
           <div class="font-mono text-sm font-bold text-white my-2">AMET CONSECTETUR</div>
@@ -297,8 +243,6 @@
         </div>
       </div>
     </section>
-
-
     <!-- FULL WIDTH INVERTED CALLOUT BANNER -->
     <section class="bg-white text-black py-24 px-8 sm:px-16 my-24 border-y border-white">
       <div class="max-w-5xl mx-auto text-center space-y-6">
@@ -310,8 +254,6 @@
         </p>
       </div>
     </section>
-
-
     <!-- ACCESS REQUEST FORM SECTION -->
     <section class="py-24 px-8 sm:px-16 max-w-xl mx-auto text-center">
       <div class="font-mono text-xs uppercase tracking-widest text-neutral-500 mb-4">
@@ -320,7 +262,6 @@
       <p class="font-mono text-xs uppercase text-neutral-300 leading-relaxed mb-8">
         LOREM IPSUM DOLOR SIT AMET, CONSECTETUR ADIPISCING ELIT. SED DO EIUSMOD TEMPOR INCIDIDUNT UT LABORE ET DOLORE MAGNA ALIQUA.
       </p>
-
       <form onsubmit="event.preventDefault();" class="flex flex-col sm:flex-row border border-neutral-700">
         <input
           type="email"
@@ -335,19 +276,15 @@
         </button>
       </form>
     </section>
-
   </main>
-
   <!-- FOOTER -->
   <footer class="border-t border-neutral-900 py-8 px-8 flex flex-col sm:flex-row justify-between items-center font-mono text-[10px] text-neutral-500 uppercase tracking-widest gap-4 relative z-10">
     <div>© 2026 LOREM IPSUM. ALL RIGHTS RESERVED.</div>
     <div>LOREM_IPSUM_V1.0.0 // STATUS_OK</div>
   </footer>
-
-
-  <!-- WebGL Three.js Lorenz Attractor Script -->
+  <!-- WebGL Three.js & Card Canvas Scripts -->
   <script>
-    // Realtime Clock Updater
+    // Realtime Clock
     function updateClock() {
       const clockEl = document.getElementById('live-clock');
       const now = new Date();
@@ -357,149 +294,164 @@
     }
     setInterval(updateClock, 1000);
     updateClock();
-
-    // 2D Bifurcation Dither Diagram Generator
-    (function drawBifurcation() {
-      const canvas = document.getElementById('bifurcation-canvas');
+    // Dithered Canvas Visual Generators for Cards
+    function drawDitherBranching(canvasId) {
+      const canvas = document.getElementById(canvasId);
       if (!canvas) return;
       const ctx = canvas.getContext('2d');
-      const width = canvas.width = canvas.offsetWidth;
-      const height = canvas.height = canvas.offsetHeight;
-
+      const w = canvas.width = canvas.offsetWidth;
+      const h = canvas.height = canvas.offsetHeight;
       ctx.fillStyle = '#f5f5f5';
-      ctx.fillRect(0, 0, width, height);
-
-      ctx.fillStyle = '#111111';
-      for (let x = 0; x < width; x++) {
-        const r = 2.8 + (x / width) * 1.2;
-        let xVal = 0.5;
-        for (let i = 0; i < 100; i++) {
-          xVal = r * xVal * (1 - xVal);
+      ctx.fillRect(0, 0, w, h);
+      ctx.fillStyle = '#111';
+      // Draw neural network branching pattern with noise dither
+      for (let i = 0; i < 6000; i++) {
+        let x = Math.random() * w;
+        let y = Math.random() * h;
+        let distCenter = Math.hypot(x - w/2, y - h/2);
+        if (Math.random() > distCenter / (w/1.5)) {
+          ctx.fillRect(x, y, 1.2, 1.2);
         }
-        for (let i = 0; i < 80; i++) {
-          xVal = r * xVal * (1 - xVal);
-          const y = height - (xVal * height);
-          if (Math.random() > 0.3) {
+      }
+    }
+    function drawDitherWaves(canvasId) {
+      const canvas = document.getElementById(canvasId);
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const w = canvas.width = canvas.offsetWidth;
+      const h = canvas.height = canvas.offsetHeight;
+      ctx.fillStyle = '#f5f5f5';
+      ctx.fillRect(0, 0, w, h);
+      ctx.fillStyle = '#111';
+      for (let x = 0; x < w; x += 2) {
+        for (let y = 0; y < h; y += 2) {
+          let wave = Math.sin(x * 0.05) * Math.cos(y * 0.05) * 20;
+          if (Math.sin((x + y + wave) * 0.08) > 0.4) {
             ctx.fillRect(x, y, 1, 1);
           }
         }
       }
-    })();
+    }
+    function drawBifurcation(canvasId) {
+      const canvas = document.getElementById(canvasId);
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const w = canvas.width = canvas.offsetWidth;
+      const h = canvas.height = canvas.offsetHeight;
+      ctx.fillStyle = '#f5f5f5';
+      ctx.fillRect(0, 0, w, h);
+      ctx.fillStyle = '#111';
+      for (let x = 0; x < w; x++) {
+        const r = 2.8 + (x / w) * 1.2;
+        let xVal = 0.5;
+        for (let i = 0; i < 80; i++) xVal = r * xVal * (1 - xVal);
+        for (let i = 0; i < 60; i++) {
+          xVal = r * xVal * (1 - xVal);
+          const y = h - (xVal * h);
+          if (Math.random() > 0.25) ctx.fillRect(x, y, 1, 1);
+        }
+      }
+    }
+    drawDitherBranching('card-canvas-1');
+    drawDitherWaves('card-canvas-2');
+    drawBifurcation('card-canvas-3');
+    // Sticky Horizontal Cards Deck Scroll Animation
+    const container = document.getElementById('observed-systems-container');
+    const track = document.getElementById('cards-track');
+    window.addEventListener('scroll', () => {
+      const rect = container.getBoundingClientRect();
+      const totalScroll = container.offsetHeight - window.innerHeight;
+      const currentProgress = Math.min(Math.max(-rect.top / totalScroll, 0), 1);
 
-    // Three.js 3D Lorenz Attractor Setup
-    const container = document.getElementById('webgl-canvas');
+      // Translate track horizontally based on scroll depth
+      const translateX = -currentProgress * 700;
+      track.style.transform = `translateX(${translateX}px)`;
+    });
+    // Three.js 3D Lorenz Attractor Engine with Gravitational Lens Bubble
     const scene = new THREE.Scene();
-
     const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
     camera.position.set(0, 0, 85);
-
-    const renderer = new THREE.WebGLRenderer({ canvas: container, antialias: true, alpha: true });
+    const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('webgl-canvas'), antialias: true, alpha: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-    // Lorenz Equation Parameters
-    const sigma = 10;
-    const beta = 8 / 3;
-    let rho = 28;
-
-    const numPoints = 25000;
+    const sigma = 10, beta = 8 / 3, rho = 28;
+    const numPoints = 28000;
     const geometry = new THREE.BufferGeometry();
+    const basePositions = new Float32Array(numPoints * 3);
     const positions = new Float32Array(numPoints * 3);
     const colors = new Float32Array(numPoints * 3);
-
     let x = 0.1, y = 0, z = 0;
     const dt = 0.005;
-
     const baseColor = new THREE.Color(0xE5B800);
-
     for (let i = 0; i < numPoints; i++) {
       const dx = sigma * (y - x) * dt;
       const dy = (x * (rho - z) - y) * dt;
       const dz = (x * y - beta * z) * dt;
-
-      x += dx;
-      y += dy;
-      z += dz;
-
+      x += dx; y += dy; z += dz;
+      basePositions[i * 3] = x;
+      basePositions[i * 3 + 1] = y;
+      basePositions[i * 3 + 2] = z - 25;
       positions[i * 3] = x;
       positions[i * 3 + 1] = y;
       positions[i * 3 + 2] = z - 25;
-
       colors[i * 3] = baseColor.r;
       colors[i * 3 + 1] = baseColor.g;
       colors[i * 3 + 2] = baseColor.b;
     }
-
     geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
     geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-
-    const material = new THREE.LineBasicMaterial({
-      vertexColors: true,
-      transparent: true,
-      opacity: 0.65,
-      linewidth: 1
-    });
-
+    const material = new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.65 });
     const lorenzLine = new THREE.Line(geometry, material);
     scene.add(lorenzLine);
-
-    // Bright Orange Tracking Node Particle
-    const nodeGeometry = new THREE.SphereGeometry(0.8, 16, 16);
-    const nodeMaterial = new THREE.MeshBasicMaterial({ color: 0xFF5500 });
-    const orangeNode = new THREE.Mesh(nodeGeometry, nodeMaterial);
+    // Glowing Orange Particle Node
+    const orangeNode = new THREE.Mesh(
+      new THREE.SphereGeometry(0.9, 16, 16),
+      new THREE.MeshBasicMaterial({ color: 0xFF5500 })
+    );
     scene.add(orangeNode);
+    let headIdx = 0;
+    function animate() {
+      requestAnimationFrame(animate);
+      // Trajectory Loop Animation
+      headIdx = (headIdx + 10) % numPoints;
+      const posAttr = lorenzLine.geometry.attributes.position;
 
-    // Mouse Interaction Variables
-    let mouseX = 0;
-    let mouseY = 0;
-    let targetRotationX = 0;
-    let targetRotationY = 0;
+      const nodeX = basePositions[headIdx * 3];
+      const nodeY = basePositions[headIdx * 3 + 1];
+      const nodeZ = basePositions[headIdx * 3 + 2];
 
-    window.addEventListener('mousemove', (e) => {
-      mouseX = (e.clientX / window.innerWidth) * 2 - 1;
-      mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
-      targetRotationY = mouseX * 0.4;
-      targetRotationX = mouseY * 0.4;
-    });
-
-    // Scroll Binding Variables
-    let scrollPercent = 0;
-    window.addEventListener('scroll', () => {
-      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-      scrollPercent = window.scrollY / maxScroll;
-    });
-
-    // Window Resize Handler
+      orangeNode.position.set(nodeX, nodeY, nodeZ);
+      // Radial Gravitational Lens Bubble Distortion around the Orange Node
+      const posArr = posAttr.array;
+      const radius = 12.0;
+      for (let i = 0; i < numPoints; i++) {
+        const px = basePositions[i * 3];
+        const py = basePositions[i * 3 + 1];
+        const pz = basePositions[i * 3 + 2];
+        const dist = Math.hypot(px - nodeX, py - nodeY, pz - nodeZ);
+        if (dist < radius) {
+          const factor = (1.0 - dist / radius) * 4.0;
+          posArr[i * 3] = px + (px - nodeX) * factor;
+          posArr[i * 3 + 1] = py + (py - nodeY) * factor;
+          posArr[i * 3 + 2] = pz + (pz - nodeZ) * factor;
+        } else {
+          posArr[i * 3] = px;
+          posArr[i * 3 + 1] = py;
+          posArr[i * 3 + 2] = pz;
+        }
+      }
+      posAttr.needsUpdate = true;
+      // Rotate camera & scene on scroll
+      const scrollPercent = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
+      lorenzLine.rotation.y = scrollPercent * Math.PI * 1.5;
+      lorenzLine.rotation.x = Math.sin(scrollPercent * Math.PI) * 0.3;
+      renderer.render(scene, camera);
+    }
     window.addEventListener('resize', () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
     });
-
-    // Animation Loop
-    let headIdx = 0;
-    function animate() {
-      requestAnimationFrame(animate);
-
-      // Trajectory Loop Animation for Orange Node
-      headIdx = (headIdx + 8) % numPoints;
-      const posAttr = lorenzLine.geometry.attributes.position;
-      orangeNode.position.set(
-        posAttr.getX(headIdx),
-        posAttr.getY(headIdx),
-        posAttr.getZ(headIdx)
-      );
-
-      // Smooth Rotation Interpolation
-      lorenzLine.rotation.y += (targetRotationY + scrollPercent * Math.PI * 2 - lorenzLine.rotation.y) * 0.03;
-      lorenzLine.rotation.x += (targetRotationX - lorenzLine.rotation.x) * 0.03;
-
-      // Scroll-based Zoom and Position
-      camera.position.z = 85 - scrollPercent * 20;
-
-      renderer.render(scene, camera);
-    }
-
     animate();
   </script>
 </body>
