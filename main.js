@@ -113,7 +113,63 @@ document.addEventListener("DOMContentLoaded", function () {
   initAttractorBackground();
   initClock();
   initContactDrawer();
+  initCursorDot();
 });
+
+// ---------------------------------------------------------------------
+// Custom dot cursor: a small circular marker that follows the pointer
+// with a touch of lag, rendered with mix-blend-mode so it stays visible
+// over both the light and dark sections without any manual color
+// switching. Desktop / fine-pointer only — untouched on touch devices
+// and skipped entirely under prefers-reduced-motion. Native text/beam
+// cursors are preserved over form fields.
+// ---------------------------------------------------------------------
+function initCursorDot() {
+  var reduceMotion =
+    window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var coarsePointer =
+    window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
+  if (reduceMotion || coarsePointer) return;
+
+  var dot = document.createElement("div");
+  dot.id = "cursor-dot";
+  document.body.appendChild(dot);
+  document.body.classList.add("custom-cursor-active");
+
+  var target = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+  var current = { x: target.x, y: target.y };
+  var active = false;
+
+  window.addEventListener(
+    "pointermove",
+    function (e) {
+      target.x = e.clientX;
+      target.y = e.clientY;
+      if (!active) {
+        active = true;
+        dot.classList.add("is-active");
+      }
+      var el = document.elementFromPoint(e.clientX, e.clientY);
+      var overField = el && el.closest && el.closest("input, textarea, select");
+      dot.classList.toggle("is-hidden", !!overField);
+      var overClickable = el && el.closest && el.closest("a, button, [data-team-card]");
+      dot.classList.toggle("is-hovering", !!overClickable && !overField);
+    },
+    { passive: true }
+  );
+  window.addEventListener("mouseleave", function () {
+    dot.classList.remove("is-active");
+  });
+
+  function frame() {
+    current.x += (target.x - current.x) * 0.35;
+    current.y += (target.y - current.y) * 0.35;
+    dot.style.left = current.x + "px";
+    dot.style.top = current.y + "px";
+    window.requestAnimationFrame(frame);
+  }
+  window.requestAnimationFrame(frame);
+}
 
 // ---------------------------------------------------------------------
 // Contact drawer: a pop-out panel that slides in over a dimmed backdrop,
@@ -130,15 +186,11 @@ function initContactDrawer() {
 
   function drawerMarkup() {
     return (
+      '<div class="drawer-resize-handle" id="drawer-resize-handle" title="Drag to resize"></div>' +
       '<div class="contact-drawer-top">' +
       '  <span class="eyebrow">Get In Touch</span>' +
       '  <button type="button" class="drawer-close" id="drawer-close">Close <span class="key">↵</span></button>' +
       "</div>" +
-      '<fieldset class="reason-toggle">' +
-      "  <legend>I&#39;m reaching out about</legend>" +
-      '  <label class="reason-option"><input type="radio" name="reason" value="client" id="reason-client" checked /><span>Working with SCL</span></label>' +
-      '  <label class="reason-option"><input type="radio" name="reason" value="vendor" id="reason-vendor" /><span>Selling something to SCL</span></label>' +
-      "</fieldset>" +
       '<div id="client-panel">' +
       "  <h2>Tell us about your goals</h2>" +
       '  <p class="sub">The more context you share, the faster we can match you with the right consultant.</p>' +
@@ -191,11 +243,6 @@ function initContactDrawer() {
       '      <button type="submit" class="drawer-send">Send <span class="key">↳</span></button>' +
       "    </div>" +
       "  </form>" +
-      "</div>" +
-      '<div id="vendor-panel" hidden>' +
-      "  <h2>Have something to sell?</h2>" +
-      '  <p class="sub">We&#39;re always excited by new ideas, but we won&#39;t respond to pitches through this form. Please send your proposal to the address below instead.</p>' +
-      '  <p class="vendor-email"><a href="mailto:newideas@vendor-pitches.example">newideas@vendor-pitches.example</a></p>' +
       "</div>"
     );
   }
@@ -205,21 +252,6 @@ function initContactDrawer() {
   var POWER_AUTOMATE_ENDPOINT = "";
 
   function wireForm() {
-    var reasonClient = document.querySelector("#reason-client");
-    var reasonVendor = document.querySelector("#reason-vendor");
-    var clientPanel = document.querySelector("#client-panel");
-    var vendorPanel = document.querySelector("#vendor-panel");
-    function applyReason() {
-      var isVendor = reasonVendor && reasonVendor.checked;
-      if (clientPanel) clientPanel.hidden = !!isVendor;
-      if (vendorPanel) vendorPanel.hidden = !isVendor;
-    }
-    if (reasonClient && reasonVendor) {
-      reasonClient.addEventListener("change", applyReason);
-      reasonVendor.addEventListener("change", applyReason);
-      applyReason();
-    }
-
     var form = document.querySelector("#contact-form");
     if (!form) return;
     var honeypotEl = document.querySelector("#website");
@@ -314,6 +346,8 @@ function initContactDrawer() {
     }
     drawer.innerHTML = drawerMarkup();
     wireForm();
+    applyDrawerWidth();
+    wireResize();
 
     var closeBtn = document.querySelector("#drawer-close");
     if (closeBtn) closeBtn.addEventListener("click", closeDrawer);
@@ -325,6 +359,62 @@ function initContactDrawer() {
     });
 
     built = true;
+  }
+
+  // The drawer defaults to half the viewport's width, but a visitor can
+  // drag its left edge to make it wider or narrower — that choice is
+  // remembered (per browser) for next time.
+  var DRAWER_WIDTH_KEY = "scl-contact-drawer-width";
+
+  function applyDrawerWidth() {
+    // Below 560px the drawer is full-viewport-width by design (see the
+    // mobile media query) — leave it to that CSS rather than fighting it
+    // with an inline style, which would otherwise win the cascade.
+    if (window.innerWidth <= 560) {
+      drawer.style.width = "";
+      return;
+    }
+    var saved = null;
+    try {
+      saved = window.localStorage.getItem(DRAWER_WIDTH_KEY);
+    } catch (e) {}
+    var width = saved ? parseInt(saved, 10) : Math.round(window.innerWidth * 0.5);
+    if (!width || isNaN(width)) width = Math.round(window.innerWidth * 0.5);
+    width = Math.max(360, Math.min(Math.round(window.innerWidth * 0.96), width));
+    drawer.style.width = width + "px";
+  }
+
+  function wireResize() {
+    var handle = document.querySelector("#drawer-resize-handle");
+    if (!handle) return;
+    var dragging = false;
+
+    function onMove(e) {
+      if (!dragging) return;
+      var clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      var newWidth = window.innerWidth - clientX;
+      newWidth = Math.max(360, Math.min(Math.round(window.innerWidth * 0.96), newWidth));
+      drawer.classList.add("is-resizing");
+      drawer.style.width = newWidth + "px";
+    }
+    function endDrag() {
+      if (!dragging) return;
+      dragging = false;
+      handle.classList.remove("is-dragging");
+      drawer.classList.remove("is-resizing");
+      try {
+        window.localStorage.setItem(DRAWER_WIDTH_KEY, parseInt(drawer.style.width, 10));
+      } catch (e) {}
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", endDrag);
+    }
+    handle.addEventListener("pointerdown", function (e) {
+      dragging = true;
+      handle.classList.add("is-dragging");
+      window.addEventListener("pointermove", onMove);
+      window.addEventListener("pointerup", endDrag);
+      e.preventDefault();
+    });
   }
 
   function openDrawer() {
@@ -400,6 +490,8 @@ function initAttractorBackground() {
   var reduceMotion =
     window.matchMedia &&
     window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var coarsePointer =
+    window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
 
   var dpr = Math.min(window.devicePixelRatio || 1, 1.5);
   var width = 0, height = 0;
@@ -455,11 +547,63 @@ function initAttractorBackground() {
   seedTrail();
 
   var pointer = { tx: 0.5, ty: 0.5, x: 0.5, y: 0.5 };
+
+  // "Riffs": small extra Lorenz trajectories seeded near the cursor on
+  // hover, so moving the mouse stirs up little chaotic curls of its own
+  // — a nod to the system's sensitive dependence on initial conditions.
+  // Each one runs forward under the exact same equations as the main
+  // trails, then fades out and is discarded.
+  var riffs = [];
+  var lastRiffAt = 0;
+  var lastRiffPos = null;
+  var RIFF_LIFE_MS = 2600;
+  var lastCam = { angle: 0, tilt: 0.35, scale: 1, cx: 0, cy: 0 };
+
+  function invertProject(mx, my) {
+    // Approximate inverse of project() for a point with ry = 0 — good
+    // enough to seed a riff visually near the cursor; the riff's own
+    // chaotic evolution does the rest.
+    var cam = lastCam;
+    var rx = (mx - cam.cx) / cam.scale;
+    var rz = 25 - (my - cam.cy) / cam.scale;
+    var cosA = Math.cos(cam.angle), sinA = Math.sin(cam.angle);
+    var x = rx * cosA;
+    var y = -rx * sinA;
+    var cosT = Math.cos(cam.tilt) || 1;
+    var z = rz / cosT;
+    return { x: x, y: y, z: z };
+  }
+
+  function maybeSpawnRiff(mx, my) {
+    if (reduceMotion || coarsePointer) return;
+    var now = performance.now();
+    if (now - lastRiffAt < 150) return;
+    if (lastRiffPos) {
+      var dx = mx - lastRiffPos.x, dy = my - lastRiffPos.y;
+      if (Math.sqrt(dx * dx + dy * dy) < 16) return;
+    }
+    lastRiffAt = now;
+    lastRiffPos = { x: mx, y: my };
+    if (riffs.length >= 5) riffs.shift();
+    var base = invertProject(mx, my);
+    var jitter = 0.4;
+    riffs.push({
+      p: {
+        x: base.x + (Math.random() - 0.5) * jitter,
+        y: base.y + (Math.random() - 0.5) * jitter,
+        z: base.z + (Math.random() - 0.5) * jitter
+      },
+      trail: [],
+      born: now
+    });
+  }
+
   window.addEventListener(
     "pointermove",
     function (e) {
       pointer.tx = e.clientX / width;
       pointer.ty = e.clientY / height;
+      maybeSpawnRiff(e.clientX, e.clientY);
     },
     { passive: true }
   );
@@ -513,14 +657,33 @@ function initAttractorBackground() {
     var tilt = 0.35 + (pointer.y - 0.5) * 0.2;
 
     var scale = Math.min(width, height) * 0.017;
-    var cx = width * 0.58;
+    // Slowly drift side to side (time + scroll driven) rather than
+    // sitting statically at one horizontal spot — large as the
+    // attractor is, this keeps it from parking itself under the same
+    // patch of text for the whole time a section is in view.
+    var driftFrac = 0.58 + 0.08 * Math.sin(t * 0.00006 + scrollY * 0.0004);
+    var cx = width * driftFrac;
     var cy = height * 0.5;
+
+    lastCam.angle = angle;
+    lastCam.tilt = tilt;
+    lastCam.scale = scale;
+    lastCam.cx = cx;
+    lastCam.cy = cy;
 
     // Light background: normal alpha blending (not additive "lighter")
     // so overlapping strokes deepen into a richer dark blue, the way
     // overlapping pen strokes darken on paper.
     drawTrail(trail1, angle, tilt, scale, cx, cy, "rgba(29,53,87,0.4)");
     drawTrail(trail2, angle, tilt, scale, cx, cy, "rgba(44,77,120,0.22)");
+
+    for (var i = 0; i < riffs.length; i++) {
+      var r = riffs[i];
+      var age = (t - r.born) / RIFF_LIFE_MS;
+      var alpha = Math.max(0, 0.55 * (1 - age));
+      if (alpha <= 0.004) continue;
+      drawTrail(r.trail, angle, tilt, scale, cx, cy, "rgba(63,140,92," + alpha.toFixed(3) + ")");
+    }
   }
 
   if (reduceMotion) {
@@ -528,6 +691,7 @@ function initAttractorBackground() {
     return;
   }
 
+  var RIFF_MAX_POINTS = 260;
   var rafId = null;
   function loop(now) {
     for (var i = 0; i < stepsPerFrame; i++) {
@@ -537,6 +701,17 @@ function initAttractorBackground() {
       trail2.push({ x: p2.x, y: p2.y, z: p2.z });
       if (trail1.length > MAX_POINTS) trail1.shift();
       if (trail2.length > MAX_POINTS) trail2.shift();
+
+      for (var j = riffs.length - 1; j >= 0; j--) {
+        var r = riffs[j];
+        if (now - r.born > RIFF_LIFE_MS) {
+          riffs.splice(j, 1);
+          continue;
+        }
+        r.p = step(r.p);
+        r.trail.push({ x: r.p.x, y: r.p.y, z: r.p.z });
+        if (r.trail.length > RIFF_MAX_POINTS) r.trail.shift();
+      }
     }
     draw(now);
     rafId = window.requestAnimationFrame(loop);

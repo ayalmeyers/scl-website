@@ -24,6 +24,8 @@
 
   --blue:         #1d3557;
   --blue-bright:  #2c4d78;
+  --blue-highlight:       #c6d5ec; /* same hue as --blue, lightened into a legible marker-highlight tint */
+  --blue-highlight-hover: #abc2e3;
 
   --paper:        #142a1e;
   --paper-ink:    #f3f7f3;
@@ -1146,7 +1148,8 @@ select {
   line-height: 1.5;
   cursor: pointer;
 }
-.consent-row input { accent-color: var(--green); margin-top: 0.2rem; flex: none; }
+.consent-row input { width: auto; accent-color: var(--green); margin-top: 0.2rem; flex: none; }
+.consent-row span { flex: 1; min-width: 0; }
 
 .form-submit-row {
   margin-top: 1.8rem;
@@ -1283,7 +1286,9 @@ select {
   top: 0;
   right: 0;
   bottom: 0;
-  width: min(560px, 92vw);
+  width: 50vw;
+  min-width: 360px;
+  max-width: 96vw;
   background: var(--paper);
   color: var(--paper-ink);
   overflow-y: auto;
@@ -1294,6 +1299,36 @@ select {
   box-shadow: -30px 0 80px rgba(0,0,0,0.45);
 }
 .contact-drawer.is-open { transform: translate3d(0, 0, 0); }
+.contact-drawer.is-resizing { transition: none; }
+
+/* Drag handle on the drawer's left edge — lets the visitor widen or
+   narrow the panel; the chosen width is remembered per-browser. */
+.drawer-resize-handle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 12px;
+  margin-left: -6px;
+  cursor: ew-resize;
+  z-index: 5;
+  touch-action: none;
+}
+.drawer-resize-handle::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 4px;
+  width: 4px;
+  height: 46px;
+  transform: translateY(-50%);
+  border-radius: 2px;
+  background: var(--paper-line);
+  transition: background 0.2s ease;
+}
+.drawer-resize-handle:hover::after,
+.drawer-resize-handle.is-dragging::after { background: var(--green-bright); }
+@media (max-width: 700px) { .drawer-resize-handle { display: none; } }
 
 .contact-drawer-top {
   display: flex;
@@ -1337,10 +1372,6 @@ select {
   margin-bottom: 1.8rem;
   max-width: 44ch;
 }
-.contact-drawer .reason-toggle legend { color: var(--paper-dim); }
-.contact-drawer .reason-option { color: var(--paper-dim); border-color: var(--paper-line); }
-.contact-drawer .reason-option:has(input:checked) { color: var(--paper-ink); border-color: var(--green-bright); }
-
 .drawer-grid { display: grid; grid-template-columns: 1fr; gap: 1.1rem; margin-top: 0.4rem; }
 .drawer-grid .full { grid-column: 1 / -1; }
 .contact-drawer label { color: var(--paper-dim); }
@@ -1392,7 +1423,6 @@ select {
 .contact-drawer #form-note { font-family: var(--mono); font-size: 0.76rem; text-transform: uppercase; line-height: 1.6; color: var(--paper-dim); max-width: 30ch; }
 .contact-drawer #form-note.is-success { color: var(--green-bright); }
 .contact-drawer #form-note.is-error { color: #e2897a; }
-.contact-drawer .vendor-email a { color: var(--green-bright); border-bottom-color: var(--green-bright); }
 
 body.contact-drawer-locked { overflow: hidden; }
 
@@ -1401,4 +1431,53 @@ body.contact-drawer-locked { overflow: hidden; }
 }
 @media (prefers-reduced-motion: reduce) {
   .contact-drawer, .contact-drawer-scrim, .drawer-close, .drawer-send { transition: none !important; }
+}
+
+/* ---------- inline highlight marks (yellow-marker style, in-brand blue) ---------- */
+mark, .hl-blue {
+  background: var(--blue-highlight);
+  color: var(--ink);
+  padding: 0.05em 0.32em;
+  border-radius: 2px;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+.section-light mark, .section-light .hl-blue,
+.section-navy mark, .section-navy .hl-blue,
+.section-alt mark, .section-alt .hl-blue,
+.contact-drawer mark, .contact-drawer .hl-blue { color: var(--ink); }
+
+/* ---------- custom dot cursor + Lorenz hover "riffs" (desktop, fine pointer only) ---------- */
+#cursor-dot {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ffffff;
+  mix-blend-mode: difference;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate3d(-50%, -50%, 0);
+  transition: opacity 0.2s ease, width 0.2s ease, height 0.2s ease;
+  opacity: 0;
+}
+#cursor-dot.is-active { opacity: 1; }
+#cursor-dot.is-hidden { opacity: 0; }
+#cursor-dot.is-hovering { width: 22px; height: 22px; }
+body.custom-cursor-active,
+body.custom-cursor-active a,
+body.custom-cursor-active button,
+body.custom-cursor-active .team-card,
+body.custom-cursor-active .nav-toggle {
+  cursor: none;
+}
+body.custom-cursor-active input,
+body.custom-cursor-active textarea,
+body.custom-cursor-active select {
+  cursor: auto;
+}
+@media (prefers-reduced-motion: reduce) {
+  #cursor-dot { display: none; }
 }
