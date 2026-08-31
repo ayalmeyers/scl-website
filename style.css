@@ -1,16 +1,18 @@
 /* =========================================================
    Strategic Communication Lab — stylesheet
    Structural clone of axiom.peppermint.id's design system —
-   Funnel Display for oversized headlines, Space Mono for every
-   label/nav/body-copy line, a live Lorenz-attractor animation —
-   re-themed light: white/soft-green backgrounds, a dark-green
-   ink, a dark-blue attractor, and green accents. Sections
-   alternate transparent (canvas-revealing) and solid deep-green
-   (canvas-occluding) bands.
+   EB Garamond for both oversized headlines and every label/nav/
+   body-copy line, a live Lorenz-attractor animation — re-themed
+   light: white/soft-green backgrounds, a dark-green ink, a
+   dark-blue attractor, and green accents. Sections alternate
+   transparent (canvas-revealing) and solid deep-green
+   (canvas-occluding) bands; copy in the transparent sections gets
+   a frosted-glass backdrop panel for legibility over the animation.
    ========================================================= */
 
 :root {
   --bg:           #f7f9f6;
+  --bg-rgb:       247, 249, 246;
   --bg-alt:       #eef2ec;
   --ink:          #12211a;
   --ink-dim:      rgba(18, 33, 26, 0.74);
@@ -32,8 +34,8 @@
   --paper-dim:    rgba(243, 247, 243, 0.68);
   --paper-line:   rgba(243, 247, 243, 0.18);
 
-  --display: "Funnel Display", "Funnel Display Fallback", "Helvetica Neue", Arial, sans-serif;
-  --mono:    "Space Mono", "Space Mono Fallback", "Courier New", monospace;
+  --display: "EB Garamond", Garamond, "Times New Roman", serif;
+  --mono:    "EB Garamond", Garamond, "Times New Roman", serif;
 
   --maxw: 1320px;
   --pad: clamp(1.25rem, 4vw, 3.5rem);
@@ -91,6 +93,28 @@ p:last-child { margin-bottom: 0; }
   pointer-events: none;
   display: block;
 }
+
+/* ---------- readability backdrop for text over exposed canvas ----------
+   Copy blocks that sit in a transparent section (the attractor line-work
+   showing through, per the note above) get a translucent, blurred panel
+   behind just the text — same frosted-glass treatment as the header bar —
+   so the animation stays visible around the copy without crossing through
+   the letterforms. Sections with their own opaque background (.section-alt,
+   .section-light, .section-navy, cards) don't need it and aren't touched. */
+.crumb,
+.hero .lede,
+.page-hero .lede,
+.hero-blurb,
+.article-meta,
+.article-body {
+  background: rgba(var(--bg-rgb), 0.86);
+  backdrop-filter: blur(10px) saturate(120%);
+  -webkit-backdrop-filter: blur(10px) saturate(120%);
+  border-radius: 14px;
+}
+.crumb, .article-meta { padding: 0.5rem 0.9rem; display: inline-flex; }
+.hero .lede, .page-hero .lede, .article-body { padding: 1.4rem clamp(1.1rem, 3vw, 1.8rem); }
+.hero-blurb { padding: 1rem 1.3rem; }
 
 /* ---------- eyebrow / small labels ---------- */
 .eyebrow {
