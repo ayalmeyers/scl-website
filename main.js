@@ -247,9 +247,17 @@ function initContactDrawer() {
     );
   }
 
-  // ---- Lead-routing config (see previous inline comment for context). ----
+  // ---- Lead-routing config ----
+  // Routes through FormSubmit (https://formsubmit.co) rather than the
+  // originally-planned Power Automate flow: Power Automate needs a flow
+  // built inside SCL's own Microsoft 365 tenant, which this session has
+  // no access to, while FormSubmit needs no account at all — just point
+  // it at the destination address. The one manual step is on the SCL
+  // side: FormSubmit emails admin@scl.us.com a one-time "confirm this
+  // form" link the first time a submission comes through, and every
+  // submission after that confirmation click is delivered automatically.
   var SCL_LEAD_SUBJECT = "[SCL Website Lead] New Contact Form Submission";
-  var POWER_AUTOMATE_ENDPOINT = "";
+  var SCL_FORM_ENDPOINT = "https://formsubmit.co/ajax/admin@scl.us.com";
 
   function wireForm() {
     var form = document.querySelector("#contact-form");
@@ -294,38 +302,47 @@ function initContactDrawer() {
         return;
       }
 
+      var submitterEmail = emailEl.value.trim();
       var payload = {
-        subject: SCL_LEAD_SUBJECT,
+        _subject: SCL_LEAD_SUBJECT,
+        _replyto: submitterEmail,
+        _captcha: "false",
+        _template: "table",
         name: nameEl.value.trim(),
         company: document.querySelector("#company").value.trim(),
-        email: emailEl.value.trim(),
+        email: submitterEmail,
         phone: document.querySelector("#phone").value.trim(),
         interest: document.querySelector("#interest").value,
         message: messageEl.value.trim(),
         submittedAt: new Date().toISOString()
       };
 
-      if (POWER_AUTOMATE_ENDPOINT) {
-        fetch(POWER_AUTOMATE_ENDPOINT, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        }).catch(function () {
+      if (note) {
+        note.className = "is-pending";
+        note.textContent = "Sending…";
+      }
+
+      fetch(SCL_FORM_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify(payload)
+      })
+        .then(function (res) {
+          if (!res.ok) throw new Error("Delivery failed");
+          if (note) {
+            note.className = "is-success";
+            note.textContent =
+              "Success! Your message is on its way — a consultant will follow up within one business day.";
+          }
+          form.reset();
+        })
+        .catch(function () {
           if (note) {
             note.className = "is-error";
             note.textContent =
               "We couldn't confirm delivery just now — please call 1-877-266-6522 so we don't miss you.";
           }
         });
-      }
-
-      if (note && note.className !== "is-error") {
-        note.className = "is-success";
-        note.textContent = POWER_AUTOMATE_ENDPOINT
-          ? "Success! Your message is on its way — a consultant will follow up within one business day."
-          : "Success! Your message has been noted. This is a static preview site, so for now please reach us directly at the phone number above while the contact form is connected.";
-      }
-      form.reset();
     });
   }
 
