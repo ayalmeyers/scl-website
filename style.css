@@ -1,42 +1,78 @@
 /* =========================================================
    Strategic Communication Lab — stylesheet
    Structural clone of axiom.peppermint.id's design system —
-   EB Garamond for both oversized headlines and every label/nav/
-   body-copy line, a live Lorenz-attractor animation — re-themed
-   light: white/soft-green backgrounds, a dark-green ink, a
-   dark-blue attractor, and green accents. Sections alternate
-   transparent (canvas-revealing) and solid deep-green
-   (canvas-occluding) bands; copy in the transparent sections gets
-   a frosted-glass backdrop panel for legibility over the animation.
+   a live Lorenz-attractor animation, re-themed light: white/
+   soft-green backgrounds, a dark-green ink, a dark-blue
+   attractor, and green accents. Sections alternate transparent
+   (canvas-revealing) and solid deep-green (canvas-occluding)
+   bands; copy in the transparent sections gets a frosted-glass
+   backdrop panel for legibility over the animation.
+
+   Typography pairing: EB Garamond (a serif, carrying the same
+   authority as a classic Garamond) for headlines and pull-quotes;
+   Inter for every running-text and UI line — nav, buttons, labels,
+   body copy — so small text stays crisp at small sizes while
+   headlines keep their editorial weight. (--mono keeps its name
+   for backward compatibility with the rest of this file, but now
+   points at the Inter/UI stack rather than a monospace family.)
+
+   Design tokens below are grouped by role — color, elevation,
+   radius, motion, spacing — so a future palette or rhythm change
+   is a one-line edit here rather than a hunt through the file.
    ========================================================= */
 
 :root {
+  /* ---- color: surface & text ---- */
   --bg:           #f7f9f6;
   --bg-rgb:       247, 249, 246;
   --bg-alt:       #eef2ec;
+  --surface:      #ffffff;   /* cards / panels raised off the page background */
   --ink:          #12211a;
   --ink-dim:      rgba(18, 33, 26, 0.74);
-  --ink-faint:    rgba(18, 33, 26, 0.56);
+  --ink-faint:    rgba(18, 33, 26, 0.63); /* >=4.5:1 on --bg — AA for normal text, not just large/UI */
   --line:         rgba(18, 33, 26, 0.14);
   --line-strong:  rgba(18, 33, 26, 0.26);
-  --green:         #2e6b46;
-  --green-bright:  #3f8c5c;
+
+  /* ---- color: brand / accent ---- */
+  --green:         #2e6b46;   /* primary accent — AA on --bg and --surface */
+  --green-bright:  #3f8c5c;   /* hover-only on light surfaces (3.9:1 — large text/UI, not run-in body copy) */
+  --green-on-dark: #9fe0b8;   /* the same accent, lightened for AA contrast on --paper (10:1) */
   --green-highlight:       #bfe3cd; /* same hue as --green, lightened into a legible marker-highlight tint */
   --green-highlight-hover: #a6d6b8;
 
-  --blue:         #1d3557;
+  --blue:         #1d3557;    /* secondary accent */
   --blue-bright:  #2c4d78;
   --blue-highlight:       #c6d5ec; /* same hue as --blue, lightened into a legible marker-highlight tint */
   --blue-highlight-hover: #abc2e3;
 
+  /* ---- color: dark ("paper") sections & the contact drawer ---- */
   --paper:        #142a1e;
   --paper-ink:    #f3f7f3;
   --paper-dim:    rgba(243, 247, 243, 0.68);
   --paper-line:   rgba(243, 247, 243, 0.18);
 
+  /* ---- type ---- */
   --display: "EB Garamond", Garamond, "Times New Roman", serif;
-  --mono:    "EB Garamond", Garamond, "Times New Roman", serif;
+  --sans:    "Inter", -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --mono:    "Inter", -apple-system, "Helvetica Neue", Arial, sans-serif;
 
+  /* ---- elevation ---- */
+  --shadow-sm: 0 1px 3px rgba(18, 33, 26, 0.08);
+  --shadow-md: 0 6px 20px rgba(18, 33, 26, 0.10);
+  --shadow-lg: 0 18px 44px rgba(18, 33, 26, 0.14);
+
+  /* ---- radius ---- */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+
+  /* ---- motion ---- */
+  --ease: cubic-bezier(.2,.8,.2,1);
+  --dur-fast: 0.2s;
+  --dur: 0.3s;
+  --dur-slow: 0.5s;
+
+  /* ---- layout ---- */
   --maxw: 1320px;
   --pad: clamp(1.25rem, 4vw, 3.5rem);
   --section-pad: clamp(4rem, 10vw, 8rem);
@@ -59,6 +95,24 @@ body {
 img { max-width: 100%; display: block; }
 a { color: inherit; text-decoration: none; }
 ul { list-style: none; margin: 0; padding: 0; }
+/* Universal focus-visible fallback: a visible ring for any interactive
+   element that doesn't already define its own focus treatment above.
+   Components with a bespoke focus state (buttons, form fields, cards,
+   pillar links, teaser CTAs, team cards, drawer controls) override this
+   with their own rule, so this exists purely so nothing is ever left
+   with no visible keyboard-focus indicator at all. */
+a:focus-visible, button:focus-visible, input:focus-visible,
+textarea:focus-visible, select:focus-visible, [tabindex]:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+}
+.section-light a:focus-visible, .section-light button:focus-visible,
+.contact-drawer a:focus-visible, .contact-drawer button:focus-visible,
+.contact-drawer input:focus-visible, .contact-drawer textarea:focus-visible,
+.contact-drawer select:focus-visible {
+  outline-color: var(--green-on-dark);
+}
 h1, h2, h3, h4 {
   font-family: var(--display);
   font-weight: 500;
@@ -710,6 +764,8 @@ a.pillar.pillar-link:focus-visible .more .arrow { transform: translateX(5px); }
 
 .prose { max-width: 42rem; font-family: var(--mono); font-size: 0.86rem; text-transform: uppercase; line-height: 1.85; font-weight: 400; color: var(--ink-dim); }
 .prose strong { color: var(--ink); font-weight: 700; }
+.prose h3 { margin: 2rem 0 1rem; }
+.noscript-fallback { padding: 6rem 0; }
 .prose ul { margin: 1.4rem 0; }
 .prose ul li {
   position: relative;
@@ -845,7 +901,7 @@ a.pillar.pillar-link:focus-visible .more .arrow { transform: translateX(5px); }
 .team-card:hover .team-card-cue .arrow { transform: translateX(4px); }
 .team-card-wrap.is-active .team-card-cue .arrow { transform: rotate(90deg); }
 .team-card-wrap.is-active .team-card { border-top-color: var(--green-bright); }
-.team-card-wrap.is-active .team-card-cue { color: var(--green-bright); }
+.team-card-wrap.is-active .team-card-cue { color: var(--green); } /* was --green-bright (3.9:1 fails AA at this 0.66rem size on the light section-alt background); --green is AA-compliant here */
 
 .team-card-bio {
   display: grid;
@@ -1482,14 +1538,14 @@ select {
   font-size: 0.78rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--green-bright);
+  color: var(--green-on-dark);
   cursor: pointer;
   transition: color 0.25s ease, transform 0.25s ease;
 }
 .drawer-send:hover { color: var(--paper-ink); transform: translateX(3px); }
 .drawer-send .key { font-size: 1rem; }
 .contact-drawer #form-note { font-family: var(--mono); font-size: 0.76rem; text-transform: uppercase; line-height: 1.6; color: var(--paper-dim); max-width: 30ch; }
-.contact-drawer #form-note.is-success { color: var(--green-bright); }
+.contact-drawer #form-note.is-success { color: var(--green-on-dark); }
 .contact-drawer #form-note.is-error { color: #e2897a; }
 
 body.contact-drawer-locked { overflow: hidden; }
