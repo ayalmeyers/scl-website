@@ -1137,6 +1137,123 @@ a.pillar.pillar-link:focus-visible .more .arrow { transform: translateX(5px); }
 @media (max-width: 900px) {
   .musings-grid { grid-template-columns: 1fr; }
 }
+
+/* ---------- flow-scroll: horizontal card flow that resolves into a full-bleed cover reveal ----------
+   A pinned section: as the visitor scrolls through it, a track of cards
+   flows left-to-right across the viewport, then a full-viewport panel
+   slides up to completely cover the page and reveal its own content —
+   the scroll mechanic from axiom.peppermint.id. Progress is driven by
+   JS (initFlowScroll in main.js) via a single scroll listener; this CSS
+   only defines the static geometry and the reduced-motion / narrow-
+   viewport fallback, which drops the pin entirely and stacks everything
+   in normal document flow. */
+.flow-scroll { position: relative; height: 340vh; }
+.flow-scroll-stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.flow-scroll-label { position: absolute; top: 3rem; left: var(--pad); z-index: 3; }
+.flow-track {
+  position: relative;
+  display: flex;
+  gap: clamp(1.5rem, 3vw, 3rem);
+  width: max-content;
+  padding: 0 var(--pad);
+  will-change: transform;
+}
+.flow-box {
+  width: min(420px, 78vw);
+  flex: none;
+  background: var(--surface);
+  color: var(--ink);
+  padding: 2.2rem 2.4rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+}
+.flow-box-visual {
+  aspect-ratio: 16 / 10;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-alt);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  color: var(--green);
+  margin-bottom: 1.4rem;
+}
+.flow-box-visual svg { width: 2.6rem; height: 2.6rem; }
+.flow-box .num {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  display: block;
+  margin-bottom: 0.9rem;
+}
+.flow-box h3 { font-family: var(--display); font-size: 1.4rem; font-weight: 500; margin-bottom: 0.7rem; letter-spacing: -0.01em; }
+.flow-box p { font-family: var(--mono); font-size: 0.78rem; text-transform: uppercase; line-height: 1.7; color: var(--ink-dim); }
+
+.flow-cover {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  background: var(--paper);
+  color: var(--paper-ink);
+  display: flex;
+  align-items: center;
+  transform: translateY(100%);
+  will-change: transform;
+}
+.flow-cover-inner {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 0 var(--pad);
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.flow-cover-inner.is-shown { opacity: 1; transform: translateY(0); }
+.flow-cover .eyebrow { color: var(--paper-dim); }
+.flow-cover h2 {
+  color: var(--paper-ink);
+  font-family: var(--display);
+  font-size: clamp(1.9rem, 4vw, 3rem);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.08;
+  max-width: 24ch;
+  margin-top: 1.1rem;
+}
+.flow-cover .lede {
+  color: var(--paper-dim);
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  line-height: 1.8;
+  max-width: 46rem;
+  margin-top: 1.3rem;
+}
+.flow-cover .teaser-cta { margin-top: 2.2rem; border-color: var(--paper-line); }
+.flow-cover .teaser-cta-label { color: var(--paper-ink); }
+.flow-cover .arrow-circle { border-color: var(--paper-line); color: var(--paper-ink); }
+
+@media (prefers-reduced-motion: reduce), (max-width: 900px) {
+  .flow-scroll { height: auto; }
+  .flow-scroll-stage { position: static; height: auto; overflow: visible; display: block; padding: 1rem 0 0; }
+  .flow-scroll-label { position: static; display: block; margin-bottom: 1.6rem; padding-left: var(--pad); }
+  .flow-track { width: auto; flex-direction: column; padding: 0 var(--pad); transform: none !important; }
+  .flow-box { width: 100%; }
+  .flow-cover { position: static; transform: none !important; margin-top: 2rem; padding: var(--section-pad) 0; }
+  .flow-cover-inner { opacity: 1 !important; transform: none !important; }
+}
 .article-body em { color: var(--green); font-style: normal; }
 .article-meta {
   display: flex;
