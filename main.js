@@ -63,49 +63,57 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   // ---------------------------------------------------------------------
-  // Who We Are: click a team card to expand it inline, right where it
-  // was clicked — the photo scales in and the bio opens beneath it.
-  // Only one card is expanded at a time.
+  // Who We Are: the team roster. Split each name into per-letter spans
+  // for the staggered hover animation, and wire click-to-expand bios —
+  // one open at a time, the whole row's trigger button toggles it.
   // ---------------------------------------------------------------------
-  var teamCardWraps = document.querySelectorAll(".team-card-wrap");
-  if (teamCardWraps.length) {
-    var activeWrap = null;
+  var yemList = document.getElementById("yem-list");
+  if (yemList) {
+    yemList.querySelectorAll("[data-split]").forEach(function (el) {
+      var text = el.textContent;
+      el.textContent = "";
+      text.split("").forEach(function (ch, i) {
+        var span = document.createElement("span");
+        span.className = "yem-letter";
+        span.style.setProperty("--i", i);
+        span.textContent = ch === " " ? " " : ch;
+        el.appendChild(span);
+      });
+    });
 
-    function closeWrap(wrap) {
-      wrap.classList.remove("is-active");
-      var btn = wrap.querySelector("[data-team-card]");
+    var activeYemRow = null;
+
+    function closeYemRow(row) {
+      row.classList.remove("is-active");
+      var btn = row.querySelector("[data-yem-trigger]");
       if (btn) btn.setAttribute("aria-expanded", "false");
     }
 
-    function openWrap(wrap) {
-      if (activeWrap && activeWrap !== wrap) closeWrap(activeWrap);
-      wrap.classList.add("is-active");
-      var btn = wrap.querySelector("[data-team-card]");
+    function openYemRow(row) {
+      if (activeYemRow && activeYemRow !== row) closeYemRow(activeYemRow);
+      row.classList.add("is-active");
+      var btn = row.querySelector("[data-yem-trigger]");
       if (btn) btn.setAttribute("aria-expanded", "true");
-      activeWrap = wrap;
-      window.requestAnimationFrame(function () {
-        var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-        wrap.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "nearest" });
-      });
+      activeYemRow = row;
     }
 
-    teamCardWraps.forEach(function (wrap) {
-      var btn = wrap.querySelector("[data-team-card]");
+    yemList.querySelectorAll("[data-yem-row]").forEach(function (row) {
+      var btn = row.querySelector("[data-yem-trigger]");
       if (!btn) return;
       btn.addEventListener("click", function () {
-        if (wrap.classList.contains("is-active")) {
-          closeWrap(wrap);
-          activeWrap = null;
+        if (row.classList.contains("is-active")) {
+          closeYemRow(row);
+          activeYemRow = null;
         } else {
-          openWrap(wrap);
+          openYemRow(row);
         }
       });
     });
 
     document.addEventListener("keydown", function (e) {
-      if (e.key === "Escape" && activeWrap) {
-        closeWrap(activeWrap);
-        activeWrap = null;
+      if (e.key === "Escape" && activeYemRow) {
+        closeYemRow(activeYemRow);
+        activeYemRow = null;
       }
     });
   }
@@ -213,7 +221,7 @@ function initCursorDot() {
       var el = document.elementFromPoint(e.clientX, e.clientY);
       var overField = el && el.closest && el.closest("input, textarea, select");
       dot.classList.toggle("is-hidden", !!overField);
-      var overClickable = el && el.closest && el.closest("a, button, [data-team-card]");
+      var overClickable = el && el.closest && el.closest("a, button");
       dot.classList.toggle("is-hovering", !!overClickable && !overField);
     },
     { passive: true }

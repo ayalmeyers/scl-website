@@ -803,163 +803,6 @@ a.pillar.pillar-link:focus-visible .more .arrow { transform: translateX(5px); }
 }
 @media (max-width: 860px) { .two-col { grid-template-columns: 1fr; } }
 
-/* ---------- team ---------- */
-.team-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 2.4rem 2rem;
-}
-@media (max-width: 860px) { .team-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 560px) { .team-grid { grid-template-columns: 1fr; } }
-.team-card {
-  border-top: 1px solid var(--green);
-  padding-top: 1.3rem;
-}
-.team-card .avatar {
-  width: 100%;
-  aspect-ratio: 4/5;
-  border-radius: 0;
-  background: var(--bg-alt);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--display);
-  font-weight: 500;
-  font-size: 2.6rem;
-  color: var(--green);
-  margin-bottom: 1.2rem;
-  letter-spacing: -0.01em;
-  overflow: hidden;
-}
-.team-card .avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-.team-card h3 { font-family: var(--display); font-size: 1.2rem; font-weight: 500; margin-bottom: 0.25rem; }
-.team-card .role {
-  font-family: var(--mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--ink-dim);
-}
-
-/* team cards double as toggle buttons that expand inline, right where
-   they're clicked, into their own bio panel — photo scales in, text
-   opens up beneath it. Only one card is expanded at a time. */
-.team-card-wrap {
-  grid-column: span 1;
-  transition: grid-column 0s;
-}
-.team-card-wrap.is-active { grid-column: 1 / -1; }
-.team-card {
-  display: block;
-  width: 100%;
-  background: none;
-  border: none;
-  border-top: 1px solid var(--green);
-  text-align: left;
-  font: inherit;
-  color: inherit;
-  cursor: pointer;
-  transition: transform 0.35s cubic-bezier(.2,.8,.2,1), opacity 0.3s ease;
-}
-.team-card:hover,
-.team-card:focus-visible { transform: translateY(-3px); }
-.team-card:hover .avatar,
-.team-card:focus-visible .avatar { opacity: 0.9; }
-.team-card .avatar { transition: opacity 0.3s ease, box-shadow 0.3s ease, transform 0.4s cubic-bezier(.2,.8,.2,1); }
-.team-card-wrap.is-active .team-card .avatar { transform: scale(1.04); box-shadow: 0 0 0 2px var(--green-bright); }
-/* When a wrap spans the full grid width to open, keep its own trigger
-   (photo/name/role) from stretching to that full width — only the bio
-   panel below should use the extra space. */
-.team-card-wrap.is-active .team-card { max-width: 260px; }
-@media (max-width: 560px) { .team-card-wrap.is-active .team-card { max-width: none; } }
-.team-card-cue {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 0.9rem;
-  font-family: var(--mono);
-  font-size: 0.66rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--green);
-  opacity: 0;
-  transform: translateY(-4px);
-  transition: opacity 0.3s ease, transform 0.3s ease;
-}
-.team-card-cue .cue-close { display: none; }
-.team-card-wrap.is-active .team-card-cue .cue-open { display: none; }
-.team-card-wrap.is-active .team-card-cue .cue-close { display: inline; }
-.team-card-cue .arrow { transition: transform 0.3s ease; }
-.team-card:hover .team-card-cue,
-.team-card:focus-visible .team-card-cue,
-.team-card-wrap.is-active .team-card-cue { opacity: 1; transform: translateY(0); }
-.team-card:hover .team-card-cue .arrow { transform: translateX(4px); }
-.team-card-wrap.is-active .team-card-cue .arrow { transform: rotate(90deg); }
-.team-card-wrap.is-active .team-card { border-top-color: var(--green-bright); }
-.team-card-wrap.is-active .team-card-cue { color: var(--green); } /* was --green-bright (3.9:1 fails AA at this 0.66rem size on the light section-alt background); --green is AA-compliant here */
-
-.team-card-bio {
-  display: grid;
-  grid-template-rows: 0fr;
-  opacity: 0;
-  transition: grid-template-rows 0.55s cubic-bezier(.2,.8,.2,1), opacity 0.4s ease, margin-top 0.55s ease;
-  margin-top: 0;
-}
-.team-card-wrap.is-active .team-card-bio { grid-template-rows: 1fr; opacity: 1; margin-top: 1.8rem; }
-.team-card-bio-inner {
-  min-height: 0;
-  overflow: hidden;
-  display: grid;
-  grid-template-columns: 220px 1fr;
-  gap: clamp(1.6rem, 4vw, 3.2rem);
-  background: var(--bg-alt);
-  border: 1px solid var(--line);
-  padding: clamp(1.8rem, 4vw, 3rem);
-}
-@media (max-width: 700px) { .team-card-bio-inner { grid-template-columns: 1fr; } }
-.team-card-bio-photo {
-  width: 100%;
-  aspect-ratio: 1/1;
-  background: var(--paper);
-  overflow: hidden;
-  opacity: 0;
-  transform: scale(0.92);
-  transition: opacity 0.5s ease 0.08s, transform 0.5s cubic-bezier(.2,.8,.2,1) 0.08s;
-}
-.team-card-wrap.is-active .team-card-bio-photo { opacity: 1; transform: scale(1); }
-.team-card-bio-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.team-card-bio-photo.team-card-bio-initials {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--display);
-  font-weight: 500;
-  font-size: 2.6rem;
-  color: var(--green);
-}
-.team-card-bio-text {
-  opacity: 0;
-  transform: translateY(10px);
-  transition: opacity 0.5s ease 0.14s, transform 0.5s ease 0.14s;
-}
-.team-card-wrap.is-active .team-card-bio-text { opacity: 1; transform: translateY(0); }
-.team-card-bio-text p {
-  margin-bottom: 1rem;
-  line-height: 1.7;
-  color: var(--ink-dim);
-  max-width: 62ch;
-}
-.team-card-bio-text p:last-child { margin-bottom: 0; }
-.team-card-bio-text em { font-style: italic; color: var(--ink); }
-@media (prefers-reduced-motion: reduce) {
-  .team-card, .team-card-cue, .team-card-bio, .team-card-bio-photo, .team-card-bio-text, .team-card .avatar { transition: none !important; }
-}
-
 /* ---------- blog / musings ---------- */
 .post-grid { display: flex; flex-direction: column; }
 .post-row {
@@ -1760,7 +1603,6 @@ mark, .hl-blue {
 body.custom-cursor-active,
 body.custom-cursor-active a,
 body.custom-cursor-active button,
-body.custom-cursor-active .team-card,
 body.custom-cursor-active .nav-toggle {
   cursor: none;
 }
@@ -1771,4 +1613,117 @@ body.custom-cursor-active select {
 }
 @media (prefers-reduced-motion: reduce) {
   #cursor-dot { display: none; }
+}
+
+/* ---------- team: hover/typography roster (Who We Are) ----------
+   Default state is a clean, bold list of names — visual clutter (photos,
+   bios) is hidden until a visitor interacts. Hovering or focusing a row
+   reveals that person's portrait beside their name and staggers each
+   letter of the name upward; selecting the row expands their full bio
+   beneath it, one at a time. The hover portrait reveal is gated behind
+   `(hover: hover)` — on touch devices there's no hover state to
+   discover, so a small thumbnail sits inline next to the name instead.
+   Letter-splitting and the open/close toggle live in main.js. */
+.yem-list { border-top: 1px solid var(--line); }
+.yem-row { position: relative; border-bottom: 1px solid var(--line); }
+.yem-trigger {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1.5rem;
+  width: 100%;
+  background: none;
+  border: none;
+  padding: clamp(1.4rem, 3vw, 2.2rem) 0;
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+}
+.yem-name {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: clamp(2rem, 6vw, 4rem);
+  letter-spacing: -0.02em;
+  line-height: 1;
+  color: var(--ink);
+}
+.yem-letter {
+  display: inline-block;
+  transition: transform 0.35s cubic-bezier(.2, .8, .2, 1), color 0.35s ease;
+}
+.yem-row:hover .yem-letter,
+.yem-row:focus-within .yem-letter,
+.yem-row.is-active .yem-letter {
+  color: var(--green);
+  transform: translateY(-0.08em);
+  transition-delay: calc(var(--i, 0) * 22ms);
+}
+.yem-role {
+  flex: none;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  white-space: nowrap;
+}
+.yem-portrait {
+  position: absolute;
+  top: 50%;
+  right: clamp(1rem, 8vw, 9rem);
+  width: clamp(120px, 14vw, 190px);
+  aspect-ratio: 4 / 5;
+  transform: translateY(-50%) scale(0.92);
+  opacity: 0;
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-lg);
+  pointer-events: none;
+  transition: opacity 0.35s ease, transform 0.4s cubic-bezier(.2, .8, .2, 1);
+  z-index: 2;
+}
+.yem-portrait img { width: 100%; height: 100%; object-fit: cover; display: block; }
+@media (hover: hover) {
+  .yem-row:hover .yem-portrait,
+  .yem-row:focus-within .yem-portrait { opacity: 1; transform: translateY(-50%) scale(1); }
+}
+@media (hover: none) {
+  .yem-portrait {
+    position: static;
+    opacity: 1;
+    transform: none;
+    width: 56px;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    float: left;
+    margin: 0.2rem 1rem 0 0;
+    box-shadow: none;
+  }
+}
+.yem-bio {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition: grid-template-rows 0.55s cubic-bezier(.2, .8, .2, 1), opacity 0.4s ease, margin 0.55s ease;
+  margin: 0;
+}
+.yem-row.is-active .yem-bio { grid-template-rows: 1fr; opacity: 1; margin: 0 0 2rem; }
+.yem-bio-inner { min-height: 0; overflow: hidden; }
+.yem-bio-inner p {
+  max-width: 62ch;
+  color: var(--ink-dim);
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  line-height: 1.8;
+  margin-bottom: 1rem;
+}
+.yem-bio-inner p:last-child { margin-bottom: 0; }
+@media (max-width: 700px) {
+  .yem-name { font-size: clamp(1.5rem, 8vw, 2.4rem); }
+  .yem-trigger { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .yem-letter, .yem-portrait, .yem-bio { transition: none !important; }
 }
