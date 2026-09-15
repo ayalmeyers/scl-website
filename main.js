@@ -123,7 +123,34 @@ document.addEventListener("DOMContentLoaded", function () {
   initContactDrawer();
   initCursorDot();
   initFlowScroll();
+  initVideoCards();
 });
+
+// ---------------------------------------------------------------------
+// Insights in Motion (Musings): click-to-load video embeds. Nothing
+// loads until a visitor presses play — the poster tile holds a
+// data-video-embed URL and swaps in an iframe pointed at it (with
+// autoplay=1, allowed since it's triggered by a real user gesture) only
+// once clicked, rather than loading every embed up front.
+// ---------------------------------------------------------------------
+function initVideoCards() {
+  document.querySelectorAll("[data-video-play]").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var poster = btn.closest(".video-card-poster");
+      if (!poster) return;
+      var src = poster.getAttribute("data-video-embed");
+      if (!src) return;
+      var iframe = document.createElement("iframe");
+      iframe.src = src + (src.indexOf("?") > -1 ? "&" : "?") + "autoplay=1";
+      iframe.title = poster.closest(".video-card").querySelector("h3").textContent;
+      iframe.allow = "autoplay; fullscreen; picture-in-picture";
+      iframe.allowFullscreen = true;
+      poster.classList.add("has-embed");
+      poster.innerHTML = "";
+      poster.appendChild(iframe);
+    });
+  });
+}
 
 // ---------------------------------------------------------------------
 // Flow-scroll: drives the horizontal card flow + full-bleed cover

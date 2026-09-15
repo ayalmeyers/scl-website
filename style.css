@@ -922,10 +922,13 @@ a.pillar.pillar-link:focus-visible .more .arrow { transform: translateX(5px); }
 }
 .musings-card .read:hover { color: var(--green-bright); }
 
-/* ---------- insights in motion: video placeholder showcase ----------
-   No real footage exists yet, so these render as clearly-labeled
-   "coming soon" placeholders (never a broken/empty <video> tag) built
-   on the site's existing .grid-3 / .pillar three-up pattern. */
+/* ---------- insights in motion: video showcase ----------
+   .video-card-poster starts as a placeholder tile with a play button;
+   clicking it (data-video-play, wired in main.js) swaps in a lazily-
+   created iframe pointed at the card's data-video-embed URL, so nothing
+   loads or autoplays until the visitor asks for it. The third card has
+   no public embed available (see the comment on it in musings.html) and
+   is instead a plain link — same visual tile, styled as `<a>`. */
 .video-card { text-align: left; }
 .video-card-poster {
   aspect-ratio: 16 / 9;
@@ -938,9 +941,24 @@ a.pillar.pillar-link:focus-visible .more .arrow { transform: translateX(5px); }
   border-radius: var(--radius-sm);
   color: var(--ink-faint);
   margin-bottom: 1.4rem;
+  overflow: hidden;
   transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease);
 }
 .video-card:hover .video-card-poster { color: var(--green); border-color: var(--green); }
+.video-card-poster.has-embed { padding: 0; }
+.video-card-poster.has-embed iframe { width: 100%; height: 100%; border: 0; display: block; }
+.video-card-playbtn {
+  width: 3.4rem;
+  height: 3.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: 0;
+  color: inherit;
+  cursor: pointer;
+}
 .video-card-icon { width: 2.5rem; height: 2.5rem; }
 .video-card h3 { font-family: var(--display); font-size: 1.35rem; font-weight: 500; margin-bottom: 0.7rem; letter-spacing: -0.01em; }
 .video-card p { font-family: var(--mono); font-size: 0.78rem; text-transform: uppercase; line-height: 1.7; color: var(--ink-dim); margin-bottom: 1rem; }
