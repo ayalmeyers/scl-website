@@ -998,61 +998,62 @@ a.pillar.pillar-link:focus-visible .more .arrow { transform: translateX(5px); }
 .article-body p { margin-bottom: 1.4em; }
 .article-body strong { color: var(--ink); }
 
-/* ---------- musings: sticky horizontal scroll card deck ---------- */
-.musings-scroll { position: relative; height: 300vh; }
-.musings-scroll-inner {
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-.musings-scroll-label {
-  position: absolute;
-  top: 3rem;
-  left: var(--pad);
-}
-.musings-track {
-  position: relative;
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  height: 480px;
-  transition: transform 0.1s linear;
+/* ---------- musings: responsive card grid ----------
+   Previously an absolutely-positioned "horizontal scroll" deck
+   (.musings-card offset by fixed `left` values narrower than the
+   card width itself, so adjacent cards overlapped by ~120px on
+   every desktop viewport). Replaced with a single CSS Grid layout
+   that never overlaps at any width. */
+.musings-grid-section { padding: var(--section-pad) 0; }
+.musings-grid-section .section-head { margin-bottom: 2.5rem; }
+.musings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: clamp(1.5rem, 3vw, 3rem);
 }
 .musings-card {
-  position: absolute;
-  top: 0;
-  width: min(500px, 82vw);
-  background: #fff;
+  background: var(--surface);
   color: var(--ink);
   padding: 2.4rem 2.6rem;
   border: 1px solid var(--line);
-  box-shadow: -10px 10px 30px rgba(18, 33, 26, 0.12);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  min-width: 0;
+  transition: box-shadow var(--dur) var(--ease), transform var(--dur) var(--ease);
 }
-.musings-card:nth-of-type(1) { left: 0; z-index: 10; }
-.musings-card:nth-of-type(2) { left: 380px; z-index: 20; }
-.musings-card:nth-of-type(3) { left: 760px; z-index: 30; }
-.musings-card-tag {
+.musings-card:hover { box-shadow: var(--shadow-md); transform: translateY(-3px); }
+.musings-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.9rem;
+  margin-bottom: 1.2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--line);
+}
+.musings-card-tag,
+.musings-card-badge,
+.musings-card-time {
   font-family: var(--mono);
-  font-size: 0.68rem;
+  font-size: 0.66rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--ink-faint);
-  margin-bottom: 1rem;
 }
-.musings-card-visual {
-  position: relative;
-  width: 100%;
-  height: 12rem;
-  background: var(--bg-alt);
-  border: 1px solid var(--line);
-  overflow: hidden;
-  margin-bottom: 1.6rem;
+.musings-card-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  color: var(--green);
 }
-.musings-card-visual canvas { width: 100%; height: 100%; display: block; }
+.musings-card-badge::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  display: inline-block;
+}
 .musings-card h3 {
   font-family: var(--display);
   font-size: 1.5rem;
@@ -1067,8 +1068,6 @@ a.pillar.pillar-link:focus-visible .more .arrow { transform: translateX(5px); }
   text-transform: uppercase;
   line-height: 1.7;
   color: var(--ink-dim);
-  padding-top: 1.2rem;
-  border-top: 1px solid var(--line);
   margin: 0 0 1.4rem;
 }
 .musings-card .read {
@@ -1080,12 +1079,63 @@ a.pillar.pillar-link:focus-visible .more .arrow { transform: translateX(5px); }
 }
 .musings-card .read:hover { color: var(--green-bright); }
 
+/* ---------- insights in motion: video placeholder showcase ----------
+   No real footage exists yet, so these render as clearly-labeled
+   "coming soon" placeholders (never a broken/empty <video> tag) built
+   on the site's existing .grid-3 / .pillar three-up pattern. */
+.video-card { text-align: left; }
+.video-card-poster {
+  aspect-ratio: 16 / 9;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-alt);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  color: var(--ink-faint);
+  margin-bottom: 1.4rem;
+  transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+.video-card:hover .video-card-poster { color: var(--green); border-color: var(--green); }
+.video-card-icon { width: 2.5rem; height: 2.5rem; }
+.video-card h3 { font-family: var(--display); font-size: 1.35rem; font-weight: 500; margin-bottom: 0.7rem; letter-spacing: -0.01em; }
+.video-card p { font-family: var(--mono); font-size: 0.78rem; text-transform: uppercase; line-height: 1.7; color: var(--ink-dim); margin-bottom: 1rem; }
+.video-card-status {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.3em 0.8em;
+}
+
+/* ---------- skip link ---------- */
+.skip-link {
+  position: absolute;
+  top: -3rem;
+  left: 1rem;
+  z-index: 1000;
+  background: var(--ink);
+  color: #fff;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  padding: 0.7em 1.2em;
+  border-radius: var(--radius-sm);
+  transition: top var(--dur-fast) var(--ease);
+}
+.skip-link:focus {
+  top: 1rem;
+  outline: 2px solid var(--green-on-dark);
+  outline-offset: 2px;
+}
+
 @media (max-width: 900px) {
-  .musings-scroll { height: auto; }
-  .musings-scroll-inner { position: static; height: auto; overflow: visible; display: block; padding: 1rem 0 2rem; }
-  .musings-scroll-label { position: static; display: block; margin-bottom: 1.6rem; padding-left: var(--pad); }
-  .musings-track { position: static; height: auto; max-width: none; transform: none !important; display: flex; flex-direction: column; gap: 1.5rem; padding: 0 var(--pad); }
-  .musings-card { position: static; width: 100%; box-shadow: none; }
+  .musings-grid { grid-template-columns: 1fr; }
 }
 .article-body em { color: var(--green); font-style: normal; }
 .article-meta {

@@ -12,6 +12,8 @@
 </head>
 <body>
 
+<a href="#main" class="skip-link">Skip to content</a>
+
 <canvas id="attractor-bg" aria-hidden="true"></canvas>
 
 <header class="site-header">
@@ -25,14 +27,14 @@
       <a href="who-we-are.html" data-nav>Who We Are</a>
       <a href="what-we-do.html" data-nav>What We Do</a>
       <a href="our-clients.html" data-nav>Our Clients</a>
-      <a href="musings.html" data-nav class="is-active">Musings</a>
+      <a href="musings.html" data-nav class="is-active" aria-current="page">Musings</a>
       <a href="contact.html" class="nav-cta" data-nav>Contact Us</a>
     </nav>
     <button class="nav-toggle" aria-label="Toggle navigation"><span></span><span></span><span></span></button>
   </div>
 </header>
 
-<main>
+<main id="main">
   <section class="page-hero">
     <div class="container">
       <span class="eyebrow reveal">Musings</span>
@@ -41,33 +43,92 @@
     </div>
   </section>
 
-  <section class="musings-scroll" id="musings-scroll">
-    <div class="musings-scroll-inner">
-      <span class="musings-scroll-label eyebrow">Musings</span>
-      <div class="musings-track" id="musings-track">
+  <section class="section-alt insights-motion" id="insights-motion">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow reveal">Insights in Motion</span>
+        <h2 class="reveal reveal-delay-1">Three pillars, three conversations.</h2>
+        <p class="lede reveal reveal-delay-2">Short video sessions with SCL's consultants — on presence, counsel, and listening. Footage is in production; each slot below will hold a video once it's ready.</p>
+      </div>
+      <div class="grid-3 video-showcase reveal reveal-delay-2">
+        <div class="pillar video-card" data-video-card>
+          <span class="num">01 / 03</span>
+          <div class="video-card-poster" aria-hidden="true">
+            <svg viewBox="0 0 24 24" class="video-card-icon" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M9.5 8.3v7.4l6.3-3.7-6.3-3.7z" fill="currentColor"/></svg>
+          </div>
+          <h3>Executive Presence</h3>
+          <p>How senior leaders hold a room, a call, and a crisis without losing themselves.</p>
+          <span class="video-card-status">Video coming soon</span>
+          <!-- When footage is ready, replace .video-card-poster above with:
+               <video class="video-card-poster" poster="/assets/video/executive-presence-poster.jpg"
+                      muted loop playsinline preload="none" aria-label="Executive Presence — preview">
+                 <source src="/assets/video/executive-presence.mp4" type="video/mp4">
+               </video>
+               and wire hover/focus play-preview behavior in main.js (play on mouseenter/focus,
+               pause on mouseleave/blur, respect prefers-reduced-motion, no autoplay with sound). -->
+        </div>
+        <div class="pillar video-card" data-video-card>
+          <span class="num">02 / 03</span>
+          <div class="video-card-poster" aria-hidden="true">
+            <svg viewBox="0 0 24 24" class="video-card-icon" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M9.5 8.3v7.4l6.3-3.7-6.3-3.7z" fill="currentColor"/></svg>
+          </div>
+          <h3>Leadership Counsel</h3>
+          <p>The difference between managing a team and actually leading one — and where the two get confused.</p>
+          <span class="video-card-status">Video coming soon</span>
+          <!-- See placeholder-replacement comment on the first video card. -->
+        </div>
+        <div class="pillar video-card" data-video-card>
+          <span class="num">03 / 03</span>
+          <div class="video-card-poster" aria-hidden="true">
+            <svg viewBox="0 0 24 24" class="video-card-icon" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M9.5 8.3v7.4l6.3-3.7-6.3-3.7z" fill="currentColor"/></svg>
+          </div>
+          <h3>Generous Listening</h3>
+          <p>Why the most persuasive communicators spend more time hearing than talking.</p>
+          <span class="video-card-status">Video coming soon</span>
+          <!-- See placeholder-replacement comment on the first video card. -->
+        </div>
+      </div>
+    </div>
+  </section>
 
-        <article class="musings-card">
-          <div class="musings-card-tag">01 / 03</div>
-          <div class="musings-card-visual"><canvas></canvas></div>
+  <section class="musings-grid-section" id="musings-grid">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow reveal">Recent Musings</span>
+      </div>
+      <div class="musings-grid">
+
+        <article class="musings-card reveal">
+          <div class="musings-card-meta">
+            <span class="musings-card-tag">01 / 03</span>
+            <span class="musings-card-badge">SCL-STATE // ACTIVE</span>
+            <span class="musings-card-time">4 MIN READ</span>
+          </div>
           <h3>Managing Virtual Impressions: The 5 Cs</h3>
           <p class="excerpt">What you say is important, but how you come across when you say it matters even more — a framework for virtual presence.</p>
-          <a href="managing-virtual-impressions.html" class="read">Read →</a>
+          <a href="managing-virtual-impressions.html" class="read" aria-label="Read: Managing Virtual Impressions: The 5 Cs">Read →</a>
         </article>
 
-        <article class="musings-card">
-          <div class="musings-card-tag">02 / 03</div>
-          <div class="musings-card-visual"><canvas></canvas></div>
+        <article class="musings-card reveal reveal-delay-1">
+          <div class="musings-card-meta">
+            <span class="musings-card-tag">02 / 03</span>
+            <span class="musings-card-badge">SCL-STATE // ACTIVE</span>
+            <span class="musings-card-time">5 MIN READ</span>
+          </div>
           <h3>Finding the Right Mix: Leadership vs. "Executiveship"</h3>
           <p class="excerpt">Execution appears to have come at the expense of leadership. Neither is enough alone — it's the balance that makes a team great.</p>
-          <a href="great-leadership.html" class="read">Read →</a>
+          <a href="great-leadership.html" class="read" aria-label="Read: Finding the Right Mix: Leadership vs. Executiveship">Read →</a>
         </article>
 
-        <article class="musings-card">
-          <div class="musings-card-tag">03 / 03</div>
-          <div class="musings-card-visual"><canvas></canvas></div>
+        <article class="musings-card reveal reveal-delay-2">
+          <div class="musings-card-meta">
+            <span class="musings-card-tag">03 / 03</span>
+            <span class="musings-card-badge">SCL-STATE // ACTIVE</span>
+            <span class="musings-card-time">3 MIN READ</span>
+          </div>
           <h3>Listen to be Heard</h3>
           <p class="excerpt">To be heard, first be willing to hear. Generous listening is the foundation of persuasive communication.</p>
-          <a href="learn-to-listen.html" class="read">Read →</a>
+          <a href="learn-to-listen.html" class="read" aria-label="Read: Listen to be Heard">Read →</a>
         </article>
 
       </div>
@@ -119,72 +180,5 @@
 </footer>
 
 <script src="main.js"></script>
-<script>
-(function () {
-  function draw(canvas, painter) {
-    if (!canvas) return;
-    var ctx = canvas.getContext('2d');
-    var w = canvas.width = canvas.offsetWidth;
-    var h = canvas.height = canvas.offsetHeight;
-    ctx.fillStyle = '#eef2ec';
-    ctx.fillRect(0, 0, w, h);
-    ctx.fillStyle = '#12211a';
-    painter(ctx, w, h);
-  }
-  function ditherBranching(ctx, w, h) {
-    for (var i = 0; i < 6000; i++) {
-      var x = Math.random() * w, y = Math.random() * h;
-      var distCenter = Math.hypot(x - w / 2, y - h / 2);
-      if (Math.random() > distCenter / (w / 1.5)) ctx.fillRect(x, y, 1.2, 1.2);
-    }
-  }
-  function ditherWaves(ctx, w, h) {
-    for (var x = 0; x < w; x += 2) {
-      for (var y = 0; y < h; y += 2) {
-        var wave = Math.sin(x * 0.05) * Math.cos(y * 0.05) * 20;
-        if (Math.sin((x + y + wave) * 0.08) > 0.4) ctx.fillRect(x, y, 1, 1);
-      }
-    }
-  }
-  function bifurcation(ctx, w, h) {
-    for (var x = 0; x < w; x++) {
-      var r = 2.8 + (x / w) * 1.2, xVal = 0.5;
-      for (var i = 0; i < 80; i++) xVal = r * xVal * (1 - xVal);
-      for (var i2 = 0; i2 < 60; i2++) {
-        xVal = r * xVal * (1 - xVal);
-        var y = h - xVal * h;
-        if (Math.random() > 0.25) ctx.fillRect(x, y, 1, 1);
-      }
-    }
-  }
-
-  function init() {
-    var canvases = document.querySelectorAll('.musings-card-visual canvas');
-    var painters = [ditherBranching, ditherWaves, bifurcation];
-    canvases.forEach(function (c, i) { draw(c, painters[i % painters.length]); });
-
-    var container = document.getElementById('musings-scroll');
-    var track = document.getElementById('musings-track');
-    if (!container || !track) return;
-
-    function onScroll() {
-      if (window.innerWidth <= 900) { track.style.transform = ''; return; }
-      var rect = container.getBoundingClientRect();
-      var totalScroll = container.offsetHeight - window.innerHeight;
-      var progress = Math.min(Math.max(-rect.top / totalScroll, 0), 1);
-      track.style.transform = 'translateX(' + (-progress * 700) + 'px)';
-    }
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onScroll);
-    onScroll();
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
-})();
-</script>
 </body>
 </html>
