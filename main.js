@@ -459,8 +459,17 @@ function initContactDrawer() {
     }
     drawer.innerHTML = drawerMarkup();
     wireForm();
-    applyDrawerWidth();
-    wireResize();
+    if (isContactPage) {
+      // There's no page underneath to reveal on the dedicated contact
+      // route (the scrim behind it just dims to a solid backdrop), so
+      // the half-width/resizable behavior below — built for the drawer
+      // floating over another page — has nothing to show off here.
+      // Full width avoids leaving a dim, empty gap beside the form.
+      drawer.style.width = "100%";
+    } else {
+      applyDrawerWidth();
+      wireResize();
+    }
 
     var closeBtn = document.querySelector("#drawer-close");
     if (closeBtn) closeBtn.addEventListener("click", closeDrawer);

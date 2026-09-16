@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/svg+xml" href="favicon.svg" />
 <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -55,6 +56,23 @@
   <section class="flow-scroll" id="who-we-are">
     <div class="flow-scroll-stage">
       <span class="flow-scroll-label eyebrow">Who We Are</span>
+      <!-- .flow-cover is listed before .flow-track here (though it visually
+           covers the cards last on desktop, since both are absolutely
+           positioned there and unaffected by DOM order) so that on the
+           mobile/reduced-motion fallback — where both become normal static
+           flow content — the intro heading reads before the cards instead
+           of as a random "after" section beneath them. -->
+      <div class="flow-cover">
+        <div class="flow-cover-inner">
+          <span class="eyebrow">Who We Are</span>
+          <h2>A community built to be deployed against your hardest conversations.</h2>
+          <p class="lede">We are a community of young and old, naive and wise, whose desires to build and contribute are met with <mark>curiosity, possibility, and delivery</mark>. Our consultants, coaches, and facilitators are ready for engagements small and large, anywhere in the world.</p>
+          <a href="who-we-are.html" class="teaser-cta">
+            <span class="teaser-cta-label">Meet the full team</span>
+            <span class="arrow-circle"><span class="arrow">→</span></span>
+          </a>
+        </div>
+      </div>
       <div class="flow-track">
         <article class="flow-box">
           <div class="flow-box-visual" aria-hidden="true">
@@ -80,17 +98,6 @@
           <h3>Consultants</h3>
           <p>We enable executives to craft strategically sound solutions and navigate demanding meetings with confidence and credibility.</p>
         </article>
-      </div>
-      <div class="flow-cover">
-        <div class="flow-cover-inner">
-          <span class="eyebrow">Who We Are</span>
-          <h2>A community built to be deployed against your hardest conversations.</h2>
-          <p class="lede">We are a community of young and old, naive and wise, whose desires to build and contribute are met with <mark>curiosity, possibility, and delivery</mark>. Our consultants, coaches, and facilitators are ready for engagements small and large, anywhere in the world.</p>
-          <a href="who-we-are.html" class="teaser-cta">
-            <span class="teaser-cta-label">Meet the full team</span>
-            <span class="arrow-circle"><span class="arrow">→</span></span>
-          </a>
-        </div>
       </div>
     </div>
   </section>
