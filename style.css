@@ -160,7 +160,9 @@ p:last-child { margin-bottom: 0; }
 .page-hero .lede,
 .hero-blurb,
 .article-meta,
-.article-body {
+.article-body,
+.quote-block,
+.pull-quote {
   background: rgba(var(--bg-rgb), 0.86);
   backdrop-filter: blur(10px) saturate(120%);
   -webkit-backdrop-filter: blur(10px) saturate(120%);
@@ -169,6 +171,17 @@ p:last-child { margin-bottom: 0; }
 .crumb, .article-meta { padding: 0.5rem 0.9rem; display: inline-flex; }
 .hero .lede, .page-hero .lede, .article-body { padding: 1.4rem clamp(1.1rem, 3vw, 1.8rem); }
 .hero-blurb { padding: 1rem 1.3rem; }
+.quote-block { padding: clamp(1.6rem, 4vw, 2.4rem); }
+.pull-quote { border-radius: 4px 14px 14px 4px; }
+/* These already carry an opaque background of their own (.section-light's
+   dark paper) — an extra translucent panel on top would just look like a
+   smudge. */
+.section-light .quote-block,
+.section-light .pull-quote {
+  background: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
 
 /* ---------- eyebrow / small labels ---------- */
 .eyebrow {
@@ -705,6 +718,11 @@ a.pillar.pillar-link:focus-visible .more .arrow { transform: translateX(5px); }
 .stat { text-align: left; }
 .stat .num { font-size: clamp(2rem, 3.6vw, 2.8rem); color: var(--ink); font-family: var(--display); font-weight: 500; display: block; letter-spacing: -0.02em; }
 .section-light .stat .num { color: var(--paper-ink); }
+/* A stat value that's a short phrase rather than a number/symbol (e.g.
+   "Start-ups → F500") needs a smaller size and normal spacing so it
+   doesn't wrap awkwardly at the numeral-tuned size above. */
+.stat .num.is-compact { font-size: clamp(1.15rem, 2vw, 1.5rem); letter-spacing: -0.01em; white-space: nowrap; }
+@media (max-width: 560px) { .stat .num.is-compact { white-space: normal; } }
 .stat .label {
   font-family: var(--mono);
   font-size: 0.66rem;
@@ -1109,10 +1127,14 @@ a.pillar.pillar-link:focus-visible .more .arrow { transform: translateX(5px); }
 @media (prefers-reduced-motion: reduce), (max-width: 900px) {
   .flow-scroll { height: auto; }
   .flow-scroll-stage { position: static; height: auto; overflow: visible; display: block; padding: 1rem 0 0; }
-  .flow-scroll-label { position: static; display: block; margin-bottom: 1.6rem; padding-left: var(--pad); }
+  /* Hidden here, not just repositioned: .flow-cover-inner (below) already
+     carries its own eyebrow + heading once static, so this small label
+     would otherwise duplicate it right above. It only earns its keep on
+     desktop, pinned in a corner while that fuller intro is still hidden. */
+  .flow-scroll-label { display: none; }
   .flow-track { width: auto; flex-direction: column; padding: 0 var(--pad); transform: none !important; }
   .flow-box { width: 100%; }
-  .flow-cover { position: static; transform: none !important; margin-top: 2rem; padding: var(--section-pad) 0; }
+  .flow-cover { position: static; transform: none !important; padding: 0 0 var(--section-pad); }
   .flow-cover-inner { opacity: 1 !important; transform: none !important; }
 }
 .article-body em { color: var(--green); font-style: normal; }
@@ -1481,6 +1503,7 @@ select {
 .drawer-resize-handle:hover::after,
 .drawer-resize-handle.is-dragging::after { background: var(--green-bright); }
 @media (max-width: 700px) { .drawer-resize-handle { display: none; } }
+body[data-contact-page] .drawer-resize-handle { display: none; }
 
 .contact-drawer-top {
   display: flex;
@@ -1526,6 +1549,15 @@ select {
 }
 .drawer-grid { display: grid; grid-template-columns: 1fr; gap: 1.1rem; margin-top: 0.4rem; }
 .drawer-grid .full { grid-column: 1 / -1; }
+
+/* The dedicated contact page's drawer is full-width (see the JS note on
+   isContactPage), so its content gets a two-column field grid and a
+   readable max-width instead of stretching to the full viewport. */
+body[data-contact-page] .contact-drawer-top,
+body[data-contact-page] #client-panel { max-width: 760px; margin-left: auto; margin-right: auto; }
+@media (min-width: 640px) {
+  body[data-contact-page] .drawer-grid { grid-template-columns: 1fr 1fr; }
+}
 .contact-drawer label { color: var(--paper-dim); }
 .contact-drawer input,
 .contact-drawer textarea,
