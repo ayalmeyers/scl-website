@@ -153,14 +153,18 @@ function initVideoCards() {
 }
 
 // ---------------------------------------------------------------------
-// Flow-scroll: drives the horizontal card flow + full-bleed cover
-// reveal (see .flow-scroll in style.css) for every such section on the
-// page, off a single shared scroll listener. Each section maps its own
-// scroll progress (0-1, based on how far its pinned stage has been
-// scrolled through) in two phases: 0-0.55 slides the card track left;
-// 0.55-1 raises the cover panel over the viewport and fades in its
-// content once mostly covered. Skipped under prefers-reduced-motion or
-// at <=900px, where CSS drops the pin and stacks everything statically.
+// Flow-scroll: pinned horizontal card carousel (see .flow-scroll in
+// style.css), modeled on axiom.peppermint.id's "Observed Systems"
+// section — one shared scroll listener drives every such section on
+// the page. Each section maps its own scroll progress (0-1, based on
+// how far its pinned stage has been scrolled through) directly to the
+// track's translateX, and on every tick re-scores each card by how
+// close its horizontal center is to the viewport's center: the nearer
+// card scales up and stays fully opaque, the further ones shrink and
+// fade — there's no cover/takeover panel, the pin just releases into
+// whatever section follows once scrolled through. Skipped under
+// prefers-reduced-motion or at <=900px, where CSS drops the pin and
+// stacks the cards as a normal static column.
 // ---------------------------------------------------------------------
 function initFlowScroll() {
   var sections = document.querySelectorAll(".flow-scroll");
@@ -168,42 +172,52 @@ function initFlowScroll() {
 
   var reduceMotion =
     window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if (reduceMotion) {
-    sections.forEach(function (s) {
-      var inner = s.querySelector(".flow-cover-inner");
-      if (inner) inner.classList.add("is-shown");
-    });
-    return;
-  }
+  if (reduceMotion) return;
 
   var items = [];
   sections.forEach(function (section) {
     var track = section.querySelector(".flow-track");
-    var cover = section.querySelector(".flow-cover");
-    var coverInner = section.querySelector(".flow-cover-inner");
-    if (!track || !cover) return;
-    items.push({ section: section, track: track, cover: cover, coverInner: coverInner });
+    if (!track) return;
+    var boxes = Array.prototype.slice.call(track.querySelectorAll(".flow-box"));
+    items.push({ section: section, track: track, boxes: boxes });
   });
   if (!items.length) return;
 
+  function resetBoxes(it) {
+    it.boxes.forEach(function (box) {
+      box.style.transform = "";
+      box.style.opacity = "";
+    });
+  }
+
   function update() {
-    if (window.innerWidth <= 900) return; // mobile fallback is static, per CSS
+    if (window.innerWidth <= 900) {
+      items.forEach(function (it) {
+        it.track.style.transform = "";
+        resetBoxes(it);
+      });
+      return;
+    }
     var vh = window.innerHeight;
+    var centerX = window.innerWidth / 2;
     items.forEach(function (it) {
       var total = it.section.offsetHeight - vh;
       if (total <= 0) return;
       var rect = it.section.getBoundingClientRect();
       var progress = Math.min(Math.max(-rect.top / total, 0), 1);
 
-      var trackPhase = Math.min(progress / 0.55, 1);
       var maxTranslate = Math.max(it.track.scrollWidth - window.innerWidth, 0);
-      it.track.style.transform = "translateX(" + (-trackPhase * maxTranslate) + "px)";
+      it.track.style.transform = "translateX(" + (-progress * maxTranslate) + "px)";
 
-      var coverPhase = Math.min(Math.max((progress - 0.55) / 0.45, 0), 1);
-      it.cover.style.transform = "translateY(" + (100 - coverPhase * 100) + "%)";
-      if (it.coverInner) {
-        it.coverInner.classList.toggle("is-shown", coverPhase > 0.55);
-      }
+      it.boxes.forEach(function (box) {
+        var boxRect = box.getBoundingClientRect();
+        var boxCenter = boxRect.left + boxRect.width / 2;
+        var dist = Math.min(Math.abs(boxCenter - centerX) / (window.innerWidth * 0.55), 1);
+        var scale = 1 - dist * 0.14;
+        var opacity = 1 - dist * 0.55;
+        box.style.transform = "scale(" + scale.toFixed(3) + ")";
+        box.style.opacity = opacity.toFixed(3);
+      });
     });
   }
 
