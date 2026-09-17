@@ -220,12 +220,16 @@ function initFlowScroll() {
       var maxTranslate = Math.max(it.track.scrollWidth - window.innerWidth, 0);
       it.track.style.transform = "translateX(" + (-progress * maxTranslate) + "px)";
 
+      // The Coaches/Counsel/Consultants cards fade a little less than
+      // other flow-scroll cards (e.g. the video carousel) as they leave
+      // center, so off-center cards stay more visible.
+      var opacityFalloff = it.section.id === "who-we-are" ? 0.4 : 0.55;
       it.boxes.forEach(function (box) {
         var boxRect = box.getBoundingClientRect();
         var boxCenter = boxRect.left + boxRect.width / 2;
         var dist = Math.min(Math.abs(boxCenter - centerX) / (window.innerWidth * 0.55), 1);
         var scale = 1.16 - dist * 0.36;
-        var opacity = 1 - dist * 0.55;
+        var opacity = 1 - dist * opacityFalloff;
         box.style.transform = "scale(" + scale.toFixed(3) + ")";
         box.style.opacity = opacity.toFixed(3);
       });
@@ -334,19 +338,6 @@ function initContactDrawer() {
       '        <input type="tel" id="phone" name="phone" autocomplete="tel" />' +
       "      </div>" +
       '      <div class="full">' +
-      '        <label for="interest">Subject</label>' +
-      '        <select id="interest" name="interest">' +
-      '          <option value="">Select an area (optional)</option>' +
-      '          <option value="Executive Coaching">Executive Coaching</option>' +
-      '          <option value="Leadership Counsel">Leadership Counsel</option>' +
-      '          <option value="Strategic Communication Consulting">Strategic Communication Consulting</option>' +
-      '          <option value="Media &amp; Pitch Training">Media &amp; Pitch Training</option>' +
-      '          <option value="Speaking / Facilitation">Speaking / Facilitation</option>' +
-      '          <option value="Careers at SCL">Careers at SCL</option>' +
-      '          <option value="Other">Other</option>' +
-      "        </select>" +
-      "      </div>" +
-      '      <div class="full">' +
       '        <label for="message">Message*</label>' +
       '        <textarea id="message" name="message" required></textarea>' +
       "      </div>" +
@@ -433,7 +424,6 @@ function initContactDrawer() {
         company: document.querySelector("#company").value.trim(),
         email: submitterEmail,
         phone: document.querySelector("#phone").value.trim(),
-        interest: document.querySelector("#interest").value,
         message: messageEl.value.trim(),
         submittedAt: new Date().toISOString()
       };
