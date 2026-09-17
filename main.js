@@ -693,63 +693,7 @@ function initAttractorBackground() {
   }
   seedTrail();
 
-  // "Riffs": small extra Lorenz trajectories seeded near the cursor on
-  // hover, so moving the mouse stirs up little chaotic curls of its own
-  // — a nod to the system's sensitive dependence on initial conditions.
-  // Each one runs forward under the exact same equations as the main
-  // trails, then fades out and is discarded.
-  var riffs = [];
-  var lastRiffAt = 0;
-  var lastRiffPos = null;
-  var RIFF_LIFE_MS = 2600;
   var lastCam = { angle: 0, tilt: 0.35, scale: 1, cx: 0, cy: 0 };
-
-  function invertProject(mx, my) {
-    // Approximate inverse of project() for a point with ry = 0 — good
-    // enough to seed a riff visually near the cursor; the riff's own
-    // chaotic evolution does the rest.
-    var cam = lastCam;
-    var rx = (mx - cam.cx) / cam.scale;
-    var rz = 25 - (my - cam.cy) / cam.scale;
-    var cosA = Math.cos(cam.angle), sinA = Math.sin(cam.angle);
-    var x = rx * cosA;
-    var y = -rx * sinA;
-    var cosT = Math.cos(cam.tilt) || 1;
-    var z = rz / cosT;
-    return { x: x, y: y, z: z };
-  }
-
-  function maybeSpawnRiff(mx, my) {
-    if (reduceMotion || coarsePointer) return;
-    var now = performance.now();
-    if (now - lastRiffAt < 150) return;
-    if (lastRiffPos) {
-      var dx = mx - lastRiffPos.x, dy = my - lastRiffPos.y;
-      if (Math.sqrt(dx * dx + dy * dy) < 16) return;
-    }
-    lastRiffAt = now;
-    lastRiffPos = { x: mx, y: my };
-    if (riffs.length >= 5) riffs.shift();
-    var base = invertProject(mx, my);
-    var jitter = 0.4;
-    riffs.push({
-      p: {
-        x: base.x + (Math.random() - 0.5) * jitter,
-        y: base.y + (Math.random() - 0.5) * jitter,
-        z: base.z + (Math.random() - 0.5) * jitter
-      },
-      trail: [],
-      born: now
-    });
-  }
-
-  window.addEventListener(
-    "pointermove",
-    function (e) {
-      maybeSpawnRiff(e.clientX, e.clientY);
-    },
-    { passive: true }
-  );
 
   var scrollY = window.scrollY || 0;
   window.addEventListener(
@@ -805,19 +749,16 @@ function initAttractorBackground() {
     var angle = scrollY * 0.0006;
     var tilt = 0.35;
 
-    // 0.017 -> ~0.021: the reference's attractor fills close to its
-    // full available height (~97%) and a meaningfully wider slice of
-    // the viewport (~46%) than this produced (~80% / ~36%, measured the
-    // same way — bounding box of matching gold pixels as a fraction of
-    // the content area) before this change.
-    var scale = Math.min(width, height) * 0.021;
-    // Slowly drift side to side (time + scroll driven) rather than
-    // sitting statically at one horizontal spot — large as the
-    // attractor is, this keeps it from parking itself under the same
-    // patch of text for the whole time a section is in view.
-    var driftFrac = 0.58 + 0.08 * Math.sin(t * 0.00006 + scrollY * 0.0004);
-    var cx = width * driftFrac;
-    var cy = height * 0.5;
+    // The reference doesn't just rotate the butterfly in place — as you
+    // scroll it swings between the full wide shape and a tight zoom on a
+    // single lobe, and pans across the page rather than parking in one
+    // spot. Tie scale and position to scroll progress (not just time) so
+    // the attractor visibly travels and zooms as the page moves.
+    var zoomPulse = 0.5 + 0.5 * Math.sin(scrollY * 0.0014);
+    var scale = Math.min(width, height) * (0.014 + zoomPulse * 0.022);
+    var panFrac = 0.3 + 0.4 * (0.5 + 0.5 * Math.sin(scrollY * 0.0009 + 1.1));
+    var cx = width * panFrac;
+    var cy = height * (0.42 + 0.16 * Math.sin(scrollY * 0.0011));
 
     lastCam.angle = angle;
     lastCam.tilt = tilt;
@@ -829,14 +770,6 @@ function initAttractorBackground() {
     // so the two nearby trails' overlap brightens like the reference.
     drawTrail(trail1, angle, tilt, scale, cx, cy, "rgba(217,172,82,0.32)");
     drawTrail(trail2, angle, tilt, scale, cx, cy, "rgba(184,140,58,0.18)");
-
-    for (var i = 0; i < riffs.length; i++) {
-      var r = riffs[i];
-      var age = (t - r.born) / RIFF_LIFE_MS;
-      var alpha = Math.max(0, 0.55 * (1 - age));
-      if (alpha <= 0.004) continue;
-      drawTrail(r.trail, angle, tilt, scale, cx, cy, "rgba(159,224,184," + alpha.toFixed(3) + ")");
-    }
   }
 
   if (reduceMotion) {
@@ -844,7 +777,6 @@ function initAttractorBackground() {
     return;
   }
 
-  var RIFF_MAX_POINTS = 260;
   var rafId = null;
   function loop(now) {
     for (var i = 0; i < stepsPerFrame; i++) {
@@ -854,17 +786,6 @@ function initAttractorBackground() {
       trail2.push({ x: p2.x, y: p2.y, z: p2.z });
       if (trail1.length > MAX_POINTS) trail1.shift();
       if (trail2.length > MAX_POINTS) trail2.shift();
-
-      for (var j = riffs.length - 1; j >= 0; j--) {
-        var r = riffs[j];
-        if (now - r.born > RIFF_LIFE_MS) {
-          riffs.splice(j, 1);
-          continue;
-        }
-        r.p = step(r.p);
-        r.trail.push({ x: r.p.x, y: r.p.y, z: r.p.z });
-        if (r.trail.length > RIFF_MAX_POINTS) r.trail.shift();
-      }
     }
     draw(now);
     rafId = window.requestAnimationFrame(loop);
