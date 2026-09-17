@@ -213,7 +213,7 @@ function initFlowScroll() {
         var boxRect = box.getBoundingClientRect();
         var boxCenter = boxRect.left + boxRect.width / 2;
         var dist = Math.min(Math.abs(boxCenter - centerX) / (window.innerWidth * 0.55), 1);
-        var scale = 1 - dist * 0.14;
+        var scale = 1.16 - dist * 0.36;
         var opacity = 1 - dist * 0.55;
         box.style.transform = "scale(" + scale.toFixed(3) + ")";
         box.style.opacity = opacity.toFixed(3);

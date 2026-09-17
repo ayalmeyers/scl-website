@@ -1174,11 +1174,11 @@ a.pillar.pillar-link:focus-visible .more .arrow { transform: translateX(5px); }
   will-change: transform;
 }
 .flow-box {
-  width: min(420px, 78vw);
+  width: min(560px, 82vw);
   flex: none;
   background: var(--surface);
   color: var(--ink);
-  padding: 2.2rem 2.4rem;
+  padding: 2.6rem 2.8rem;
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-lg);
@@ -1189,7 +1189,7 @@ a.pillar.pillar-link:focus-visible .more .arrow { transform: translateX(5px); }
   will-change: transform, opacity;
 }
 .flow-box-visual {
-  aspect-ratio: 16 / 10;
+  aspect-ratio: 4 / 3;
   width: 100%;
   display: flex;
   align-items: center;
@@ -1198,9 +1198,9 @@ a.pillar.pillar-link:focus-visible .more .arrow { transform: translateX(5px); }
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
   color: var(--green);
-  margin-bottom: 1.4rem;
+  margin-bottom: 1.6rem;
 }
-.flow-box-visual svg { width: 2.6rem; height: 2.6rem; }
+.flow-box-visual svg { width: 3.2rem; height: 3.2rem; }
 .flow-box .num {
   font-family: var(--mono);
   font-size: 0.68rem;
