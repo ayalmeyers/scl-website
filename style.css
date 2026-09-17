@@ -982,6 +982,60 @@ a.pillar.pillar-link:focus-visible .more .arrow { transform: translateX(5px); }
 }
 .video-card:hover .video-card-poster,
 .video-card:focus-within .video-card-poster { border-color: var(--green); box-shadow: var(--shadow-md); }
+
+/* A card with a real still (currently just Executive Presence): the
+   photo replaces the gradient/watermark placeholder, duotoned into the
+   brand green to sit with the rest of the site rather than as a raw
+   stock photo, with a sliding ">>" chevron strip along the bottom edge —
+   a small forward-motion cue instead of a static caption. */
+.video-card-poster.has-photo::before { display: none; }
+.video-card-photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 18%;
+  filter: grayscale(1) contrast(1.08);
+}
+.video-card-poster.has-photo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(165deg, rgba(46, 107, 70, 0.4), rgba(18, 33, 26, 0.24) 55%, rgba(18, 33, 26, 0.05));
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+.video-card-chevrons {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1.7rem;
+  overflow: hidden;
+  background: rgba(18, 33, 26, 0.32);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  z-index: 1;
+}
+.video-card-chevrons .chev-track {
+  display: block;
+  width: max-content;
+  white-space: nowrap;
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  letter-spacing: 0.3em;
+  line-height: 1.7rem;
+  color: rgba(255, 255, 255, 0.85);
+  animation: chev-slide 6s linear infinite;
+}
+@keyframes chev-slide {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .video-card-chevrons .chev-track { animation: none; }
+}
 .video-card-poster.has-embed { padding: 0; }
 .video-card-poster.has-embed iframe { width: 100%; height: 100%; border: 0; display: block; z-index: 1; position: relative; }
 /* A filled, elevated circle reads as "press me" much more clearly than
@@ -1170,7 +1224,7 @@ a.pillar.pillar-link:focus-visible .more .arrow { transform: translateX(5px); }
      would otherwise duplicate it right above. It only earns its keep on
      desktop, pinned in a corner while that fuller intro is still hidden. */
   .flow-scroll-label { display: none; }
-  .flow-track { width: auto; flex-direction: column; padding: 0 var(--pad); transform: none !important; }
+  .flow-track { width: auto; min-width: 0; flex-direction: column; padding: 0 var(--pad); transform: none !important; }
   .flow-box { width: 100%; }
   .flow-cover { position: static; transform: none !important; padding: 0 0 var(--section-pad); }
   .flow-cover-inner { opacity: 1 !important; transform: none !important; }
