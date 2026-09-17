@@ -1101,16 +1101,17 @@ a.pillar.pillar-link:focus-visible .more .arrow { transform: translateX(5px); }
   .musings-grid { grid-template-columns: 1fr; }
 }
 
-/* ---------- flow-scroll: horizontal card flow that resolves into a full-bleed cover reveal ----------
+/* ---------- flow-scroll: pinned horizontal card carousel ----------
    A pinned section: as the visitor scrolls through it, a track of cards
-   flows left-to-right across the viewport, then a full-viewport panel
-   slides up to completely cover the page and reveal its own content —
-   the scroll mechanic from axiom.peppermint.id. Progress is driven by
-   JS (initFlowScroll in main.js) via a single scroll listener; this CSS
-   only defines the static geometry and the reduced-motion / narrow-
-   viewport fallback, which drops the pin entirely and stacks everything
-   in normal document flow. */
-.flow-scroll { position: relative; height: 340vh; }
+   pans left-to-right across the viewport (JS: initFlowScroll in main.js,
+   one shared scroll listener) while the card nearest the viewport's
+   center scales up and neighbors shrink/dim toward the edges — the
+   scroll mechanic from axiom.peppermint.id's "Observed Systems" section.
+   No cover/takeover panel: the pin just releases into whatever section
+   follows in normal document flow, same as axiom's. This CSS defines
+   the static geometry and the reduced-motion/narrow-viewport fallback,
+   which drops the pin and stacks the cards as a normal static column. */
+.flow-scroll { position: relative; height: calc(100vh + 55rem); }
 .flow-scroll-stage {
   position: sticky;
   top: 0;
@@ -1146,6 +1147,11 @@ a.pillar.pillar-link:focus-visible .more .arrow { transform: translateX(5px); }
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-lg);
+  /* Base state for the scale/opacity emphasis JS applies per-frame as
+     each card nears/leaves the viewport's horizontal center — no CSS
+     transition here since it's already driven continuously by scroll. */
+  transform-origin: center center;
+  will-change: transform, opacity;
 }
 .flow-box-visual {
   aspect-ratio: 16 / 10;
@@ -1172,62 +1178,16 @@ a.pillar.pillar-link:focus-visible .more .arrow { transform: translateX(5px); }
 .flow-box h3 { font-family: var(--display); font-size: 1.4rem; font-weight: 500; margin-bottom: 0.7rem; letter-spacing: -0.01em; }
 .flow-box p { font-family: var(--mono); font-size: 0.78rem; text-transform: uppercase; line-height: 1.7; color: var(--ink-dim); }
 
-.flow-cover {
-  position: absolute;
-  inset: 0;
-  z-index: 4;
-  background: var(--paper);
-  color: var(--paper-ink);
-  display: flex;
-  align-items: center;
-  transform: translateY(100%);
-  will-change: transform;
-}
-.flow-cover-inner {
-  max-width: var(--maxw);
-  margin: 0 auto;
-  padding: 0 var(--pad);
-  opacity: 0;
-  transform: translateY(16px);
-  transition: opacity 0.5s ease, transform 0.5s ease;
-}
-.flow-cover-inner.is-shown { opacity: 1; transform: translateY(0); }
-.flow-cover .eyebrow { color: var(--paper-dim); }
-.flow-cover h2 {
-  color: var(--paper-ink);
-  font-family: var(--display);
-  font-size: clamp(1.9rem, 4vw, 3rem);
-  font-weight: 500;
-  letter-spacing: -0.02em;
-  line-height: 1.08;
-  max-width: 24ch;
-  margin-top: 1.1rem;
-}
-.flow-cover .lede {
-  color: var(--paper-dim);
-  font-family: var(--mono);
-  font-size: 0.82rem;
-  text-transform: uppercase;
-  line-height: 1.8;
-  max-width: 46rem;
-  margin-top: 1.3rem;
-}
-.flow-cover .teaser-cta { margin-top: 2.2rem; border-color: var(--paper-line); }
-.flow-cover .teaser-cta-label { color: var(--paper-ink); }
-.flow-cover .arrow-circle { border-color: var(--paper-line); color: var(--paper-ink); }
-
 @media (prefers-reduced-motion: reduce), (max-width: 900px) {
   .flow-scroll { height: auto; }
   .flow-scroll-stage { position: static; height: auto; overflow: visible; display: block; padding: 1rem 0 0; }
-  /* Hidden here, not just repositioned: .flow-cover-inner (below) already
-     carries its own eyebrow + heading once static, so this small label
-     would otherwise duplicate it right above. It only earns its keep on
-     desktop, pinned in a corner while that fuller intro is still hidden. */
+  /* The section's real heading now lives in a normal preceding <section>
+     (always present, at every viewport width) — this small pinned-corner
+     label only earns its keep once that heading has scrolled out of view
+     on desktop, so it's redundant here. */
   .flow-scroll-label { display: none; }
   .flow-track { width: auto; min-width: 0; flex-direction: column; padding: 0 var(--pad); transform: none !important; }
-  .flow-box { width: 100%; }
-  .flow-cover { position: static; transform: none !important; padding: 0 0 var(--section-pad); }
-  .flow-cover-inner { opacity: 1 !important; transform: none !important; }
+  .flow-box { width: 100%; transform: none !important; opacity: 1 !important; }
 }
 .article-body em { color: var(--green); font-style: normal; }
 .article-meta {
