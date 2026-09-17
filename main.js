@@ -135,6 +135,7 @@ document.addEventListener("DOMContentLoaded", function () {
   initCursorDot();
   initFlowScroll();
   initVideoCards();
+  initPlayground();
 });
 
 // ---------------------------------------------------------------------
@@ -788,6 +789,244 @@ function initAttractorBackground() {
       rafId = null;
     } else if (!rafId) {
       rafId = window.requestAnimationFrame(loop);
+    }
+  });
+}
+
+// ---------------------------------------------------------------------
+// Playground: five human scenes, each drawn as a dot-matrix of the
+// site's own ">" mark rather than a photo or hand-drawn SVG. A scene is
+// just a list of simple shapes (circle / capsule / rect) in a small
+// local coordinate space; silhouettePoints() samples a grid over that
+// space and keeps the points that fall inside one of the shapes, giving
+// a silhouette built entirely out of ">" glyphs. The first time a scene
+// scrolls into view its points fly in from the edge named by its
+// data-pg-side (so scenes on the right assemble in from the right, and
+// left-side ones from the left) and settle into place.
+// ---------------------------------------------------------------------
+function initPlayground() {
+  var scenes = document.querySelectorAll(".pg-scene");
+  if (!scenes.length) return;
+
+  var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function silhouettePoints(shapes, spacing) {
+    var minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    shapes.forEach(function (s) {
+      if (s.type === "circle") {
+        minX = Math.min(minX, s.cx - s.r); maxX = Math.max(maxX, s.cx + s.r);
+        minY = Math.min(minY, s.cy - s.r); maxY = Math.max(maxY, s.cy + s.r);
+      } else if (s.type === "capsule") {
+        minX = Math.min(minX, s.x1 - s.r, s.x2 - s.r); maxX = Math.max(maxX, s.x1 + s.r, s.x2 + s.r);
+        minY = Math.min(minY, s.y1 - s.r, s.y2 - s.r); maxY = Math.max(maxY, s.y1 + s.r, s.y2 + s.r);
+      } else if (s.type === "rect") {
+        minX = Math.min(minX, s.x); maxX = Math.max(maxX, s.x + s.w);
+        minY = Math.min(minY, s.y); maxY = Math.max(maxY, s.y + s.h);
+      }
+    });
+
+    function inside(px, py) {
+      for (var i = 0; i < shapes.length; i++) {
+        var s = shapes[i];
+        if (s.type === "circle") {
+          var dx = px - s.cx, dy = py - s.cy;
+          if (dx * dx + dy * dy <= s.r * s.r) return true;
+        } else if (s.type === "capsule") {
+          var vx = s.x2 - s.x1, vy = s.y2 - s.y1;
+          var len2 = vx * vx + vy * vy || 1;
+          var t = ((px - s.x1) * vx + (py - s.y1) * vy) / len2;
+          t = Math.max(0, Math.min(1, t));
+          var cx = s.x1 + t * vx, cy = s.y1 + t * vy;
+          var ddx = px - cx, ddy = py - cy;
+          if (ddx * ddx + ddy * ddy <= s.r * s.r) return true;
+        } else if (s.type === "rect") {
+          var inRect = px >= s.x && px <= s.x + s.w && py >= s.y && py <= s.y + s.h;
+          if (inRect && s.outline) {
+            var edge = 3;
+            if (px - s.x < edge || (s.x + s.w) - px < edge || py - s.y < edge || (s.y + s.h) - py < edge) return true;
+          } else if (inRect) {
+            return true;
+          }
+        }
+      }
+      return false;
+    }
+
+    var pts = [];
+    for (var y = minY; y <= maxY; y += spacing) {
+      for (var x = minX; x <= maxX; x += spacing) {
+        if (inside(x, y)) pts.push({ x: x, y: y });
+      }
+    }
+    return pts;
+  }
+
+  var head = function (cx, cy, r) { return { type: "circle", cx: cx, cy: cy, r: r }; };
+  var limb = function (x1, y1, x2, y2, r) { return { type: "capsule", x1: x1, y1: y1, x2: x2, y2: y2, r: r }; };
+  var box = function (x, y, w, h, outline) { return { type: "rect", x: x, y: y, w: w, h: h, outline: !!outline }; };
+
+  var SCENE_DEFS = {
+    // A figure gesturing toward a slide screen — the lecture/PowerPoint scene.
+    lecture: [
+      head(55, 38, 13),
+      limb(55, 51, 55, 108, 15),
+      limb(55, 65, 90, 48, 7),
+      limb(55, 70, 42, 108, 7),
+      limb(55, 108, 46, 158, 9),
+      limb(55, 108, 66, 158, 9),
+      box(112, 26, 78, 56, true),
+      box(122, 42, 58, 5),
+      box(122, 54, 42, 5),
+      box(122, 66, 50, 5)
+    ],
+    // An abstract ring — "seeing every angle before committing to one."
+    loop: (function () {
+      var shapes = [];
+      var cx = 95, cy = 95, rOuter = 66, rInner = 50;
+      for (var a = 0; a < 360; a += 8) {
+        var rad = (a * Math.PI) / 180;
+        var r = (rOuter + rInner) / 2;
+        shapes.push(head(cx + Math.cos(rad) * r, cy + Math.sin(rad) * r * 0.82, (rOuter - rInner) / 2));
+      }
+      return shapes;
+    })(),
+    // Two figures standing close together, shoulder to shoulder.
+    team: [
+      head(70, 33, 12),
+      limb(70, 45, 70, 112, 16),
+      limb(70, 58, 52, 96, 7),
+      limb(70, 58, 88, 96, 7),
+      limb(70, 112, 60, 162, 9),
+      limb(70, 112, 80, 162, 9),
+      head(118, 24, 11),
+      limb(118, 35, 118, 108, 15),
+      limb(118, 47, 101, 90, 6),
+      limb(118, 47, 135, 90, 6),
+      limb(118, 108, 108, 160, 8),
+      limb(118, 108, 128, 160, 8)
+    ],
+    // Two figures facing each other, arms meeting in the middle.
+    handshake: [
+      head(38, 38, 13),
+      limb(38, 51, 38, 112, 15),
+      limb(38, 63, 96, 76, 7),
+      limb(38, 68, 24, 108, 7),
+      limb(38, 112, 28, 160, 9),
+      limb(38, 112, 48, 160, 9),
+      head(158, 38, 13),
+      limb(158, 51, 158, 112, 15),
+      limb(158, 63, 100, 76, 7),
+      limb(158, 68, 172, 108, 7),
+      limb(158, 112, 148, 160, 9),
+      limb(158, 112, 168, 160, 9)
+    ],
+    // A standing coach gesturing beside a seated, listening figure.
+    coaching: [
+      head(38, 34, 13),
+      limb(38, 47, 38, 108, 15),
+      limb(38, 58, 75, 42, 7),
+      limb(38, 63, 24, 100, 7),
+      limb(38, 108, 28, 158, 9),
+      limb(38, 108, 48, 158, 9),
+      head(140, 55, 12),
+      limb(140, 67, 140, 110, 14),
+      limb(140, 80, 120, 104, 6),
+      limb(140, 80, 160, 104, 6),
+      limb(140, 110, 166, 116, 9),
+      limb(166, 116, 166, 152, 8),
+      limb(140, 110, 122, 118, 9),
+      limb(122, 118, 122, 152, 8)
+    ]
+  };
+
+  scenes.forEach(function (el) {
+    var key = el.getAttribute("data-pg-scene");
+    var shapes = SCENE_DEFS[key];
+    var canvas = el.querySelector("canvas");
+    if (!shapes || !canvas) return;
+
+    var ctx = canvas.getContext("2d");
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    var points = silhouettePoints(shapes, 6);
+    var minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    points.forEach(function (p) {
+      minX = Math.min(minX, p.x); maxX = Math.max(maxX, p.x);
+      minY = Math.min(minY, p.y); maxY = Math.max(maxY, p.y);
+    });
+    var shapeW = maxX - minX, shapeH = maxY - minY;
+    var side = el.getAttribute("data-pg-side") === "left" ? -1 : 1;
+
+    var fit = 1, offX = 0, offY = 0;
+    function resize() {
+      var rect = el.getBoundingClientRect();
+      var cw = Math.max(rect.width, 1), ch = Math.max(rect.height, 1);
+      canvas.width = cw * dpr;
+      canvas.height = ch * dpr;
+      canvas.style.width = cw + "px";
+      canvas.style.height = ch + "px";
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      fit = Math.min(cw / shapeW, ch / shapeH) * 0.9;
+      offX = (cw - shapeW * fit) / 2 - minX * fit;
+      offY = (ch - shapeH * fit) / 2 - minY * fit;
+      draw();
+    }
+
+    var progress = reduceMotion ? 1 : 0;
+    var animated = false;
+    var rafId = null;
+
+    function draw() {
+      var cw = canvas.width / dpr, ch = canvas.height / dpr;
+      ctx.clearRect(0, 0, cw, ch);
+      ctx.font = "11px " + getComputedStyle(document.body).fontFamily;
+      ctx.fillStyle = "#1d5fb0";
+      ctx.textBaseline = "middle";
+      var scatter = cw * 0.55 * side;
+      for (var i = 0; i < points.length; i++) {
+        var p = points[i];
+        var tx = p.x * fit + offX;
+        var ty = p.y * fit + offY;
+        var sx = tx + scatter * (1 - progress);
+        ctx.globalAlpha = Math.max(0, Math.min(1, progress));
+        ctx.fillText(">", sx, ty);
+      }
+      ctx.globalAlpha = 1;
+    }
+
+    function animateIn() {
+      if (reduceMotion) { progress = 1; draw(); return; }
+      var start = progress, startTime = null, duration = 1100;
+      if (rafId) window.cancelAnimationFrame(rafId);
+      function step(ts) {
+        if (!startTime) startTime = ts;
+        var t = Math.min(1, (ts - startTime) / duration);
+        var eased = 1 - Math.pow(1 - t, 3);
+        progress = start + (1 - start) * eased;
+        draw();
+        if (t < 1) rafId = window.requestAnimationFrame(step);
+      }
+      rafId = window.requestAnimationFrame(step);
+    }
+
+    resize();
+    window.addEventListener("resize", resize, { passive: true });
+
+    if ("IntersectionObserver" in window) {
+      var io = new IntersectionObserver(
+        function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting && !animated) {
+              animated = true;
+              animateIn();
+            }
+          });
+        },
+        { threshold: 0.3 }
+      );
+      io.observe(el);
+    } else {
+      progress = 1;
+      draw();
     }
   });
 }
