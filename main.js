@@ -693,8 +693,6 @@ function initAttractorBackground() {
   }
   seedTrail();
 
-  var pointer = { tx: 0.5, ty: 0.5, x: 0.5, y: 0.5 };
-
   // "Riffs": small extra Lorenz trajectories seeded near the cursor on
   // hover, so moving the mouse stirs up little chaotic curls of its own
   // — a nod to the system's sensitive dependence on initial conditions.
@@ -748,8 +746,6 @@ function initAttractorBackground() {
   window.addEventListener(
     "pointermove",
     function (e) {
-      pointer.tx = e.clientX / width;
-      pointer.ty = e.clientY / height;
       maybeSpawnRiff(e.clientX, e.clientY);
     },
     { passive: true }
@@ -800,15 +796,21 @@ function initAttractorBackground() {
   function draw(t) {
     ctx.clearRect(0, 0, width, height);
 
-    pointer.x += (pointer.tx - pointer.x) * 0.02;
-    pointer.y += (pointer.ty - pointer.y) * 0.02;
+    // Measured against the reference recording: its camera angle is
+    // driven by scroll position only — holding still and just moving
+    // the mouse around for 10s produced zero change in the attractor's
+    // shape/orientation (confirmed via pixel bounding-box comparison
+    // across the whole clip). So no time-based auto-rotation and no
+    // pointer-driven angle/tilt here, unlike the earlier version.
+    var angle = scrollY * 0.0006;
+    var tilt = 0.35;
 
-    var autoAngle = t * 0.00003;
-    var scrollAngle = scrollY * 0.0006;
-    var angle = autoAngle + scrollAngle + (pointer.x - 0.5) * 0.3;
-    var tilt = 0.35 + (pointer.y - 0.5) * 0.2;
-
-    var scale = Math.min(width, height) * 0.017;
+    // 0.017 -> ~0.021: the reference's attractor fills close to its
+    // full available height (~97%) and a meaningfully wider slice of
+    // the viewport (~46%) than this produced (~80% / ~36%, measured the
+    // same way — bounding box of matching gold pixels as a fraction of
+    // the content area) before this change.
+    var scale = Math.min(width, height) * 0.021;
     // Slowly drift side to side (time + scroll driven) rather than
     // sitting statically at one horizontal spot — large as the
     // attractor is, this keeps it from parking itself under the same
