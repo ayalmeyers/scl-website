@@ -949,35 +949,65 @@ a.pillar.pillar-link:focus-visible .more .arrow { transform: translateX(5px); }
    is instead a plain link — same visual tile, styled as `<a>`. */
 .video-card { text-align: left; }
 .video-card-poster {
+  position: relative;
   aspect-ratio: 16 / 9;
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--bg-alt);
+  /* No real video stills yet — a soft brand-toned gradient plus the
+     mountain mark (echoing the favicon/logo, faint) reads as an
+     intentional cover rather than an empty gray box. */
+  background:
+    radial-gradient(120% 140% at 12% 8%, rgba(46, 107, 70, 0.16), transparent 55%),
+    linear-gradient(155deg, var(--bg-alt), var(--bg));
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
   color: var(--ink-faint);
   margin-bottom: 1.4rem;
   overflow: hidden;
-  transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease);
+  transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
 }
-.video-card:hover .video-card-poster { color: var(--green); border-color: var(--green); }
+.video-card-poster::before {
+  content: "";
+  position: absolute;
+  right: -8%;
+  bottom: -22%;
+  width: 62%;
+  aspect-ratio: 1;
+  background: var(--green);
+  opacity: 0.07;
+  clip-path: polygon(50% 0%, 100% 85%, 0% 85%, 50% 30%, 15% 100%, 85% 100%);
+  pointer-events: none;
+}
+.video-card:hover .video-card-poster,
+.video-card:focus-within .video-card-poster { border-color: var(--green); box-shadow: var(--shadow-md); }
 .video-card-poster.has-embed { padding: 0; }
-.video-card-poster.has-embed iframe { width: 100%; height: 100%; border: 0; display: block; }
+.video-card-poster.has-embed iframe { width: 100%; height: 100%; border: 0; display: block; z-index: 1; position: relative; }
+/* A filled, elevated circle reads as "press me" much more clearly than
+   the thin outline used elsewhere for decorative icons. */
 .video-card-playbtn {
-  width: 3.4rem;
-  height: 3.4rem;
+  position: relative;
+  z-index: 1;
+  width: 4.2rem;
+  height: 4.2rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: none;
+  background: var(--surface);
   border: none;
+  border-radius: 50%;
   padding: 0;
-  color: inherit;
+  color: var(--green);
+  box-shadow: var(--shadow-md);
   cursor: pointer;
+  transition: transform var(--dur) var(--ease), background var(--dur) var(--ease), color var(--dur) var(--ease);
 }
-.video-card-icon { width: 2.5rem; height: 2.5rem; }
+.video-card:hover .video-card-playbtn,
+.video-card:focus-within .video-card-playbtn,
+.video-card-playbtn:hover { background: var(--green); color: var(--surface); transform: scale(1.08); }
+.video-card-icon { width: 1.6rem; height: 1.6rem; }
+.video-card-playbtn .video-card-icon { width: 1.3rem; height: 1.3rem; margin-left: 0.15em; }
 .video-card h3 { font-family: var(--display); font-size: 1.35rem; font-weight: 500; margin-bottom: 0.7rem; letter-spacing: -0.01em; }
 .video-card p { font-family: var(--mono); font-size: 0.78rem; text-transform: uppercase; line-height: 1.7; color: var(--ink-dim); margin-bottom: 1rem; }
 .video-card-status {
@@ -1042,6 +1072,14 @@ a.pillar.pillar-link:focus-visible .more .arrow { transform: translateX(5px); }
   display: flex;
   gap: clamp(1.5rem, 3vw, 3rem);
   width: max-content;
+  /* With only 3 fixed-width cards, their natural content width tops out
+     around ~1460px — on any screen wider than that (1536px+, extremely
+     common: native 1600/1920 monitors, or 1920 at 125% OS scaling) the
+     track no longer overflows the viewport at all, so initFlowScroll's
+     maxTranslate computes to 0 and the cards are structurally unable to
+     move, however correctly the JS runs. Tying min-width to 100vw keeps
+     a real scrollable distance at any viewport width. */
+  min-width: calc(100vw + 30rem);
   padding: 0 var(--pad);
   will-change: transform;
 }
