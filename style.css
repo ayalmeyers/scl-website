@@ -1162,15 +1162,19 @@ a.pillar.pillar-link:focus-visible .more .arrow { transform: translateX(5px); }
   display: flex;
   gap: clamp(1.5rem, 3vw, 3rem);
   width: max-content;
-  /* With only 3 fixed-width cards, their natural content width tops out
-     around ~1460px — on any screen wider than that (1536px+, extremely
-     common: native 1600/1920 monitors, or 1920 at 125% OS scaling) the
-     track no longer overflows the viewport at all, so initFlowScroll's
-     maxTranslate computes to 0 and the cards are structurally unable to
-     move, however correctly the JS runs. Tying min-width to 100vw keeps
-     a real scrollable distance at any viewport width. */
-  min-width: calc(100vw + 30rem);
-  padding: 0 var(--pad);
+  /* Leading/trailing padding is half a viewport minus half a card, so
+     the FIRST card is already centered (and fully spotlighted, per the
+     JS scale/opacity emphasis) at scroll progress 0 — arriving at the
+     section, not partway through it — and the LAST card can likewise
+     reach true center before the track runs out of room, rather than
+     stopping mid-slide right before the pin releases. This also
+     guarantees a real scrollable distance at any viewport width (the
+     old fixed-min-width approach this replaces existed for the same
+     reason: with only 3 fixed-width cards, their content alone stops
+     overflowing the viewport at 1536px+ — common: native 1600/1920
+     monitors, or 1920 at 125% OS scaling — and initFlowScroll's
+     maxTranslate would compute to 0, structurally unable to move). */
+  padding: 0 calc(50vw - 280px);
   will-change: transform;
 }
 .flow-box {
