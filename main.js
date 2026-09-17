@@ -768,8 +768,8 @@ function initAttractorBackground() {
 
     // Warm gold on the near-black page, additive-blended (see drawTrail)
     // so the two nearby trails' overlap brightens like the reference.
-    drawTrail(trail1, angle, tilt, scale, cx, cy, "rgba(217,172,82,0.32)");
-    drawTrail(trail2, angle, tilt, scale, cx, cy, "rgba(184,140,58,0.18)");
+    drawTrail(trail1, angle, tilt, scale, cx, cy, "rgba(47,111,237,0.32)");
+    drawTrail(trail2, angle, tilt, scale, cx, cy, "rgba(29,87,189,0.18)");
   }
 
   if (reduceMotion) {
