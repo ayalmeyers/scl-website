@@ -1,12 +1,23 @@
 /* =========================================================
    Strategic Communication Lab — stylesheet
-   Structural clone of axiom.peppermint.id's design system —
-   a live Lorenz-attractor animation, re-themed light: white/
-   soft-green backgrounds, a dark-green ink, a dark-blue
-   attractor, and green accents. Sections alternate transparent
-   (canvas-revealing) and solid deep-green (canvas-occluding)
-   bands; copy in the transparent sections gets a frosted-glass
-   backdrop panel for legibility over the animation.
+   Structural clone of axiom.peppermint.id's design system — a
+   live Lorenz-attractor animation over a near-black page, with
+   a warm gold attractor and off-white ink, in place of axiom's
+   own type/labels. Sections alternate transparent (canvas-
+   revealing) and solid deep-green (canvas-occluding) bands;
+   copy in the transparent sections gets a frosted-glass backdrop
+   panel for legibility over the animation.
+
+   Cards stay a true white surface regardless of the page's dark
+   theme (matching the reference's white "Observed Systems" tiles
+   floating on black) — so every white-card component re-scopes
+   --ink/--ink-dim/--ink-faint/--line/--green back to their
+   original light-surface values in its own block below the
+   :root tokens, rather than every card selector needing its own
+   explicit color. Two deliberately different roles for green:
+   --green is the bright, page-level accent (nav, links, buttons
+   directly on the dark page); the card-scoping block below
+   restores the deeper original --green for AA contrast on white.
 
    Typography pairing: EB Garamond (a serif, carrying the same
    authority as a classic Garamond) for headlines and pull-quotes;
@@ -22,23 +33,27 @@
    ========================================================= */
 
 :root {
-  /* ---- color: surface & text ---- */
-  --bg:           #f7f9f6;
-  --bg-rgb:       247, 249, 246;
-  --bg-alt:       #eef2ec;
-  --surface:      #ffffff;   /* cards / panels raised off the page background */
-  --ink:          #12211a;
-  --ink-dim:      rgba(18, 33, 26, 0.74);
-  --ink-faint:    rgba(18, 33, 26, 0.63); /* >=4.5:1 on --bg — AA for normal text, not just large/UI */
-  --line:         rgba(18, 33, 26, 0.14);
-  --line-strong:  rgba(18, 33, 26, 0.26);
+  /* ---- color: surface & text (page-level, on the dark background) ---- */
+  --bg:           #0a0a08;
+  --bg-rgb:       10, 10, 8;
+  --bg-alt:       #151310;
+  --surface:      #ffffff;   /* cards / panels raised off the page background — stays white/light regardless of theme */
+  --ink:          #f2efe6;
+  --ink-dim:      rgba(242, 239, 230, 0.74);
+  --ink-faint:    rgba(242, 239, 230, 0.63); /* >=4.5:1 on --bg — AA for normal text, not just large/UI */
+  --line:         rgba(242, 239, 230, 0.14);
+  --line-strong:  rgba(242, 239, 230, 0.26);
 
-  /* ---- color: brand / accent ---- */
-  --green:         #2e6b46;   /* primary accent — AA on --bg and --surface */
-  --green-bright:  #3f8c5c;   /* hover-only on light surfaces (3.9:1 — large text/UI, not run-in body copy) */
-  --green-on-dark: #9fe0b8;   /* the same accent, lightened for AA contrast on --paper (10:1) */
-  --green-highlight:       #bfe3cd; /* same hue as --green, lightened into a legible marker-highlight tint */
+  /* ---- color: brand / accent (page-level, bright enough for the dark bg) ---- */
+  --green:         #9fe0b8;   /* primary accent — AA on --bg */
+  --green-bright:  #bdedd0;   /* hover-only (brighter still) */
+  --green-on-dark: #9fe0b8;   /* kept for any explicit references elsewhere — same value as --green now */
+  --green-highlight:       #bfe3cd; /* light marker-highlight tint — always paired with dark text, see mark/.hl-blue */
   --green-highlight-hover: #a6d6b8;
+
+  /* ---- color: the attractor's own accent — warm gold, not brand green ---- */
+  --gold:         #d9ac52;
+  --gold-dim:     rgba(217, 172, 82, 0.45);
 
   --blue:         #1d3557;    /* secondary accent */
   --blue-bright:  #2c4d78;
@@ -95,6 +110,26 @@ body {
 img { max-width: 100%; display: block; }
 a { color: inherit; text-decoration: none; }
 ul { list-style: none; margin: 0; padding: 0; }
+
+/* ---------- white-surface card scoping ----------
+   These three components render as a true white/--surface card
+   regardless of the page's dark theme (see the note at the top of this
+   file). Rather than hand-color every descendant selector inside them,
+   re-declare the custom properties those selectors already reference —
+   every existing --ink/--ink-dim/--ink-faint/--line/--green usage
+   inside a .flow-box, .musings-card, or .video-card-playbtn
+   automatically resolves to the correct light-surface value here. */
+.flow-box,
+.musings-card,
+.video-card-playbtn {
+  --ink:          #12211a;
+  --ink-dim:      rgba(18, 33, 26, 0.74);
+  --ink-faint:    rgba(18, 33, 26, 0.63);
+  --line:         rgba(18, 33, 26, 0.14);
+  --line-strong:  rgba(18, 33, 26, 0.26);
+  --green:        #2e6b46;
+  --green-bright: #3f8c5c;
+}
 /* Universal focus-visible fallback: a visible ring for any interactive
    element that doesn't already define its own focus treatment above.
    Components with a bespoke focus state (buttons, form fields, cards,
@@ -201,7 +236,7 @@ p:last-child { margin-bottom: 0; }
   position: fixed;
   top: 0; left: 0; right: 0;
   z-index: 100;
-  background: rgba(247, 249, 246, 0.92);
+  background: rgba(var(--bg-rgb), 0.92);
   backdrop-filter: blur(10px) saturate(120%);
   -webkit-backdrop-filter: blur(10px) saturate(120%);
   border-bottom: 1px solid var(--line);
@@ -452,13 +487,13 @@ p:last-child { margin-bottom: 0; }
    glance. Used for the hero's "Start a Conversation" and the homepage's
    closing "Contact Us" band. */
 .btn-highlight {
-  color: var(--ink);
+  color: #12211a;
   background: var(--green-highlight);
   padding: 0.85rem 1.5rem;
   transition: background 0.3s ease, transform 0.3s cubic-bezier(.2,.8,.2,1);
 }
-.btn-highlight:hover { background: var(--green-highlight-hover); color: var(--ink); transform: translateY(-2px); }
-.btn-highlight .arrow { color: var(--ink); }
+.btn-highlight:hover { background: var(--green-highlight-hover); color: #12211a; transform: translateY(-2px); }
+.btn-highlight .arrow { color: #12211a; }
 
 /* ---------- sections ---------- */
 section { padding: var(--section-pad) 0; position: relative; }
@@ -1082,7 +1117,7 @@ a.pillar.pillar-link:focus-visible .more .arrow { transform: translateX(5px); }
   top: -3rem;
   left: 1rem;
   z-index: 1000;
-  background: var(--ink);
+  background: #12211a;
   color: #fff;
   font-family: var(--mono);
   font-size: 0.8rem;
@@ -1515,7 +1550,11 @@ select {
   width: 50vw;
   min-width: 360px;
   max-width: 96vw;
-  background: var(--paper);
+  /* Was var(--paper) (the dark-green alt-section color) — that made
+     sense as the site's one dark panel against an otherwise light site;
+     now that the whole page is already dark, reusing it here just reads
+     as an odd greenish mismatch against the near-black page behind it. */
+  background: var(--bg-alt);
   color: var(--paper-ink);
   overflow-y: auto;
   padding: clamp(1.8rem, 5vw, 3.4rem);
@@ -1672,16 +1711,12 @@ body.contact-drawer-locked { overflow: hidden; }
 /* ---------- inline highlight marks (yellow-marker style, in-brand blue) ---------- */
 mark, .hl-blue {
   background: var(--blue-highlight);
-  color: var(--ink);
+  color: #12211a;
   padding: 0.05em 0.32em;
   border-radius: 2px;
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;
 }
-.section-light mark, .section-light .hl-blue,
-.section-navy mark, .section-navy .hl-blue,
-.section-alt mark, .section-alt .hl-blue,
-.contact-drawer mark, .contact-drawer .hl-blue { color: var(--ink); }
 
 /* ---------- custom dot cursor + Lorenz hover "riffs" (desktop, fine pointer only) ---------- */
 #cursor-dot {

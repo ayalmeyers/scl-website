@@ -778,7 +778,12 @@ function initAttractorBackground() {
     }
     ctx.strokeStyle = hue;
     ctx.lineWidth = 0.7;
+    // Additive ("lighter") blending on the dark background: denser,
+    // overlapping loops glow brighter rather than muddying into a flat
+    // color, the way axiom.peppermint.id's gold trails read on black.
+    ctx.globalCompositeOperation = "lighter";
     ctx.stroke();
+    ctx.globalCompositeOperation = "source-over";
   }
 
   function draw(t) {
@@ -807,18 +812,17 @@ function initAttractorBackground() {
     lastCam.cx = cx;
     lastCam.cy = cy;
 
-    // Light background: normal alpha blending (not additive "lighter")
-    // so overlapping strokes deepen into a richer dark blue, the way
-    // overlapping pen strokes darken on paper.
-    drawTrail(trail1, angle, tilt, scale, cx, cy, "rgba(29,53,87,0.4)");
-    drawTrail(trail2, angle, tilt, scale, cx, cy, "rgba(44,77,120,0.22)");
+    // Warm gold on the near-black page, additive-blended (see drawTrail)
+    // so the two nearby trails' overlap brightens like the reference.
+    drawTrail(trail1, angle, tilt, scale, cx, cy, "rgba(217,172,82,0.32)");
+    drawTrail(trail2, angle, tilt, scale, cx, cy, "rgba(184,140,58,0.18)");
 
     for (var i = 0; i < riffs.length; i++) {
       var r = riffs[i];
       var age = (t - r.born) / RIFF_LIFE_MS;
       var alpha = Math.max(0, 0.55 * (1 - age));
       if (alpha <= 0.004) continue;
-      drawTrail(r.trail, angle, tilt, scale, cx, cy, "rgba(63,140,92," + alpha.toFixed(3) + ")");
+      drawTrail(r.trail, angle, tilt, scale, cx, cy, "rgba(159,224,184," + alpha.toFixed(3) + ")");
     }
   }
 
