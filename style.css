@@ -77,9 +77,13 @@
   --shadow-lg: 0 18px 44px rgba(18, 33, 26, 0.14);
 
   /* ---- radius ---- */
-  --radius-sm: 8px;
-  --radius-md: 14px;
-  --radius-lg: 20px;
+  /* Sharp corners throughout, matching the reference's flat/technical
+     aesthetic — kept as tokens (rather than removing border-radius
+     rules outright) so anything that still wants a rounded corner has
+     one lever to pull, not three. */
+  --radius-sm: 0;
+  --radius-md: 0;
+  --radius-lg: 0;
 
   /* ---- motion ---- */
   --ease: cubic-bezier(.2,.8,.2,1);
@@ -201,13 +205,11 @@ p:last-child { margin-bottom: 0; }
   background: rgba(var(--bg-rgb), 0.86);
   backdrop-filter: blur(10px) saturate(120%);
   -webkit-backdrop-filter: blur(10px) saturate(120%);
-  border-radius: 14px;
 }
 .crumb, .article-meta { padding: 0.5rem 0.9rem; display: inline-flex; }
 .hero .lede, .page-hero .lede, .article-body { padding: 1.4rem clamp(1.1rem, 3vw, 1.8rem); }
 .hero-blurb { padding: 1rem 1.3rem; }
 .quote-block { padding: clamp(1.6rem, 4vw, 2.4rem); }
-.pull-quote { border-radius: 4px 14px 14px 4px; }
 /* These already carry an opaque background of their own (.section-light's
    dark paper) — an extra translucent panel on top would just look like a
    smudge. */
