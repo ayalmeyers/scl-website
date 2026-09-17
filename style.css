@@ -1729,11 +1729,14 @@ mark, .hl-blue {
   position: fixed;
   top: 0;
   left: 0;
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
-  background: #ffffff;
-  mix-blend-mode: difference;
+  /* Was a white mix-blend-mode:difference dot (inverts whatever's
+     behind it) — the reference's cursor dot is a plain, solid amber
+     circle matching the attractor's own accent color, not an inverted
+     one, so switched to that directly instead. */
+  background: var(--gold);
   pointer-events: none;
   z-index: 9999;
   transform: translate3d(-50%, -50%, 0);
