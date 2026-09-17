@@ -880,13 +880,18 @@ function initPlayground() {
       box(122, 66, 50, 5)
     ],
     // An abstract ring — "seeing every angle before committing to one."
+    // Modeled on the reference clip's flattened torus: a squashed ellipse
+    // whose radial thickness swells at the left/right poles and pinches
+    // to almost nothing at top and bottom, like a doughnut viewed edge-on.
     loop: (function () {
       var shapes = [];
-      var cx = 95, cy = 95, rOuter = 66, rInner = 50;
-      for (var a = 0; a < 360; a += 8) {
+      var cx = 95, cy = 95, rMid = 58;
+      for (var a = 0; a < 360; a += 5) {
         var rad = (a * Math.PI) / 180;
-        var r = (rOuter + rInner) / 2;
-        shapes.push(head(cx + Math.cos(rad) * r, cy + Math.sin(rad) * r * 0.82, (rOuter - rInner) / 2));
+        var thickness = 5 + 17 * Math.pow(Math.abs(Math.cos(rad)), 1.6);
+        var x = cx + Math.cos(rad) * rMid;
+        var y = cy + Math.sin(rad) * rMid * 0.62;
+        shapes.push(head(x, y, thickness));
       }
       return shapes;
     })(),
@@ -947,7 +952,10 @@ function initPlayground() {
 
     var ctx = canvas.getContext("2d");
     var dpr = Math.min(window.devicePixelRatio || 1, 2);
-    var points = silhouettePoints(shapes, 6);
+    // A tight grid so the assembled scene reads as a dense, near-solid
+    // halftone silhouette (matching the reference clips) rather than a
+    // sparse dotted outline.
+    var points = silhouettePoints(shapes, 3);
     var minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
     points.forEach(function (p) {
       minX = Math.min(minX, p.x); maxX = Math.max(maxX, p.x);
@@ -978,7 +986,7 @@ function initPlayground() {
     function draw() {
       var cw = canvas.width / dpr, ch = canvas.height / dpr;
       ctx.clearRect(0, 0, cw, ch);
-      ctx.font = "11px " + getComputedStyle(document.body).fontFamily;
+      ctx.font = "8px " + getComputedStyle(document.body).fontFamily;
       ctx.fillStyle = "#1d5fb0";
       ctx.textBaseline = "middle";
       var scatter = cw * 0.55 * side;
