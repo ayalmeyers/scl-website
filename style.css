@@ -1756,102 +1756,96 @@ body.custom-cursor-active select {
   #cursor-dot { display: none; }
 }
 
-/* ---------- team: hover/typography roster (Who We Are) ----------
-   Default state is a clean, bold list of names — visual clutter (photos,
-   bios) is hidden until a visitor interacts. Hovering or focusing a row
-   reveals that person's portrait beside their name and staggers each
-   letter of the name upward; selecting the row expands their full bio
-   beneath it, one at a time. The hover portrait reveal is gated behind
-   `(hover: hover)` — on touch devices there's no hover state to
-   discover, so a small thumbnail sits inline next to the name instead.
-   Letter-splitting and the open/close toggle live in main.js. */
-.yem-list { border-top: 1px solid var(--line); }
-.yem-row { position: relative; border-bottom: 1px solid var(--line); }
-.yem-trigger {
+/* ---------- team roster: fixed photo panel + name list (Who We Are) ----------
+   Modeled on a reference site's player index: a single photo panel,
+   sticky on the left, swaps to whichever row the visitor is hovering
+   or has focused (main.js); the active/selected row (last clicked, or
+   the first row by default) gets a small leading dot and bolder name,
+   and stays shown in the panel once the mouse leaves the list. Clicking
+   a row's name also expands its full bio directly beneath it — one at
+   a time. Below the two-column breakpoint the photo panel becomes each
+   row's own inline thumbnail instead (no sticky panel to share). */
+.roster {
+  display: grid;
+  grid-template-columns: minmax(240px, 34%) 1fr;
+  gap: clamp(2rem, 5vw, 4.5rem);
+  align-items: start;
+}
+.roster-photo {
+  position: sticky;
+  top: 7rem;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--bg-alt);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-lg);
+}
+.roster-photo img { width: 100%; height: 100%; object-fit: cover; display: block; transition: opacity 0.25s ease; }
+/* min-width: 0 overrides the grid item's default auto-minimum, which
+   otherwise follows descendants' min-content width (here, the role
+   labels' nowrap text several levels down) and can force the 1fr
+   track — and the whole grid — wider than its own container. */
+.roster-list { border-top: 1px solid var(--line); min-width: 0; }
+.roster-row { border-bottom: 1px solid var(--line); }
+.roster-trigger {
   display: flex;
   align-items: baseline;
-  justify-content: space-between;
-  gap: 1.5rem;
+  gap: 0.9rem;
   width: 100%;
   background: none;
   border: none;
-  padding: clamp(1.4rem, 3vw, 2.2rem) 0;
+  padding: clamp(1.1rem, 2.4vw, 1.6rem) 0;
   text-align: left;
   cursor: pointer;
   font: inherit;
   color: inherit;
 }
-.yem-name {
+.roster-dot {
+  flex: none;
+  align-self: center;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.roster-row.is-selected .roster-dot,
+.roster-row:hover .roster-dot,
+.roster-row:focus-within .roster-dot { opacity: 1; }
+.roster-name {
   font-family: var(--display);
   font-weight: 500;
-  font-size: clamp(2rem, 6vw, 4rem);
-  letter-spacing: -0.02em;
-  line-height: 1;
+  font-size: clamp(1.3rem, 2.6vw, 1.9rem);
+  letter-spacing: -0.01em;
   color: var(--ink);
+  transition: font-weight 0.15s ease;
 }
-.yem-letter {
-  display: inline-block;
-  transition: transform 0.35s cubic-bezier(.2, .8, .2, 1), color 0.35s ease;
-}
-.yem-row:hover .yem-letter,
-.yem-row:focus-within .yem-letter,
-.yem-row.is-active .yem-letter {
-  color: var(--green);
-  transform: translateY(-0.08em);
-  transition-delay: calc(var(--i, 0) * 22ms);
-}
-.yem-role {
+.roster-row.is-selected .roster-name,
+.roster-row:hover .roster-name,
+.roster-row:focus-within .roster-name { font-weight: 700; }
+.roster-role {
+  margin-left: auto;
   flex: none;
   font-family: var(--mono);
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--ink-dim);
+  color: var(--ink-faint);
   white-space: nowrap;
 }
-.yem-portrait {
-  position: absolute;
-  top: 50%;
-  right: clamp(1rem, 8vw, 9rem);
-  width: clamp(120px, 14vw, 190px);
-  aspect-ratio: 4 / 5;
-  transform: translateY(-50%) scale(0.92);
-  opacity: 0;
-  overflow: hidden;
-  border-radius: var(--radius-sm);
-  box-shadow: var(--shadow-lg);
-  pointer-events: none;
-  transition: opacity 0.35s ease, transform 0.4s cubic-bezier(.2, .8, .2, 1);
-  z-index: 2;
-}
-.yem-portrait img { width: 100%; height: 100%; object-fit: cover; display: block; }
-@media (hover: hover) {
-  .yem-row:hover .yem-portrait,
-  .yem-row:focus-within .yem-portrait { opacity: 1; transform: translateY(-50%) scale(1); }
-}
-@media (hover: none) {
-  .yem-portrait {
-    position: static;
-    opacity: 1;
-    transform: none;
-    width: 56px;
-    aspect-ratio: 1;
-    border-radius: 50%;
-    float: left;
-    margin: 0.2rem 1rem 0 0;
-    box-shadow: none;
-  }
-}
-.yem-bio {
+.roster-bio {
   display: grid;
   grid-template-rows: 0fr;
   opacity: 0;
   transition: grid-template-rows 0.55s cubic-bezier(.2, .8, .2, 1), opacity 0.4s ease, margin 0.55s ease;
   margin: 0;
 }
-.yem-row.is-active .yem-bio { grid-template-rows: 1fr; opacity: 1; margin: 0 0 2rem; }
-.yem-bio-inner { min-height: 0; overflow: hidden; }
-.yem-bio-inner p {
+.roster-row.is-open .roster-bio { grid-template-rows: 1fr; opacity: 1; margin: 0 0 1.8rem; }
+.roster-bio-inner { min-height: 0; overflow: hidden; }
+.roster-bio-inner p {
   max-width: 62ch;
   color: var(--ink-dim);
   font-family: var(--mono);
@@ -1860,11 +1854,23 @@ body.custom-cursor-active select {
   line-height: 1.8;
   margin-bottom: 1rem;
 }
-.yem-bio-inner p:last-child { margin-bottom: 0; }
-@media (max-width: 700px) {
-  .yem-name { font-size: clamp(1.5rem, 8vw, 2.4rem); }
-  .yem-trigger { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+.roster-bio-inner p:last-child { margin-bottom: 0; }
+@media (max-width: 860px) {
+  /* Only one photo panel exists in the markup (shared, JS-swapped) —
+     rather than fake a per-row thumbnail from it, it just sits as a
+     normal block above the list here, still updating on tap same as
+     hover/focus does on desktop. */
+  .roster { grid-template-columns: 1fr; }
+  .roster-photo { position: static; max-width: 280px; margin: 0 auto 2rem; }
+  /* Without an explicit wrap, a long role label (e.g. "Senior
+     Communications Consultant") just runs off the right edge next to
+     the name instead of dropping to its own line. And margin-left:
+     auto, which pushes the role flush to the row's right edge on
+     desktop, has nothing to push against once it wraps — drop it here
+     so the role just follows the name at the left instead. */
+  .roster-trigger { flex-wrap: wrap; }
+  .roster-role { margin-left: 0; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .yem-letter, .yem-portrait, .yem-bio { transition: none !important; }
+  .roster-dot, .roster-name, .roster-photo img, .roster-bio { transition: none !important; }
 }

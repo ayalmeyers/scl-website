@@ -63,57 +63,68 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   // ---------------------------------------------------------------------
-  // Who We Are: the team roster. Split each name into per-letter spans
-  // for the staggered hover animation, and wire click-to-expand bios —
-  // one open at a time, the whole row's trigger button toggles it.
+  // Who We Are: the team roster. A single shared photo panel swaps to
+  // whichever row is hovered/focused (previewing, non-destructive); the
+  // "selected" row — last clicked, or the first row by default — keeps
+  // a dot marker and bold name, and is what the panel reverts to once
+  // the pointer leaves the list. Clicking a row also expands its bio
+  // directly beneath it, one at a time.
   // ---------------------------------------------------------------------
-  var yemList = document.getElementById("yem-list");
-  if (yemList) {
-    yemList.querySelectorAll("[data-split]").forEach(function (el) {
-      var text = el.textContent;
-      el.textContent = "";
-      text.split("").forEach(function (ch, i) {
-        var span = document.createElement("span");
-        span.className = "yem-letter";
-        span.style.setProperty("--i", i);
-        span.textContent = ch === " " ? " " : ch;
-        el.appendChild(span);
-      });
-    });
+  var rosterList = document.getElementById("roster-list");
+  var rosterPhotoImg = document.getElementById("roster-photo-img");
+  if (rosterList && rosterPhotoImg) {
+    var rosterRows = Array.prototype.slice.call(rosterList.querySelectorAll("[data-roster-row]"));
+    var selectedRosterRow = rosterRows[0] || null;
 
-    var activeYemRow = null;
+    function showRosterPhoto(row) {
+      var src = row && row.getAttribute("data-photo");
+      if (src) rosterPhotoImg.src = src;
+    }
 
-    function closeYemRow(row) {
-      row.classList.remove("is-active");
-      var btn = row.querySelector("[data-yem-trigger]");
+    function selectRosterRow(row) {
+      if (selectedRosterRow) selectedRosterRow.classList.remove("is-selected");
+      row.classList.add("is-selected");
+      selectedRosterRow = row;
+    }
+
+    function closeRosterRow(row) {
+      row.classList.remove("is-open");
+      var btn = row.querySelector("[data-roster-trigger]");
       if (btn) btn.setAttribute("aria-expanded", "false");
     }
 
-    function openYemRow(row) {
-      if (activeYemRow && activeYemRow !== row) closeYemRow(activeYemRow);
-      row.classList.add("is-active");
-      var btn = row.querySelector("[data-yem-trigger]");
-      if (btn) btn.setAttribute("aria-expanded", "true");
-      activeYemRow = row;
+    var openRosterRow = null;
+    function toggleRosterRow(row) {
+      if (openRosterRow && openRosterRow !== row) closeRosterRow(openRosterRow);
+      var btn = row.querySelector("[data-roster-trigger]");
+      if (row.classList.contains("is-open")) {
+        closeRosterRow(row);
+        openRosterRow = null;
+      } else {
+        row.classList.add("is-open");
+        if (btn) btn.setAttribute("aria-expanded", "true");
+        openRosterRow = row;
+      }
     }
 
-    yemList.querySelectorAll("[data-yem-row]").forEach(function (row) {
-      var btn = row.querySelector("[data-yem-trigger]");
+    rosterRows.forEach(function (row) {
+      var btn = row.querySelector("[data-roster-trigger]");
       if (!btn) return;
+      btn.addEventListener("mouseenter", function () { showRosterPhoto(row); });
+      btn.addEventListener("focus", function () { showRosterPhoto(row); });
       btn.addEventListener("click", function () {
-        if (row.classList.contains("is-active")) {
-          closeYemRow(row);
-          activeYemRow = null;
-        } else {
-          openYemRow(row);
-        }
+        selectRosterRow(row);
+        toggleRosterRow(row);
       });
+    });
+    rosterList.addEventListener("mouseleave", function () {
+      showRosterPhoto(selectedRosterRow);
     });
 
     document.addEventListener("keydown", function (e) {
-      if (e.key === "Escape" && activeYemRow) {
-        closeYemRow(activeYemRow);
-        activeYemRow = null;
+      if (e.key === "Escape" && openRosterRow) {
+        closeRosterRow(openRosterRow);
+        openRosterRow = null;
       }
     });
   }
