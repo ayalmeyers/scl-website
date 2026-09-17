@@ -863,22 +863,8 @@ function initPlayground() {
 
   var head = function (cx, cy, r) { return { type: "circle", cx: cx, cy: cy, r: r }; };
   var limb = function (x1, y1, x2, y2, r) { return { type: "capsule", x1: x1, y1: y1, x2: x2, y2: y2, r: r }; };
-  var box = function (x, y, w, h, outline) { return { type: "rect", x: x, y: y, w: w, h: h, outline: !!outline }; };
 
   var SCENE_DEFS = {
-    // A figure gesturing toward a slide screen — the lecture/PowerPoint scene.
-    lecture: [
-      head(55, 38, 13),
-      limb(55, 51, 55, 108, 15),
-      limb(55, 65, 90, 48, 7),
-      limb(55, 70, 42, 108, 7),
-      limb(55, 108, 46, 158, 9),
-      limb(55, 108, 66, 158, 9),
-      box(112, 26, 78, 56, true),
-      box(122, 42, 58, 5),
-      box(122, 54, 42, 5),
-      box(122, 66, 50, 5)
-    ],
     // An abstract ring — "seeing every angle before committing to one."
     // Modeled on the reference clip's flattened torus: a squashed ellipse
     // whose radial thickness swells at the left/right poles and pinches
@@ -909,38 +895,6 @@ function initPlayground() {
       limb(118, 47, 135, 90, 6),
       limb(118, 108, 108, 160, 8),
       limb(118, 108, 128, 160, 8)
-    ],
-    // Two figures facing each other, arms meeting in the middle.
-    handshake: [
-      head(38, 38, 13),
-      limb(38, 51, 38, 112, 15),
-      limb(38, 63, 96, 76, 7),
-      limb(38, 68, 24, 108, 7),
-      limb(38, 112, 28, 160, 9),
-      limb(38, 112, 48, 160, 9),
-      head(158, 38, 13),
-      limb(158, 51, 158, 112, 15),
-      limb(158, 63, 100, 76, 7),
-      limb(158, 68, 172, 108, 7),
-      limb(158, 112, 148, 160, 9),
-      limb(158, 112, 168, 160, 9)
-    ],
-    // A standing coach gesturing beside a seated, listening figure.
-    coaching: [
-      head(38, 34, 13),
-      limb(38, 47, 38, 108, 15),
-      limb(38, 58, 75, 42, 7),
-      limb(38, 63, 24, 100, 7),
-      limb(38, 108, 28, 158, 9),
-      limb(38, 108, 48, 158, 9),
-      head(140, 55, 12),
-      limb(140, 67, 140, 110, 14),
-      limb(140, 80, 120, 104, 6),
-      limb(140, 80, 160, 104, 6),
-      limb(140, 110, 166, 116, 9),
-      limb(166, 116, 166, 152, 8),
-      limb(140, 110, 122, 118, 9),
-      limb(122, 118, 122, 152, 8)
     ]
   };
 
