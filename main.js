@@ -866,35 +866,47 @@ function initPlayground() {
 
   var SCENE_DEFS = {
     // An abstract ring — "seeing every angle before committing to one."
-    // Modeled on the reference clip's flattened torus: a squashed ellipse
-    // whose radial thickness swells at the left/right poles and pinches
-    // to almost nothing at top and bottom, like a doughnut viewed edge-on.
+    // The reference clip isn't a smooth deterministic band: it's clumpy
+    // and irregular, with gaps between clusters and a jagged edge, plus
+    // a lone small mark near dead center. A seeded PRNG (not Math.random,
+    // so the shape is identical on every reload) drives per-angle gaps,
+    // a jittered radius, and a noisy thickness on top of the same
+    // pole-thick/top-thin envelope as before.
     loop: (function () {
       var shapes = [];
       var cx = 95, cy = 95, rMid = 58;
-      for (var a = 0; a < 360; a += 5) {
+      var seed = 7;
+      function rand() { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; }
+      for (var a = 0; a < 360; a += 4) {
         var rad = (a * Math.PI) / 180;
-        var thickness = 5 + 17 * Math.pow(Math.abs(Math.cos(rad)), 1.6);
-        var x = cx + Math.cos(rad) * rMid;
-        var y = cy + Math.sin(rad) * rMid * 0.62;
-        shapes.push(head(x, y, thickness));
+        var envelope = Math.pow(Math.abs(Math.cos(rad)), 1.6);
+        var noise = rand();
+        if (envelope < 0.45 && noise < 0.35) continue;
+        var thickness = (3 + 15 * envelope) * (0.5 + noise);
+        var rJitter = (rand() - 0.5) * 9;
+        var x = cx + Math.cos(rad) * (rMid + rJitter);
+        var y = cy + Math.sin(rad) * (rMid + rJitter) * 0.62;
+        shapes.push(head(x, y, Math.max(2, thickness)));
       }
+      shapes.push(head(cx, cy, 2));
       return shapes;
     })(),
-    // Two figures standing close together, shoulder to shoulder.
+    // Two figures standing close together, shoulder to shoulder — plus
+    // two small, body-less head shapes off to one side, echoing the
+    // faint distant marks in the reference clip's background.
     team: [
-      head(70, 33, 12),
-      limb(70, 45, 70, 112, 16),
-      limb(70, 58, 52, 96, 7),
-      limb(70, 58, 88, 96, 7),
-      limb(70, 112, 60, 162, 9),
-      limb(70, 112, 80, 162, 9),
-      head(118, 24, 11),
-      limb(118, 35, 118, 108, 15),
-      limb(118, 47, 101, 90, 6),
-      limb(118, 47, 135, 90, 6),
-      limb(118, 108, 108, 160, 8),
-      limb(118, 108, 128, 160, 8)
+      head(14, 34, 8),
+      head(33, 44, 7),
+      head(70, 29, 11),
+      limb(56, 42, 84, 42, 9),
+      limb(70, 46, 70, 98, 13),
+      limb(63, 100, 58, 154, 7),
+      limb(77, 100, 82, 154, 7),
+      head(112, 19, 10),
+      limb(99, 31, 125, 31, 8),
+      limb(112, 35, 112, 92, 12),
+      limb(105, 94, 100, 148, 7),
+      limb(119, 94, 124, 148, 7)
     ]
   };
 
