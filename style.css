@@ -1948,6 +1948,17 @@ body.custom-cursor-active textarea,
 body.custom-cursor-active select {
   cursor: auto;
 }
+/* A native <dialog> shown via showModal() renders in the browser's own
+   top layer, above everything else on the page regardless of z-index —
+   including the fixed-position custom cursor dot, which is why it was
+   going invisible over the team bio pop-ups. Rather than depend on
+   reparenting the dot into the dialog's top layer (fragile across
+   browsers), just show the ordinary system cursor inside any open
+   dialog — simpler, and guaranteed visible everywhere. */
+body.custom-cursor-active dialog,
+body.custom-cursor-active dialog * {
+  cursor: auto;
+}
 @media (prefers-reduced-motion: reduce) {
   #cursor-dot { display: none; }
 }

@@ -77,14 +77,6 @@ document.addEventListener("DOMContentLoaded", function () {
       var dialog = document.getElementById(dialogId);
       if (!dialog) return;
       card.addEventListener("click", function () {
-        // A native <dialog> shown via showModal() is promoted to the
-        // browser's top layer, which renders above every normal-stacked
-        // element regardless of z-index — including the custom cursor
-        // dot. Moving the dot inside the dialog while it's open puts it
-        // in that same top layer so it stays visible and on top of the
-        // backdrop instead of disappearing behind it.
-        var cursorDot = document.getElementById("cursor-dot");
-        if (cursorDot) dialog.appendChild(cursorDot);
         if (typeof dialog.showModal === "function") {
           dialog.showModal();
         } else {
@@ -101,13 +93,6 @@ document.addEventListener("DOMContentLoaded", function () {
       // a descendant) closes it, same as the explicit close button.
       dialog.addEventListener("click", function (e) {
         if (e.target === dialog) dialog.close();
-      });
-      // Move the cursor dot back to <body> however the dialog closes
-      // (close button, backdrop click, or Escape) so it keeps tracking
-      // the pointer everywhere else on the page.
-      dialog.addEventListener("close", function () {
-        var cursorDot = document.getElementById("cursor-dot");
-        if (cursorDot) document.body.appendChild(cursorDot);
       });
     });
 
@@ -308,12 +293,13 @@ function initStackScroll() {
   if (reduceMotion) return;
 
   var HOLD_UNITS = 0.6; // extra viewport-heights the last card holds still before release
-  // How far an incoming card starts, as a fraction of its OWN rendered
-  // width (not viewport width — the card's width is capped at 760px,
-  // so a vw-based offset grows past the card size on wide viewports
-  // and the incoming card ends up fully separated instead of peeking
-  // in from the edge like the reference).
-  var SLIDE_FRACTION = 0.85;
+  // An incoming card starts fully clear of the settled one — offset by
+  // its own rendered width (not a vw value: the card's width is capped
+  // at 760px, so a vw-based offset grows past the card size on wide
+  // viewports and the two end up either overlapping or, worse,
+  // detached by an arbitrary gap) — plus a fixed CARD_GAP so the two
+  // start out visibly spaced apart rather than edge-to-edge.
+  var CARD_GAP = 40;
 
   var items = [];
 
@@ -376,7 +362,7 @@ function initStackScroll() {
         var t = Math.min(Math.max(scrollUnits - (i - 1), 0), 1);
         var eased = 1 - Math.pow(1 - t, 3);
         var boxWidth = box.offsetWidth;
-        var offsetPx = (1 - eased) * boxWidth * SLIDE_FRACTION;
+        var offsetPx = (1 - eased) * (boxWidth + CARD_GAP);
         box.style.transform = "translate(-50%, -50%) translateX(" + offsetPx.toFixed(2) + "px)";
       });
     });
