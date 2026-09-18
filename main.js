@@ -103,7 +103,53 @@ document.addEventListener("DOMContentLoaded", function () {
   initCursorDot();
   initFlowScroll();
   initVideoCards();
+  initTestimonials();
 });
+
+// ---------------------------------------------------------------------
+// Testimonials: same hover-swap mechanic as the old team roster, but
+// the shared panel shows quote text instead of a photo. Hovering or
+// focusing a row swaps its quote into the panel; the "selected" row
+// (last clicked, or the first by default) is what the panel reverts to
+// once the pointer leaves the list. Handles every .testimonial block
+// on the page independently, same pattern as initFlowScroll.
+// ---------------------------------------------------------------------
+function initTestimonials() {
+  var blocks = document.querySelectorAll(".testimonial");
+  if (!blocks.length) return;
+
+  blocks.forEach(function (block) {
+    var panelQuote = block.querySelector("[data-testimonial-quote]");
+    var rows = Array.prototype.slice.call(block.querySelectorAll("[data-testimonial-row]"));
+    var list = block.querySelector(".testimonial-list");
+    if (!panelQuote || !rows.length || !list) return;
+
+    var selectedRow = rows[0];
+
+    function showQuote(row) {
+      var quote = row && row.getAttribute("data-quote");
+      if (quote) panelQuote.textContent = quote;
+    }
+
+    function selectRow(row) {
+      if (selectedRow) selectedRow.classList.remove("is-active");
+      row.classList.add("is-active");
+      selectedRow = row;
+    }
+
+    rows.forEach(function (row) {
+      var btn = row.querySelector("[data-testimonial-trigger]");
+      if (!btn) return;
+      btn.addEventListener("mouseenter", function () { showQuote(row); });
+      btn.addEventListener("focus", function () { showQuote(row); });
+      btn.addEventListener("click", function () { selectRow(row); });
+    });
+
+    list.addEventListener("mouseleave", function () {
+      showQuote(selectedRow);
+    });
+  });
+}
 
 // ---------------------------------------------------------------------
 // Insights in Motion (Musings): click-to-load video embeds. Nothing
