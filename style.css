@@ -1938,11 +1938,10 @@ body.custom-cursor-active select {
 .roster-bio-inner p {
   max-width: 62ch;
   color: var(--ink-dim);
-  font-family: var(--mono);
-  font-size: 0.82rem;
-  text-transform: uppercase;
-  line-height: 1.8;
-  margin-bottom: 1rem;
+  font-family: var(--sans);
+  font-size: 0.98rem;
+  line-height: 1.75;
+  margin-bottom: 1.1rem;
 }
 .roster-bio-inner p:last-child { margin-bottom: 0; }
 @media (max-width: 860px) {
@@ -1963,34 +1962,4 @@ body.custom-cursor-active select {
 }
 @media (prefers-reduced-motion: reduce) {
   .roster-dot, .roster-name, .roster-photo img, .roster-bio { transition: none !important; }
-}
-
-/* ---------- playground: chevron-built human scenes ----------
-   Each .pg-scene holds a <canvas> that main.js fills with a dot-matrix
-   silhouette built from the site's own ">" mark (see .chev-track
-   elsewhere) — the shape assembles in from its .pg-scene[data-pg-side]
-   edge the first time it scrolls into view. Rows alternate which side
-   carries the scene (see the row order in playground.html) so the
-   page reads right/left/right/left down the scroll, the mirror image
-   of the Lorenz background's own left-right drift. */
-.pg-row { padding: clamp(2.6rem, 6vw, 4.5rem) 0; }
-.pg-row-inner {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: clamp(2rem, 5vw, 4.5rem);
-  align-items: center;
-}
-.pg-copy { max-width: 34rem; }
-.pg-copy h2 { margin-top: 0.6rem; font-size: clamp(1.6rem, 3.4vw, 2.3rem); }
-.pg-copy .lede { margin-top: 1rem; }
-.pg-scene {
-  position: relative;
-  aspect-ratio: 4 / 3;
-  background: var(--bg-alt);
-  border: 1px solid var(--line);
-  overflow: hidden;
-}
-.pg-scene canvas { width: 100%; height: 100%; display: block; }
-@media (max-width: 860px) {
-  .pg-row-inner { grid-template-columns: 1fr; }
 }
