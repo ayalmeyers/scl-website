@@ -63,69 +63,37 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   // ---------------------------------------------------------------------
-  // Who We Are: the team roster. A single shared photo panel swaps to
-  // whichever row is hovered/focused (previewing, non-destructive); the
-  // "selected" row — last clicked, or the first row by default — keeps
-  // a dot marker and bold name, and is what the panel reverts to once
-  // the pointer leaves the list. Clicking a row also expands its bio
-  // directly beneath it, one at a time.
+  // Who We Are: the team roster grid. Each card's photo sits in
+  // grayscale and colorizes on hover/focus; clicking (or pressing
+  // Enter/Space on) a card opens that person's bio in a native <dialog>
+  // — which gives us backdrop, Escape-to-close, and focus handling for
+  // free instead of hand-rolling an overlay.
   // ---------------------------------------------------------------------
-  var rosterList = document.getElementById("roster-list");
-  var rosterPhotoImg = document.getElementById("roster-photo-img");
-  if (rosterList && rosterPhotoImg) {
-    var rosterRows = Array.prototype.slice.call(rosterList.querySelectorAll("[data-roster-row]"));
-    var selectedRosterRow = rosterRows[0] || null;
-
-    function showRosterPhoto(row) {
-      var src = row && row.getAttribute("data-photo");
-      if (src) rosterPhotoImg.src = src;
-    }
-
-    function selectRosterRow(row) {
-      if (selectedRosterRow) selectedRosterRow.classList.remove("is-selected");
-      row.classList.add("is-selected");
-      selectedRosterRow = row;
-    }
-
-    function closeRosterRow(row) {
-      row.classList.remove("is-open");
-      var btn = row.querySelector("[data-roster-trigger]");
-      if (btn) btn.setAttribute("aria-expanded", "false");
-    }
-
-    var openRosterRow = null;
-    function toggleRosterRow(row) {
-      if (openRosterRow && openRosterRow !== row) closeRosterRow(openRosterRow);
-      var btn = row.querySelector("[data-roster-trigger]");
-      if (row.classList.contains("is-open")) {
-        closeRosterRow(row);
-        openRosterRow = null;
-      } else {
-        row.classList.add("is-open");
-        if (btn) btn.setAttribute("aria-expanded", "true");
-        openRosterRow = row;
-      }
-    }
-
-    rosterRows.forEach(function (row) {
-      var btn = row.querySelector("[data-roster-trigger]");
-      if (!btn) return;
-      btn.addEventListener("mouseenter", function () { showRosterPhoto(row); });
-      btn.addEventListener("focus", function () { showRosterPhoto(row); });
-      btn.addEventListener("click", function () {
-        selectRosterRow(row);
-        toggleRosterRow(row);
+  var rosterGrid = document.getElementById("roster-grid");
+  if (rosterGrid) {
+    var rosterCards = Array.prototype.slice.call(rosterGrid.querySelectorAll("[data-roster-card]"));
+    rosterCards.forEach(function (card) {
+      var dialogId = card.getAttribute("data-roster-card");
+      var dialog = document.getElementById(dialogId);
+      if (!dialog) return;
+      card.addEventListener("click", function () {
+        if (typeof dialog.showModal === "function") {
+          dialog.showModal();
+        } else {
+          dialog.setAttribute("open", "");
+        }
       });
-    });
-    rosterList.addEventListener("mouseleave", function () {
-      showRosterPhoto(selectedRosterRow);
-    });
-
-    document.addEventListener("keydown", function (e) {
-      if (e.key === "Escape" && openRosterRow) {
-        closeRosterRow(openRosterRow);
-        openRosterRow = null;
+      var closeBtn = dialog.querySelector("[data-roster-dialog-close]");
+      if (closeBtn) {
+        closeBtn.addEventListener("click", function () {
+          dialog.close();
+        });
       }
+      // Clicking the backdrop (the click lands on <dialog> itself, not
+      // a descendant) closes it, same as the explicit close button.
+      dialog.addEventListener("click", function (e) {
+        if (e.target === dialog) dialog.close();
+      });
     });
   }
 
