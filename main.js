@@ -308,7 +308,12 @@ function initStackScroll() {
   if (reduceMotion) return;
 
   var HOLD_UNITS = 0.6; // extra viewport-heights the last card holds still before release
-  var SLIDE_VW = 60; // how far off-screen (in vw) an incoming card starts from
+  // How far an incoming card starts, as a fraction of its OWN rendered
+  // width (not viewport width — the card's width is capped at 760px,
+  // so a vw-based offset grows past the card size on wide viewports
+  // and the incoming card ends up fully separated instead of peeking
+  // in from the edge like the reference).
+  var SLIDE_FRACTION = 0.85;
 
   var items = [];
 
@@ -370,8 +375,9 @@ function initStackScroll() {
         }
         var t = Math.min(Math.max(scrollUnits - (i - 1), 0), 1);
         var eased = 1 - Math.pow(1 - t, 3);
-        var offsetVw = (1 - eased) * SLIDE_VW;
-        box.style.transform = "translate(-50%, -50%) translateX(" + offsetVw.toFixed(2) + "vw)";
+        var boxWidth = box.offsetWidth;
+        var offsetPx = (1 - eased) * boxWidth * SLIDE_FRACTION;
+        box.style.transform = "translate(-50%, -50%) translateX(" + offsetPx.toFixed(2) + "px)";
       });
     });
   }
