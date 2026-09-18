@@ -766,30 +766,93 @@ a.pillar.pillar-link:focus-visible .more .arrow { transform: translateX(5px); }
   text-transform: uppercase;
   color: var(--ink-dim);
 }
-.quote-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem 3rem; }
-@media (max-width: 860px) { .quote-grid { grid-template-columns: 1fr; } }
-.quote-card {
-  padding: 2.2rem;
-  border-top: 2px solid var(--green);
-  background: transparent;
+/* ---------- testimonial: sticky quote panel + hover list ----------
+   Same mechanic as the old team roster (main.js): a panel holds
+   whichever row's content is currently hovered/focused, swapping back
+   to the selected (last clicked, or first by default) row once the
+   pointer leaves the list — except here the panel shows the swapped-in
+   quote text instead of a photo. */
+.testimonial {
+  display: grid;
+  grid-template-columns: minmax(280px, 44%) 1fr;
+  gap: clamp(2rem, 5vw, 4.5rem);
+  align-items: start;
 }
-.quote-card blockquote {
+.testimonial-panel {
+  position: sticky;
+  top: 7rem;
+  padding: clamp(1.8rem, 4vw, 2.6rem);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-lg);
+  min-height: 14rem;
+  display: flex;
+  align-items: center;
+}
+.testimonial-quote {
   font-family: var(--display);
-  font-size: 1.2rem;
+  font-size: clamp(1.2rem, 2.4vw, 1.6rem);
   font-style: normal;
   font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
   color: var(--ink);
-  margin-bottom: 1.1rem;
-  line-height: 1.35;
+  margin: 0;
 }
-.section-light .quote-card blockquote { color: var(--paper-ink); }
-.quote-card cite {
+.testimonial-list { border-top: 1px solid var(--line); min-width: 0; }
+.testimonial-row { border-bottom: 1px solid var(--line); }
+.testimonial-trigger {
+  display: flex;
+  align-items: baseline;
+  gap: 0.9rem;
+  width: 100%;
+  background: none;
+  border: none;
+  padding: clamp(1rem, 2.2vw, 1.4rem) 0;
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+}
+.testimonial-dot {
+  flex: none;
+  align-self: center;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.testimonial-row.is-active .testimonial-dot,
+.testimonial-row:hover .testimonial-dot,
+.testimonial-row:focus-within .testimonial-dot { opacity: 1; }
+.testimonial-title {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: clamp(1.05rem, 2vw, 1.3rem);
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  transition: font-weight 0.15s ease;
+}
+.testimonial-row.is-active .testimonial-title,
+.testimonial-row:hover .testimonial-title,
+.testimonial-row:focus-within .testimonial-title { font-weight: 700; }
+.testimonial-org {
+  margin-left: auto;
+  flex: none;
   font-family: var(--mono);
-  font-style: normal;
-  font-size: 0.66rem;
+  font-size: 0.68rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--ink-dim);
+  color: var(--ink-faint);
+  text-align: right;
+}
+@media (max-width: 860px) {
+  .testimonial { grid-template-columns: 1fr; }
+  .testimonial-panel { position: static; margin-bottom: 1.5rem; }
+  .testimonial-trigger { flex-wrap: wrap; }
+  .testimonial-org { margin-left: 0; text-align: left; }
 }
 
 /* ---------- industries tag list ---------- */
