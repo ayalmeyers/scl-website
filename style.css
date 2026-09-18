@@ -400,7 +400,6 @@ p:last-child { margin-bottom: 0; }
   font-family: var(--mono);
   font-size: 0.82rem;
   letter-spacing: 0.02em;
-  text-transform: uppercase;
   line-height: 1.8;
   font-weight: 400;
   color: var(--ink-dim);
@@ -420,7 +419,6 @@ p:last-child { margin-bottom: 0; }
   font-family: var(--mono);
   font-size: 0.78rem;
   letter-spacing: 0.02em;
-  text-transform: uppercase;
   line-height: 1.75;
   color: var(--ink-dim);
   margin: 0;
@@ -529,7 +527,6 @@ section { padding: var(--section-pad) 0; position: relative; }
   color: var(--ink-dim);
   font-family: var(--mono);
   font-size: 0.82rem;
-  text-transform: uppercase;
   line-height: 1.8;
   font-weight: 400;
   max-width: 46rem;
@@ -593,7 +590,7 @@ hr.rule {
 }
 .section-light .pillar .num { color: var(--paper-dim); }
 .pillar h3 { font-family: var(--display); font-size: 1.5rem; font-weight: 500; margin-bottom: 0.9rem; letter-spacing: -0.01em; }
-.pillar p { color: var(--ink-dim); font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; line-height: 1.75; }
+.pillar p { color: var(--ink-dim); font-family: var(--mono); font-size: 0.8rem; line-height: 1.75; }
 .section-light .pillar p { color: var(--paper-dim); }
 .pillar a.more,
 .pillar .more {
@@ -630,9 +627,12 @@ a.pillar.pillar-link:hover .more .arrow,
 a.pillar.pillar-link:focus-visible .more .arrow { transform: translateX(5px); }
 
 /* ---------- homepage "Our Team" teaser grid ----------
-   A compact preview of the full interactive roster on who-we-are.html —
-   duotoned photo, name, role, all wrapped as one link out to the full
-   bios rather than reproducing the hover/click roster mechanic here. */
+   Same grayscale-to-color treatment as the full roster on
+   who-we-are.html (.roster-card) — desaturated at rest, colorizes on
+   hover/focus, name tints to the brand blue. Each card links straight
+   to that person's bio dialog on the full roster page (via #dlg-id in
+   the href; who-we-are.html's init opens the matching dialog on load
+   if the URL hash names one). */
 .team-teaser-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -648,12 +648,8 @@ a.pillar.pillar-link:focus-visible .more .arrow { transform: translateX(5px); }
 .team-teaser-card {
   display: block;
   text-decoration: none;
-  transition: transform 0.3s var(--ease);
 }
-.team-teaser-card:hover,
-.team-teaser-card:focus-visible { transform: translateY(-4px); }
 .team-teaser-photo {
-  position: relative;
   aspect-ratio: 4 / 5;
   overflow: hidden;
   background: var(--bg-alt);
@@ -665,15 +661,14 @@ a.pillar.pillar-link:focus-visible .more .arrow { transform: translateX(5px); }
   width: 100%;
   height: 100%;
   object-fit: cover;
-  filter: grayscale(1) contrast(1.08);
+  filter: grayscale(1) contrast(1.05);
+  transform: scale(1.001);
+  transition: filter 0.5s ease, transform 0.5s ease;
 }
-.team-teaser-photo::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(165deg, rgba(29, 95, 176, 0.4), rgba(15, 36, 64, 0.24) 55%, rgba(15, 36, 64, 0.05));
-  mix-blend-mode: multiply;
-  pointer-events: none;
+.team-teaser-card:hover .team-teaser-photo img,
+.team-teaser-card:focus-visible .team-teaser-photo img {
+  filter: grayscale(0) contrast(1);
+  transform: scale(1.04);
 }
 .team-teaser-name {
   display: block;
@@ -681,7 +676,10 @@ a.pillar.pillar-link:focus-visible .more .arrow { transform: translateX(5px); }
   font-size: 1.05rem;
   font-weight: 500;
   color: var(--ink);
+  transition: color 0.2s ease;
 }
+.team-teaser-card:hover .team-teaser-name,
+.team-teaser-card:focus-visible .team-teaser-name { color: var(--green); }
 .section-light .team-teaser-name { color: var(--paper-ink); }
 .team-teaser-role {
   display: block;
@@ -693,6 +691,9 @@ a.pillar.pillar-link:focus-visible .more .arrow { transform: translateX(5px); }
   margin-top: 0.2rem;
 }
 .section-light .team-teaser-role { color: var(--paper-dim); }
+@media (prefers-reduced-motion: reduce) {
+  .team-teaser-photo img, .team-teaser-name { transition: none !important; }
+}
 
 /* full-width "seamless" link band used to extend a homepage teaser section
    into its dedicated page — a large, obviously-clickable click target
@@ -763,7 +764,6 @@ a.pillar.pillar-link:focus-visible .more .arrow { transform: translateX(5px); }
   font-style: normal;
   font-size: 0.7rem;
   letter-spacing: 0.12em;
-  text-transform: uppercase;
   color: var(--ink-dim);
 }
 /* ---------- testimonial: sticky quote panel + hover list ----------
@@ -803,12 +803,12 @@ a.pillar.pillar-link:focus-visible .more .arrow { transform: translateX(5px); }
 .testimonial-row { border-bottom: 1px solid var(--line); }
 .testimonial-trigger {
   display: flex;
-  align-items: baseline;
-  gap: 0.9rem;
+  align-items: center;
+  gap: 0.7rem;
   width: 100%;
   background: none;
   border: none;
-  padding: clamp(1rem, 2.2vw, 1.4rem) 0;
+  padding: clamp(1.1rem, 2.4vw, 1.5rem) 0;
   text-align: left;
   cursor: pointer;
   font: inherit;
@@ -816,7 +816,6 @@ a.pillar.pillar-link:focus-visible .more .arrow { transform: translateX(5px); }
 }
 .testimonial-dot {
   flex: none;
-  align-self: center;
   width: 6px;
   height: 6px;
   border-radius: 50%;
@@ -827,32 +826,35 @@ a.pillar.pillar-link:focus-visible .more .arrow { transform: translateX(5px); }
 .testimonial-row.is-active .testimonial-dot,
 .testimonial-row:hover .testimonial-dot,
 .testimonial-row:focus-within .testimonial-dot { opacity: 1; }
-.testimonial-title {
+/* Title, connector, and org flow as one readable phrase — "President
+   at Fortune 100 Company" — rather than a bold label on the left and a
+   disconnected all-caps org name pinned to the far right. */
+.testimonial-line {
+  flex: 1;
+  min-width: 0;
   font-family: var(--display);
-  font-weight: 500;
-  font-size: clamp(1.05rem, 2vw, 1.3rem);
+  font-size: clamp(1.05rem, 2vw, 1.25rem);
   letter-spacing: -0.01em;
+  line-height: 1.5;
+}
+.testimonial-title {
+  font-weight: 700;
   color: var(--ink);
-  transition: font-weight 0.15s ease;
+  transition: color 0.2s ease;
 }
 .testimonial-row.is-active .testimonial-title,
 .testimonial-row:hover .testimonial-title,
-.testimonial-row:focus-within .testimonial-title { font-weight: 700; }
-.testimonial-org {
-  margin-left: auto;
-  flex: none;
-  font-family: var(--mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+.testimonial-row:focus-within .testimonial-title { color: var(--green); }
+.testimonial-connector {
+  font-weight: 400;
+  font-style: italic;
   color: var(--ink-faint);
-  text-align: right;
+  margin: 0 0.3em;
 }
+.testimonial-org { font-weight: 500; color: var(--ink-dim); }
 @media (max-width: 860px) {
   .testimonial { grid-template-columns: 1fr; }
   .testimonial-panel { position: static; margin-bottom: 1.5rem; }
-  .testimonial-trigger { flex-wrap: wrap; }
-  .testimonial-org { margin-left: 0; text-align: left; }
 }
 
 /* ---------- industries tag list ---------- */
@@ -910,7 +912,7 @@ a.pillar.pillar-link:focus-visible .more .arrow { transform: translateX(5px); }
   max-width: 20ch;
   letter-spacing: -0.02em;
 }
-.page-hero .lede { margin-top: 1.6rem; max-width: 46ch; color: var(--ink-dim); font-family: var(--mono); text-transform: uppercase; font-size: 0.82rem; line-height: 1.8; }
+.page-hero .lede { margin-top: 1.6rem; max-width: 46ch; color: var(--ink-dim); font-family: var(--mono); font-size: 0.82rem; line-height: 1.8; }
 .crumb {
   font-family: var(--mono);
   font-size: 0.68rem;
@@ -941,11 +943,10 @@ a.pillar.pillar-link:focus-visible .more .arrow { transform: translateX(5px); }
   font-style: normal;
   font-size: 0.66rem;
   letter-spacing: 0.1em;
-  text-transform: uppercase;
   color: var(--ink-dim);
 }
 
-.prose { max-width: 42rem; font-family: var(--mono); font-size: 0.86rem; text-transform: uppercase; line-height: 1.85; font-weight: 400; color: var(--ink-dim); }
+.prose { max-width: 42rem; font-family: var(--mono); font-size: 0.86rem; line-height: 1.85; font-weight: 400; color: var(--ink-dim); }
 .prose strong { color: var(--ink); font-weight: 700; }
 .prose h3 { margin: 2rem 0 1rem; }
 .noscript-fallback { padding: 6rem 0; }
@@ -1008,7 +1009,7 @@ a.pillar.pillar-link:focus-visible .more .arrow { transform: translateX(5px); }
   color: var(--ink-dim);
 }
 .post-row h3 { font-family: var(--display); font-size: 1.4rem; font-weight: 500; letter-spacing: -0.01em; }
-.post-row .excerpt { color: var(--ink-dim); font-family: var(--mono); font-size: 0.78rem; text-transform: uppercase; margin-top: 0.5rem; max-width: 46ch; line-height: 1.7; }
+.post-row .excerpt { color: var(--ink-dim); font-family: var(--mono); font-size: 0.78rem; margin-top: 0.5rem; max-width: 46ch; line-height: 1.7; }
 .post-row .read {
   font-family: var(--mono);
   font-size: 0.68rem;
@@ -1020,7 +1021,7 @@ a.pillar.pillar-link:focus-visible .more .arrow { transform: translateX(5px); }
   align-self: center;
 }
 
-.article-body { max-width: 40rem; font-family: var(--mono); font-size: 0.86rem; text-transform: uppercase; line-height: 1.85; font-weight: 400; color: var(--ink-dim); }
+.article-body { max-width: 40rem; font-family: var(--mono); font-size: 0.86rem; line-height: 1.85; font-weight: 400; color: var(--ink-dim); }
 .article-body p { margin-bottom: 1.4em; }
 .article-body strong { color: var(--ink); }
 
@@ -1091,7 +1092,6 @@ a.pillar.pillar-link:focus-visible .more .arrow { transform: translateX(5px); }
 .musings-card .excerpt {
   font-family: var(--mono);
   font-size: 0.74rem;
-  text-transform: uppercase;
   line-height: 1.7;
   color: var(--ink-dim);
   margin: 0 0 1.4rem;
@@ -1228,7 +1228,7 @@ a.pillar.pillar-link:focus-visible .more .arrow { transform: translateX(5px); }
 .video-card-icon { width: 1.6rem; height: 1.6rem; }
 .video-card-playbtn .video-card-icon { width: 1.3rem; height: 1.3rem; margin-left: 0.15em; }
 .video-card h3 { font-family: var(--display); font-size: 1.35rem; font-weight: 500; margin-bottom: 0.7rem; letter-spacing: -0.01em; }
-.video-card p { font-family: var(--mono); font-size: 0.78rem; text-transform: uppercase; line-height: 1.7; color: var(--ink-dim); margin-bottom: 1rem; }
+.video-card p { font-family: var(--mono); font-size: 0.78rem; line-height: 1.7; color: var(--ink-dim); margin-bottom: 1rem; }
 .video-card-status {
   display: inline-block;
   font-family: var(--mono);
@@ -1364,7 +1364,7 @@ a.pillar.pillar-link:focus-visible .more .arrow { transform: translateX(5px); }
   margin-bottom: 0.9rem;
 }
 .flow-box h3 { font-family: var(--display); font-size: 1.4rem; font-weight: 500; margin-bottom: 0.7rem; letter-spacing: -0.01em; }
-.flow-box p { font-family: var(--mono); font-size: 0.78rem; text-transform: uppercase; line-height: 1.7; color: var(--ink-dim); }
+.flow-box p { font-family: var(--mono); font-size: 0.78rem; line-height: 1.7; color: var(--ink-dim); }
 
 @media (prefers-reduced-motion: reduce), (max-width: 900px) {
   .flow-scroll { height: auto; }
@@ -1422,7 +1422,7 @@ a.pillar.pillar-link:focus-visible .more .arrow { transform: translateX(5px); }
 @media (max-width: 860px) { .footer-top { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 560px) { .footer-top { grid-template-columns: 1fr; } }
 .footer-brand { font-family: var(--display); font-weight: 500; font-size: 1.3rem; color: var(--ink); margin-bottom: 0.9rem; letter-spacing: -0.02em; }
-.footer-tag { max-width: 30ch; color: var(--ink-faint); font-family: var(--mono); font-size: 0.78rem; text-transform: uppercase; line-height: 1.7; }
+.footer-tag { max-width: 30ch; color: var(--ink-faint); font-family: var(--mono); font-size: 0.78rem; line-height: 1.7; }
 .footer-col h4 {
   font-family: var(--mono);
   font-size: 0.66rem;
@@ -1558,7 +1558,6 @@ select {
   margin-top: 1.4rem;
   font-family: var(--mono);
   font-size: 0.72rem;
-  text-transform: uppercase;
   line-height: 1.5;
   cursor: pointer;
 }
@@ -1580,7 +1579,6 @@ select {
 #form-note {
   font-family: var(--mono);
   font-size: 0.78rem;
-  text-transform: uppercase;
   line-height: 1.7;
   color: var(--ink-dim);
   max-width: 40ch;
@@ -1593,7 +1591,6 @@ select {
   font-family: var(--mono);
   font-size: 0.68rem;
   letter-spacing: 0.06em;
-  text-transform: uppercase;
   color: #a8412f;
 }
 .field-error.is-shown { display: block; }
@@ -1849,7 +1846,7 @@ body[data-contact-page] #client-panel { max-width: 760px; margin-left: auto; mar
 }
 .drawer-send:hover { color: var(--paper-ink); transform: translateX(3px); }
 .drawer-send .key { font-size: 1rem; }
-.contact-drawer #form-note { font-family: var(--mono); font-size: 0.76rem; text-transform: uppercase; line-height: 1.6; color: var(--paper-dim); max-width: 30ch; }
+.contact-drawer #form-note { font-family: var(--mono); font-size: 0.76rem; line-height: 1.6; color: var(--paper-dim); max-width: 30ch; }
 .contact-drawer #form-note.is-success { color: var(--green-on-dark); }
 .contact-drawer #form-note.is-error { color: #e2897a; }
 

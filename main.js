@@ -95,6 +95,20 @@ document.addEventListener("DOMContentLoaded", function () {
         if (e.target === dialog) dialog.close();
       });
     });
+
+    // Deep link: the homepage's "Our Team" cards link straight to a
+    // person's bio via who-we-are.html#dlg-<id>, so open that dialog
+    // immediately if the URL names one.
+    if (window.location.hash) {
+      var targetDialog = document.getElementById(window.location.hash.slice(1));
+      if (targetDialog && targetDialog.classList.contains("roster-dialog")) {
+        if (typeof targetDialog.showModal === "function") {
+          targetDialog.showModal();
+        } else {
+          targetDialog.setAttribute("open", "");
+        }
+      }
+    }
   }
 
   initAttractorBackground();
