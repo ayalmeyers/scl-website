@@ -77,6 +77,14 @@ document.addEventListener("DOMContentLoaded", function () {
       var dialog = document.getElementById(dialogId);
       if (!dialog) return;
       card.addEventListener("click", function () {
+        // A native <dialog> shown via showModal() is promoted to the
+        // browser's top layer, which renders above every normal-stacked
+        // element regardless of z-index — including the custom cursor
+        // dot. Moving the dot inside the dialog while it's open puts it
+        // in that same top layer so it stays visible and on top of the
+        // backdrop instead of disappearing behind it.
+        var cursorDot = document.getElementById("cursor-dot");
+        if (cursorDot) dialog.appendChild(cursorDot);
         if (typeof dialog.showModal === "function") {
           dialog.showModal();
         } else {
@@ -93,6 +101,13 @@ document.addEventListener("DOMContentLoaded", function () {
       // a descendant) closes it, same as the explicit close button.
       dialog.addEventListener("click", function (e) {
         if (e.target === dialog) dialog.close();
+      });
+      // Move the cursor dot back to <body> however the dialog closes
+      // (close button, backdrop click, or Escape) so it keeps tracking
+      // the pointer everywhere else on the page.
+      dialog.addEventListener("close", function () {
+        var cursorDot = document.getElementById("cursor-dot");
+        if (cursorDot) document.body.appendChild(cursorDot);
       });
     });
 
@@ -705,8 +720,8 @@ function initAttractorBackground() {
     for (var i = 0; i < MAX_POINTS; i++) {
       p1 = step(p1);
       p2 = step(p2);
-      trail1.push({ x: p1.x, y: p1.y, z: p1.z });
-      trail2.push({ x: p2.x, y: p2.y, z: p2.z });
+      trail1.push({ x: p1.x, y: p1.y, z: p1.z, dx: 0, dy: 0, vx: 0, vy: 0 });
+      trail2.push({ x: p2.x, y: p2.y, z: p2.z, dx: 0, dy: 0, vx: 0, vy: 0 });
     }
   }
   seedTrail();
@@ -721,6 +736,37 @@ function initAttractorBackground() {
     },
     { passive: true }
   );
+
+  // ---------------------------------------------------------------------
+  // Cursor gravity field: the trail near the pointer bends toward it and
+  // springs back when the pointer moves away, plus a small glowing node
+  // and concentric rings marking the field boundary. The Lorenz
+  // integration above (step/seedTrail/loop) is untouched — this only
+  // offsets each point's already-projected 2D screen position, so the
+  // underlying trajectory math stays exactly as it was.
+  // ---------------------------------------------------------------------
+  var isHovering = false;
+  var fieldRadius = 200; // px — R_field: reach of the gravity field
+  var pullStrength = 0.5; // S_force: 0..1, peak pull fraction at the cursor center
+  var maxPullPx = 70; // pixel displacement at S_force's full strength (d = 0)
+  var kStiffness = 0.12;
+  var cDamping = 0.82;
+  var mouseX = 0, mouseY = 0;
+
+  if (!coarsePointer) {
+    window.addEventListener(
+      "pointermove",
+      function (e) {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+        isHovering = true;
+      },
+      { passive: true }
+    );
+    document.addEventListener("mouseleave", function () {
+      isHovering = false;
+    });
+  }
 
   function project(pt, angle, tilt, scale, cx, cy) {
     var cosA = Math.cos(angle), sinA = Math.sin(angle);
@@ -738,12 +784,44 @@ function initAttractorBackground() {
     ctx.beginPath();
     var prev = null;
     for (var i = 0; i < trail.length; i++) {
-      var proj = project(trail[i], angle, tilt, scale, cx, cy);
+      var pt = trail[i];
+      var proj = project(pt, angle, tilt, scale, cx, cy);
+
+      // Radial attraction vector toward the cursor, with quadratic
+      // falloff from full pullStrength at the center to zero at
+      // fieldRadius — w(d) = pullStrength * (1 - d/R)^2.
+      var targetDx = 0, targetDy = 0;
+      if (isHovering) {
+        var toMouseX = mouseX - proj.x, toMouseY = mouseY - proj.y;
+        var d = Math.sqrt(toMouseX * toMouseX + toMouseY * toMouseY);
+        if (d < fieldRadius && d > 0.0001) {
+          var w = pullStrength * (1 - d / fieldRadius) * (1 - d / fieldRadius);
+          targetDx = (toMouseX / d) * w * maxPullPx;
+          targetDy = (toMouseY / d) * w * maxPullPx;
+        }
+      }
+
+      // Damped harmonic spring toward the target displacement — the
+      // same equation pulls a point in when it's near the cursor and
+      // (once the target drops back to zero) eases it back to its true
+      // Lorenz position, with a little overshoot before it settles.
+      if (targetDx !== 0 || targetDy !== 0 || Math.abs(pt.dx) > 0.02 || Math.abs(pt.dy) > 0.02 || Math.abs(pt.vx) > 0.02 || Math.abs(pt.vy) > 0.02) {
+        var ax = kStiffness * (targetDx - pt.dx) - cDamping * pt.vx;
+        var ay = kStiffness * (targetDy - pt.dy) - cDamping * pt.vy;
+        pt.vx += ax;
+        pt.vy += ay;
+        pt.dx += pt.vx;
+        pt.dy += pt.vy;
+      } else {
+        pt.dx = 0; pt.dy = 0; pt.vx = 0; pt.vy = 0;
+      }
+
+      var drawX = proj.x + pt.dx, drawY = proj.y + pt.dy;
       if (prev) {
         ctx.moveTo(prev.x, prev.y);
-        ctx.lineTo(proj.x, proj.y);
+        ctx.lineTo(drawX, drawY);
       }
-      prev = proj;
+      prev = { x: drawX, y: drawY };
     }
     ctx.strokeStyle = hue;
     ctx.lineWidth = 0.7;
@@ -755,6 +833,28 @@ function initAttractorBackground() {
     ctx.globalCompositeOperation = "source-over";
   }
 
+  function drawCursorField() {
+    if (!isHovering || coarsePointer) return;
+    ctx.save();
+    // Concentric rings marking the boundary of the gravity field.
+    var ringFracs = [0.35, 0.68, 1.0];
+    for (var i = 0; i < ringFracs.length; i++) {
+      ctx.beginPath();
+      ctx.arc(mouseX, mouseY, fieldRadius * ringFracs[i], 0, Math.PI * 2);
+      ctx.strokeStyle = "rgba(255, 140, 0, " + (0.16 - i * 0.04) + ")";
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+    // Glowing gravity node at the cursor.
+    ctx.beginPath();
+    ctx.arc(mouseX, mouseY, 4, 0, Math.PI * 2);
+    ctx.fillStyle = "#FFA500";
+    ctx.shadowColor = "#FF8C00";
+    ctx.shadowBlur = 12;
+    ctx.fill();
+    ctx.restore();
+  }
+
   function draw(t) {
     ctx.clearRect(0, 0, width, height);
 
@@ -763,7 +863,9 @@ function initAttractorBackground() {
     // the mouse around for 10s produced zero change in the attractor's
     // shape/orientation (confirmed via pixel bounding-box comparison
     // across the whole clip). So no time-based auto-rotation and no
-    // pointer-driven angle/tilt here, unlike the earlier version.
+    // pointer-driven angle/tilt here, unlike the earlier version. (The
+    // cursor gravity field above is a separate, local displacement of
+    // each point's drawn position — it doesn't touch the camera.)
     var angle = scrollY * 0.0006;
     var tilt = 0.35;
 
@@ -788,6 +890,8 @@ function initAttractorBackground() {
     // so the two nearby trails' overlap brightens like the reference.
     drawTrail(trail1, angle, tilt, scale, cx, cy, "rgba(47,111,237,0.32)");
     drawTrail(trail2, angle, tilt, scale, cx, cy, "rgba(29,87,189,0.18)");
+
+    drawCursorField();
   }
 
   if (reduceMotion) {
@@ -800,8 +904,8 @@ function initAttractorBackground() {
     for (var i = 0; i < stepsPerFrame; i++) {
       p1 = step(p1);
       p2 = step(p2);
-      trail1.push({ x: p1.x, y: p1.y, z: p1.z });
-      trail2.push({ x: p2.x, y: p2.y, z: p2.z });
+      trail1.push({ x: p1.x, y: p1.y, z: p1.z, dx: 0, dy: 0, vx: 0, vy: 0 });
+      trail2.push({ x: p2.x, y: p2.y, z: p2.z, dx: 0, dy: 0, vx: 0, vy: 0 });
       if (trail1.length > MAX_POINTS) trail1.shift();
       if (trail2.length > MAX_POINTS) trail2.shift();
     }
