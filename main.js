@@ -131,6 +131,7 @@ document.addEventListener("DOMContentLoaded", function () {
   initContactDrawer();
   initCursorDot();
   initFlowScroll();
+  initStackScroll();
   initVideoCards();
   initTestimonials();
 });
@@ -282,6 +283,106 @@ function initFlowScroll() {
   update();
   window.addEventListener("scroll", update, { passive: true });
   window.addEventListener("resize", update);
+}
+
+// ---------------------------------------------------------------------
+// Stack-scroll: a pinned section where each card slides in from the
+// right and settles in the exact same spot as the one before it,
+// fully covering it (z-index by DOM order) — modeled on a reference
+// recording of axiom.peppermint.id's "Observed Systems" cards. Unlike
+// initFlowScroll's position: sticky, the stage here is toggled between
+// position: absolute (before/after the pin range) and position: fixed
+// (during it) by hand, specifically so the final card holds its exact
+// on-screen position for the whole pin range — it doesn't un-stick and
+// scroll away partway through. The section right after only starts
+// covering the viewport once the pin range ends, so the handoff reads
+// as "the next page arrives and takes it over" rather than "the last
+// card scrolls up and off."
+// ---------------------------------------------------------------------
+function initStackScroll() {
+  var sections = Array.prototype.slice.call(document.querySelectorAll(".stack-scroll"));
+  if (!sections.length) return;
+
+  var reduceMotion =
+    window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reduceMotion) return;
+
+  var HOLD_UNITS = 0.6; // extra viewport-heights the last card holds still before release
+  var SLIDE_VW = 60; // how far off-screen (in vw) an incoming card starts from
+
+  var items = [];
+
+  function setup() {
+    items = [];
+    if (window.innerWidth <= 900) return;
+    var vh = window.innerHeight;
+    sections.forEach(function (section) {
+      var stage = section.querySelector(".stack-scroll-stage");
+      var boxes = Array.prototype.slice.call(section.querySelectorAll(".stack-box"));
+      if (!stage || !boxes.length) return;
+      var totalUnits = (boxes.length - 1) + HOLD_UNITS;
+      var pinRange = vh * totalUnits;
+      section.style.height = (pinRange + vh) + "px";
+      items.push({ section: section, stage: stage, boxes: boxes, totalUnits: totalUnits, pinRange: pinRange });
+    });
+  }
+
+  function resetInline() {
+    sections.forEach(function (section) {
+      section.style.height = "";
+      var stage = section.querySelector(".stack-scroll-stage");
+      if (stage) { stage.style.position = ""; stage.style.top = ""; }
+      section.querySelectorAll(".stack-box").forEach(function (box) {
+        box.style.transform = "";
+        box.style.zIndex = "";
+      });
+    });
+  }
+
+  function update() {
+    if (window.innerWidth <= 900) {
+      resetInline();
+      return;
+    }
+    items.forEach(function (it) {
+      var vh = window.innerHeight;
+      var rect = it.section.getBoundingClientRect();
+
+      if (rect.top > 0) {
+        it.stage.style.position = "absolute";
+        it.stage.style.top = "0px";
+      } else if (rect.top <= -it.pinRange) {
+        it.stage.style.position = "absolute";
+        it.stage.style.top = it.pinRange + "px";
+      } else {
+        it.stage.style.position = "fixed";
+        it.stage.style.top = "0px";
+      }
+
+      var progress = it.pinRange > 0 ? Math.min(Math.max(-rect.top / it.pinRange, 0), 1) : 1;
+      var scrollUnits = progress * it.totalUnits;
+
+      it.boxes.forEach(function (box, i) {
+        box.style.zIndex = String(i + 1);
+        if (i === 0) {
+          box.style.transform = "translate(-50%, -50%)";
+          return;
+        }
+        var t = Math.min(Math.max(scrollUnits - (i - 1), 0), 1);
+        var eased = 1 - Math.pow(1 - t, 3);
+        var offsetVw = (1 - eased) * SLIDE_VW;
+        box.style.transform = "translate(-50%, -50%) translateX(" + offsetVw.toFixed(2) + "vw)";
+      });
+    });
+  }
+
+  setup();
+  update();
+  window.addEventListener("scroll", update, { passive: true });
+  window.addEventListener("resize", function () {
+    setup();
+    update();
+  });
 }
 
 // ---------------------------------------------------------------------
@@ -738,12 +839,12 @@ function initAttractorBackground() {
   );
 
   // ---------------------------------------------------------------------
-  // Cursor gravity field: the trail near the pointer bends toward it and
-  // springs back when the pointer moves away, plus a small glowing node
-  // and concentric rings marking the field boundary. The Lorenz
-  // integration above (step/seedTrail/loop) is untouched — this only
-  // offsets each point's already-projected 2D screen position, so the
-  // underlying trajectory math stays exactly as it was.
+  // Cursor field: the trail near the pointer bulges away from it (convex
+  // — a push, not a pull) and springs back when the pointer moves away,
+  // plus a small glowing node at the cursor. The Lorenz integration
+  // above (step/seedTrail/loop) is untouched — this only offsets each
+  // point's already-projected 2D screen position, so the underlying
+  // trajectory math stays exactly as it was.
   // ---------------------------------------------------------------------
   var isHovering = false;
   var fieldRadius = 200; // px — R_field: reach of the gravity field
@@ -787,17 +888,19 @@ function initAttractorBackground() {
       var pt = trail[i];
       var proj = project(pt, angle, tilt, scale, cx, cy);
 
-      // Radial attraction vector toward the cursor, with quadratic
-      // falloff from full pullStrength at the center to zero at
-      // fieldRadius — w(d) = pullStrength * (1 - d/R)^2.
+      // Radial displacement vector, with quadratic falloff from full
+      // pullStrength at the center to zero at fieldRadius —
+      // w(d) = pullStrength * (1 - d/R)^2. Pushing away from the cursor
+      // (rather than pulling toward it) reads as a convex bulge in the
+      // trail instead of a concave dent.
       var targetDx = 0, targetDy = 0;
       if (isHovering) {
-        var toMouseX = mouseX - proj.x, toMouseY = mouseY - proj.y;
-        var d = Math.sqrt(toMouseX * toMouseX + toMouseY * toMouseY);
+        var awayX = proj.x - mouseX, awayY = proj.y - mouseY;
+        var d = Math.sqrt(awayX * awayX + awayY * awayY);
         if (d < fieldRadius && d > 0.0001) {
           var w = pullStrength * (1 - d / fieldRadius) * (1 - d / fieldRadius);
-          targetDx = (toMouseX / d) * w * maxPullPx;
-          targetDy = (toMouseY / d) * w * maxPullPx;
+          targetDx = (awayX / d) * w * maxPullPx;
+          targetDy = (awayY / d) * w * maxPullPx;
         }
       }
 
@@ -836,15 +939,6 @@ function initAttractorBackground() {
   function drawCursorField() {
     if (!isHovering || coarsePointer) return;
     ctx.save();
-    // Concentric rings marking the boundary of the gravity field.
-    var ringFracs = [0.35, 0.68, 1.0];
-    for (var i = 0; i < ringFracs.length; i++) {
-      ctx.beginPath();
-      ctx.arc(mouseX, mouseY, fieldRadius * ringFracs[i], 0, Math.PI * 2);
-      ctx.strokeStyle = "rgba(255, 140, 0, " + (0.16 - i * 0.04) + ")";
-      ctx.lineWidth = 1;
-      ctx.stroke();
-    }
     // Glowing gravity node at the cursor.
     ctx.beginPath();
     ctx.arc(mouseX, mouseY, 4, 0, Math.PI * 2);
