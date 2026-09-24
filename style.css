@@ -1030,7 +1030,7 @@ a.pillar.pillar-link:focus-visible .more .arrow { transform: translateX(5px); }
    card width itself, so adjacent cards overlapped by ~120px on
    every desktop viewport). Replaced with a single CSS Grid layout
    that never overlaps at any width. */
-.musings-grid-section { padding: var(--section-pad) 0; }
+.musings-grid-section { padding: var(--section-pad) 0; background: var(--bg); }
 .musings-grid-section .section-head { margin-bottom: 2.5rem; }
 .musings-grid {
   display: grid;
@@ -1394,6 +1394,7 @@ a.pillar.pillar-link:focus-visible .more .arrow { transform: translateX(5px); }
 .stack-scroll { position: relative; }
 .stack-scroll-stage {
   position: absolute;
+  z-index: 0;
   top: 0;
   left: 0;
   width: 100%;
@@ -1417,6 +1418,11 @@ a.pillar.pillar-link:focus-visible .more .arrow { transform: translateX(5px); }
   will-change: transform;
 }
 .stack-box .video-card-poster { aspect-ratio: 16 / 9; }
+/* The section right after a .stack-scroll: stays in normal document flow
+   (unlike the stage above, which is pinned via fixed/absolute in JS), so as
+   it scrolls up into view it naturally slides over the still-pinned last
+   card — this z-index just makes sure it paints on top while doing so. */
+.stack-cover { position: relative; z-index: 1; }
 @media (prefers-reduced-motion: reduce), (max-width: 900px) {
   .stack-scroll { height: auto !important; }
   .stack-scroll-stage { position: static !important; height: auto; overflow: visible; display: block; padding: 1rem 0 0; transform: none !important; }
