@@ -116,6 +116,7 @@ document.addEventListener("DOMContentLoaded", function () {
   initContactDrawer();
   initCursorDot();
   initFlowScroll();
+  initStackScroll();
   initVideoCards();
   initTestimonials();
 });
@@ -268,6 +269,139 @@ function initFlowScroll() {
   update();
   window.addEventListener("scroll", update, { passive: true });
   window.addEventListener("resize", update);
+}
+
+// ---------------------------------------------------------------------
+// Stack-scroll: a pinned section where each card slides in from the
+// right and settles in the exact same spot as the one before it,
+// fully covering it (z-index by DOM order) — modeled on a reference
+// recording of axiom.peppermint.id's "Observed Systems" cards. Unlike
+// initFlowScroll's position: sticky, the stage here is toggled between
+// position: absolute (before/after the pin range) and position: fixed
+// (during it) by hand, specifically so the final card holds its exact
+// on-screen position for the whole pin range — it doesn't un-stick and
+// scroll away partway through. The section right after only starts
+// covering the viewport once the pin range ends, so the handoff reads
+// as "the next page arrives and takes it over" rather than "the last
+// card scrolls up and off."
+// ---------------------------------------------------------------------
+function initStackScroll() {
+  var sections = Array.prototype.slice.call(document.querySelectorAll(".stack-scroll"));
+  if (!sections.length) return;
+
+  var reduceMotion =
+    window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reduceMotion) return;
+
+  var HOLD_UNITS = 0.6; // extra viewport-heights the last card holds still before release
+  // Gap between a settled card and the one still parked off to the right.
+  var CARD_GAP = 40;
+
+  var items = [];
+
+  // The .stack-cover element (marked in HTML) is the next real page section:
+  // it stays in normal document flow, so it naturally scrolls up and covers
+  // the still-pinned stage. We release the pin only once it has actually
+  // arrived, rather than guessing a fixed distance — any markup between the
+  // two (like an <hr>) just falls out of the calculation automatically.
+  function findCover(section) {
+    var el = section.nextElementSibling;
+    while (el) {
+      if (el.classList.contains("stack-cover")) return el;
+      el = el.nextElementSibling;
+    }
+    return null;
+  }
+
+  function setup() {
+    items = [];
+    if (window.innerWidth <= 900) return;
+    var vh = window.innerHeight;
+    sections.forEach(function (section) {
+      var stage = section.querySelector(".stack-scroll-stage");
+      var boxes = Array.prototype.slice.call(section.querySelectorAll(".stack-box"));
+      if (!stage || !boxes.length) return;
+      var animUnits = (boxes.length - 1) + HOLD_UNITS;
+      var pinRange = vh * animUnits;
+      section.style.height = (pinRange + vh) + "px";
+      items.push({
+        section: section,
+        stage: stage,
+        boxes: boxes,
+        animUnits: animUnits,
+        pinRange: pinRange,
+        coverEl: findCover(section)
+      });
+    });
+  }
+
+  function resetInline() {
+    sections.forEach(function (section) {
+      section.style.height = "";
+      var stage = section.querySelector(".stack-scroll-stage");
+      if (stage) { stage.style.position = ""; stage.style.top = ""; }
+      section.querySelectorAll(".stack-box").forEach(function (box) {
+        box.style.transform = "";
+        box.style.zIndex = "";
+      });
+    });
+  }
+
+  function update() {
+    if (window.innerWidth <= 900) {
+      resetInline();
+      return;
+    }
+    items.forEach(function (it) {
+      var vh = window.innerHeight;
+      var rect = it.section.getBoundingClientRect();
+      var coverRect = it.coverEl ? it.coverEl.getBoundingClientRect() : null;
+
+      var released = coverRect ? coverRect.top <= 0 : rect.top <= -it.pinRange;
+
+      if (rect.top > 0) {
+        it.stage.style.position = "absolute";
+        it.stage.style.top = "0px";
+      } else if (released) {
+        it.stage.style.position = "absolute";
+        it.stage.style.top = it.pinRange + "px";
+      } else {
+        it.stage.style.position = "fixed";
+        it.stage.style.top = "0px";
+      }
+
+      var scrollUnits = vh > 0 ? Math.min(Math.max(-rect.top / vh, 0), it.animUnits) : it.animUnits;
+
+      var stageWidth = it.stage.offsetWidth;
+
+      it.boxes.forEach(function (box, i) {
+        box.style.zIndex = String(i + 1);
+        if (i === 0) {
+          box.style.transform = "translate(-50%, -50%)";
+          return;
+        }
+        var t = Math.min(Math.max(scrollUnits - (i - 1), 0), 1);
+        var boxWidth = box.offsetWidth;
+        // Park the card fully past the stage's right edge (not just past
+        // the settled card's edge) so a still-waiting card is entirely
+        // clipped by the stage's overflow: hidden — otherwise, since
+        // z-index is fixed by card order, a later card sitting at the
+        // same rest spot as an earlier one still mid-transition would
+        // paint over it and visibly blot it out before its own turn.
+        var parkPx = stageWidth / 2 + boxWidth / 2 + CARD_GAP;
+        var offsetPx = (1 - t) * parkPx;
+        box.style.transform = "translate(-50%, -50%) translateX(" + offsetPx.toFixed(2) + "px)";
+      });
+    });
+  }
+
+  setup();
+  update();
+  window.addEventListener("scroll", update, { passive: true });
+  window.addEventListener("resize", function () {
+    setup();
+    update();
+  });
 }
 
 // ---------------------------------------------------------------------
