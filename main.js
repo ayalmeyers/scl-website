@@ -360,9 +360,8 @@ function initStackScroll() {
           return;
         }
         var t = Math.min(Math.max(scrollUnits - (i - 1), 0), 1);
-        var eased = 1 - Math.pow(1 - t, 3);
         var boxWidth = box.offsetWidth;
-        var offsetPx = (1 - eased) * (boxWidth + CARD_GAP);
+        var offsetPx = (1 - t) * (boxWidth + CARD_GAP);
         box.style.transform = "translate(-50%, -50%) translateX(" + offsetPx.toFixed(2) + "px)";
       });
     });

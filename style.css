@@ -94,7 +94,7 @@
   /* ---- layout ---- */
   --maxw: 1320px;
   --pad: clamp(1.25rem, 4vw, 3.5rem);
-  --section-pad: clamp(4rem, 10vw, 8rem);
+  --section-pad: clamp(3.25rem, 8vw, 6.5rem);
 }
 
 /* ---------- reset ---------- */
