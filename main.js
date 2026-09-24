@@ -303,6 +303,20 @@ function initStackScroll() {
 
   var items = [];
 
+  // The .stack-cover element (marked in HTML) is the next real page section:
+  // it stays in normal document flow, so it naturally scrolls up and covers
+  // the still-pinned stage. We release the pin only once it has actually
+  // arrived, rather than guessing a fixed distance — any markup between the
+  // two (like an <hr>) just falls out of the calculation automatically.
+  function findCover(section) {
+    var el = section.nextElementSibling;
+    while (el) {
+      if (el.classList.contains("stack-cover")) return el;
+      el = el.nextElementSibling;
+    }
+    return null;
+  }
+
   function setup() {
     items = [];
     if (window.innerWidth <= 900) return;
@@ -311,10 +325,17 @@ function initStackScroll() {
       var stage = section.querySelector(".stack-scroll-stage");
       var boxes = Array.prototype.slice.call(section.querySelectorAll(".stack-box"));
       if (!stage || !boxes.length) return;
-      var totalUnits = (boxes.length - 1) + HOLD_UNITS;
-      var pinRange = vh * totalUnits;
+      var animUnits = (boxes.length - 1) + HOLD_UNITS;
+      var pinRange = vh * animUnits;
       section.style.height = (pinRange + vh) + "px";
-      items.push({ section: section, stage: stage, boxes: boxes, totalUnits: totalUnits, pinRange: pinRange });
+      items.push({
+        section: section,
+        stage: stage,
+        boxes: boxes,
+        animUnits: animUnits,
+        pinRange: pinRange,
+        coverEl: findCover(section)
+      });
     });
   }
 
@@ -338,11 +359,14 @@ function initStackScroll() {
     items.forEach(function (it) {
       var vh = window.innerHeight;
       var rect = it.section.getBoundingClientRect();
+      var coverRect = it.coverEl ? it.coverEl.getBoundingClientRect() : null;
+
+      var released = coverRect ? coverRect.top <= 0 : rect.top <= -it.pinRange;
 
       if (rect.top > 0) {
         it.stage.style.position = "absolute";
         it.stage.style.top = "0px";
-      } else if (rect.top <= -it.pinRange) {
+      } else if (released) {
         it.stage.style.position = "absolute";
         it.stage.style.top = it.pinRange + "px";
       } else {
@@ -350,8 +374,7 @@ function initStackScroll() {
         it.stage.style.top = "0px";
       }
 
-      var progress = it.pinRange > 0 ? Math.min(Math.max(-rect.top / it.pinRange, 0), 1) : 1;
-      var scrollUnits = progress * it.totalUnits;
+      var scrollUnits = vh > 0 ? Math.min(Math.max(-rect.top / vh, 0), it.animUnits) : it.animUnits;
 
       it.boxes.forEach(function (box, i) {
         box.style.zIndex = String(i + 1);
