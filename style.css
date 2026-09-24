@@ -278,14 +278,7 @@ p:last-child { margin-bottom: 0; }
   gap: 0.6rem;
   line-height: 1;
 }
-.brand::before {
-  content: "";
-  width: 22px; height: 22px;
-  flex: none;
-  background: var(--ink);
-  clip-path: polygon(50% 0%, 100% 85%, 0% 85%, 50% 30%, 15% 100%, 85% 100%);
-  opacity: 0.92;
-}
+.brand-icon { width: 24px; height: auto; flex: none; }
 .brand strong { font-weight: 500; }
 .brand span { display: none; }
 .nav-links {
@@ -1119,9 +1112,9 @@ a.pillar.pillar-link:focus-visible .more .arrow { transform: translateX(5px); }
   display: flex;
   align-items: center;
   justify-content: center;
-  /* No real video stills yet — a soft brand-toned gradient plus the
-     mountain mark (echoing the favicon/logo, faint) reads as an
-     intentional cover rather than an empty gray box. */
+  /* No real video stills yet — a soft brand-toned gradient plus a faint
+     mountain mark reads as an intentional cover rather than an empty
+     gray box. */
   background:
     radial-gradient(120% 140% at 12% 8%, rgba(29, 95, 176, 0.16), transparent 55%),
     linear-gradient(155deg, var(--bg-alt), var(--bg));
@@ -1226,8 +1219,6 @@ a.pillar.pillar-link:focus-visible .more .arrow { transform: translateX(5px); }
 .video-card-playbtn:hover { background: var(--green); color: var(--surface); transform: scale(1.08); }
 .video-card-icon { width: 1.6rem; height: 1.6rem; }
 .video-card-playbtn .video-card-icon { width: 1.3rem; height: 1.3rem; margin-left: 0.15em; }
-.video-card h3 { font-family: var(--display); font-size: 1.35rem; font-weight: 500; margin-bottom: 0.7rem; letter-spacing: -0.01em; }
-.video-card p { font-family: var(--mono); font-size: 0.78rem; line-height: 1.7; color: var(--ink-dim); margin-bottom: 1rem; }
 .video-card-status {
   display: inline-block;
   font-family: var(--mono);
@@ -1353,8 +1344,7 @@ a.pillar.pillar-link:focus-visible .more .arrow { transform: translateX(5px); }
   mix-blend-mode: multiply;
   pointer-events: none;
 }
-.flow-box .num,
-.stack-box .num {
+.flow-box .num {
   font-family: var(--mono);
   font-size: 0.68rem;
   letter-spacing: 0.18em;
@@ -1363,8 +1353,8 @@ a.pillar.pillar-link:focus-visible .more .arrow { transform: translateX(5px); }
   display: block;
   margin-bottom: 0.9rem;
 }
-.flow-box h3, .stack-box h3 { font-family: var(--display); font-size: 1.4rem; font-weight: 500; margin-bottom: 0.7rem; letter-spacing: -0.01em; }
-.flow-box p, .stack-box p { font-family: var(--mono); font-size: 0.78rem; line-height: 1.7; color: var(--ink-dim); }
+.flow-box h3 { font-family: var(--display); font-size: 1.4rem; font-weight: 500; margin-bottom: 0.7rem; letter-spacing: -0.01em; }
+.flow-box p { font-family: var(--mono); font-size: 0.78rem; line-height: 1.7; color: var(--ink-dim); }
 
 @media (prefers-reduced-motion: reduce), (max-width: 900px) {
   .flow-scroll { height: auto; }
@@ -1378,57 +1368,6 @@ a.pillar.pillar-link:focus-visible .more .arrow { transform: translateX(5px); }
   .flow-box { width: 100%; transform: none !important; opacity: 1 !important; }
 }
 
-/* ---------- stack-scroll: pinned, cards stack on top of each other ----------
-   Unlike .flow-scroll (a horizontal filmstrip that pans), each card here
-   sits in the exact same centered spot; as you scroll, the next card
-   slides in from the right and settles at that same spot, fully
-   covering the previous one (z-index by index) — modeled on the
-   reference recording's "Observed Systems" cards. JS (initStackScroll
-   in main.js) drives .stack-scroll-stage between position: absolute
-   (before/after the pin range) and position: fixed (during it), rather
-   than relying on position: sticky, specifically so the last card
-   holds its exact position on screen for the whole pin range instead
-   of un-sticking and scrolling away partway through — the section
-   right after it only starts covering the viewport once the pin ends,
-   a clean handoff rather than the outgoing card visibly scrolling up. */
-.stack-scroll { position: relative; }
-.stack-scroll-stage {
-  position: absolute;
-  z-index: 0;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100vh;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.stack-track { position: relative; width: 100%; height: 100%; }
-.stack-box {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: min(760px, 90vw);
-  background: var(--surface);
-  color: var(--ink);
-  padding: clamp(2.2rem, 4vw, 3.4rem);
-  border: 1px solid var(--line);
-  box-shadow: var(--shadow-lg);
-  will-change: transform;
-}
-.stack-box .video-card-poster { aspect-ratio: 16 / 9; }
-/* The section right after a .stack-scroll: stays in normal document flow
-   (unlike the stage above, which is pinned via fixed/absolute in JS), so as
-   it scrolls up into view it naturally slides over the still-pinned last
-   card — this z-index just makes sure it paints on top while doing so. */
-.stack-cover { position: relative; z-index: 1; }
-@media (prefers-reduced-motion: reduce), (max-width: 900px) {
-  .stack-scroll { height: auto !important; }
-  .stack-scroll-stage { position: static !important; height: auto; overflow: visible; display: block; padding: 1rem 0 0; transform: none !important; }
-  .stack-track { height: auto; display: flex; flex-direction: column; gap: 1.5rem; }
-  .stack-box { position: static; width: 100%; transform: none !important; }
-}
 .article-body em { color: var(--green); font-style: normal; }
 .article-meta {
   display: flex;
@@ -1473,7 +1412,8 @@ a.pillar.pillar-link:focus-visible .more .arrow { transform: translateX(5px); }
 }
 @media (max-width: 860px) { .footer-top { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 560px) { .footer-top { grid-template-columns: 1fr; } }
-.footer-brand { font-family: var(--display); font-weight: 500; font-size: 1.3rem; color: var(--ink); margin-bottom: 0.9rem; letter-spacing: -0.02em; }
+.footer-brand { display: flex; align-items: center; gap: 0.6rem; font-family: var(--display); font-weight: 500; font-size: 1.3rem; color: var(--ink); margin-bottom: 0.9rem; letter-spacing: -0.02em; }
+.footer-brand img { width: 22px; height: auto; flex: none; }
 .footer-tag { max-width: 30ch; color: var(--ink-faint); font-family: var(--mono); font-size: 0.78rem; line-height: 1.7; }
 .footer-col h4 {
   font-family: var(--mono);
