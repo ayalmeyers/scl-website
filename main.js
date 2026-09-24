@@ -373,6 +373,7 @@ function initStackScroll() {
       var scrollUnits = vh > 0 ? Math.min(Math.max(-rect.top / vh, 0), it.animUnits) : it.animUnits;
 
       var stageWidth = it.stage.offsetWidth;
+      var prevSettled = true; // box 0 is always front, so box 1 is always "next up"
 
       it.boxes.forEach(function (box, i) {
         box.style.zIndex = String(i + 1);
@@ -388,9 +389,16 @@ function initStackScroll() {
         // z-index is fixed by card order, a later card sitting at the
         // same rest spot as an earlier one still mid-transition would
         // paint over it and visibly blot it out before its own turn.
-        var parkPx = stageWidth / 2 + boxWidth / 2 + CARD_GAP;
+        // Exception: whichever card is immediately next in line (the one
+        // right after the currently-settled card) parks PEEK_PX closer in,
+        // so its edge peeks into view — a visible cue the next card is
+        // there — without touching a card further back that's still mid-
+        // transition (which is exactly what caused the earlier bug).
+        var PEEK_PX = 130;
+        var parkPx = stageWidth / 2 + boxWidth / 2 + CARD_GAP - (prevSettled ? PEEK_PX : 0);
         var offsetPx = (1 - t) * parkPx;
         box.style.transform = "translate(-50%, -50%) translateX(" + offsetPx.toFixed(2) + "px)";
+        prevSettled = t >= 1;
       });
     });
   }
