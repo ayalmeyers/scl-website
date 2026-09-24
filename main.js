@@ -293,12 +293,7 @@ function initStackScroll() {
   if (reduceMotion) return;
 
   var HOLD_UNITS = 0.6; // extra viewport-heights the last card holds still before release
-  // An incoming card starts fully clear of the settled one — offset by
-  // its own rendered width (not a vw value: the card's width is capped
-  // at 760px, so a vw-based offset grows past the card size on wide
-  // viewports and the two end up either overlapping or, worse,
-  // detached by an arbitrary gap) — plus a fixed CARD_GAP so the two
-  // start out visibly spaced apart rather than edge-to-edge.
+  // Gap between a settled card and the one still parked off to the right.
   var CARD_GAP = 40;
 
   var items = [];
@@ -376,6 +371,8 @@ function initStackScroll() {
 
       var scrollUnits = vh > 0 ? Math.min(Math.max(-rect.top / vh, 0), it.animUnits) : it.animUnits;
 
+      var stageWidth = it.stage.offsetWidth;
+
       it.boxes.forEach(function (box, i) {
         box.style.zIndex = String(i + 1);
         if (i === 0) {
@@ -384,7 +381,14 @@ function initStackScroll() {
         }
         var t = Math.min(Math.max(scrollUnits - (i - 1), 0), 1);
         var boxWidth = box.offsetWidth;
-        var offsetPx = (1 - t) * (boxWidth + CARD_GAP);
+        // Park the card fully past the stage's right edge (not just past
+        // the settled card's edge) so a still-waiting card is entirely
+        // clipped by the stage's overflow: hidden — otherwise, since
+        // z-index is fixed by card order, a later card sitting at the
+        // same rest spot as an earlier one still mid-transition would
+        // paint over it and visibly blot it out before its own turn.
+        var parkPx = stageWidth / 2 + boxWidth / 2 + CARD_GAP;
+        var offsetPx = (1 - t) * parkPx;
         box.style.transform = "translate(-50%, -50%) translateX(" + offsetPx.toFixed(2) + "px)";
       });
     });
