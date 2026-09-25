@@ -1420,8 +1420,15 @@ a.pillar.pillar-link:focus-visible .more .arrow { transform: translateX(5px); }
 /* The section right after a .stack-scroll: stays in normal document flow
    (unlike the stage above, which is pinned via fixed/absolute in JS), so as
    it scrolls up into view it naturally slides over the still-pinned last
-   card — this z-index just makes sure it paints on top while doing so. */
+   card — this z-index just makes sure it paints on top while doing so.
+   .section-alt.stack-cover also needs an opaque background of its own:
+   .section-alt is transparent by default (shows the page background
+   through), which would let the still-fixed card bleed through during
+   the handoff. Scoped to .section-alt specifically so it doesn't
+   override a .stack-cover that already sets its own background (e.g.
+   .section-light's navy on index.html). */
 .stack-cover { position: relative; z-index: 1; }
+.section-alt.stack-cover { background: var(--bg); }
 @media (prefers-reduced-motion: reduce), (max-width: 900px) {
   .stack-scroll { height: auto !important; }
   .stack-scroll-stage { position: static !important; height: auto; overflow: visible; display: block; padding: 1rem 0 0; transform: none !important; }
