@@ -294,8 +294,6 @@ function initStackScroll() {
   if (reduceMotion) return;
 
   var HOLD_UNITS = 0.6; // extra viewport-heights the last card holds still before release
-  // Gap between a settled card and the one still parked off to the right.
-  var CARD_GAP = 40;
 
   var items = [];
 
@@ -319,15 +317,19 @@ function initStackScroll() {
     var vh = window.innerHeight;
     sections.forEach(function (section) {
       var stage = section.querySelector(".stack-scroll-stage");
+      var track = section.querySelector(".stack-track");
       var boxes = Array.prototype.slice.call(section.querySelectorAll(".stack-box"));
-      if (!stage || !boxes.length) return;
-      var animUnits = (boxes.length - 1) + HOLD_UNITS;
+      if (!stage || !track || !boxes.length) return;
+      var panUnits = boxes.length - 1;
+      var animUnits = panUnits + HOLD_UNITS;
       var pinRange = vh * animUnits;
       section.style.height = (pinRange + vh) + "px";
       items.push({
         section: section,
         stage: stage,
+        track: track,
         boxes: boxes,
+        panUnits: panUnits,
         animUnits: animUnits,
         pinRange: pinRange,
         coverEl: findCover(section)
@@ -340,9 +342,11 @@ function initStackScroll() {
       section.style.height = "";
       var stage = section.querySelector(".stack-scroll-stage");
       if (stage) { stage.style.position = ""; stage.style.top = ""; }
+      var track = section.querySelector(".stack-track");
+      if (track) track.style.transform = "";
       section.querySelectorAll(".stack-box").forEach(function (box) {
         box.style.transform = "";
-        box.style.zIndex = "";
+        box.style.opacity = "";
       });
     });
   }
@@ -352,6 +356,7 @@ function initStackScroll() {
       resetInline();
       return;
     }
+    var centerX = window.innerWidth / 2;
     items.forEach(function (it) {
       var vh = window.innerHeight;
       var rect = it.section.getBoundingClientRect();
@@ -370,35 +375,23 @@ function initStackScroll() {
         it.stage.style.top = "0px";
       }
 
+      // Same filmstrip pan as initFlowScroll: progress reaches 1 once the
+      // cards themselves have finished panning (ignoring HOLD_UNITS, which
+      // just keeps the pin — and the fully-panned track — in place a bit
+      // longer before the vertical release above kicks in).
       var scrollUnits = vh > 0 ? Math.min(Math.max(-rect.top / vh, 0), it.animUnits) : it.animUnits;
+      var progress = it.panUnits > 0 ? Math.min(scrollUnits / it.panUnits, 1) : 1;
+      var maxTranslate = Math.max(it.track.scrollWidth - it.stage.offsetWidth, 0);
+      it.track.style.transform = "translateX(" + (-progress * maxTranslate) + "px)";
 
-      var stageWidth = it.stage.offsetWidth;
-      var prevSettled = true; // box 0 is always front, so box 1 is always "next up"
-
-      it.boxes.forEach(function (box, i) {
-        box.style.zIndex = String(i + 1);
-        if (i === 0) {
-          box.style.transform = "translate(-50%, -50%)";
-          return;
-        }
-        var t = Math.min(Math.max(scrollUnits - (i - 1), 0), 1);
-        var boxWidth = box.offsetWidth;
-        // Park the card fully past the stage's right edge (not just past
-        // the settled card's edge) so a still-waiting card is entirely
-        // clipped by the stage's overflow: hidden — otherwise, since
-        // z-index is fixed by card order, a later card sitting at the
-        // same rest spot as an earlier one still mid-transition would
-        // paint over it and visibly blot it out before its own turn.
-        // Exception: whichever card is immediately next in line (the one
-        // right after the currently-settled card) parks PEEK_PX closer in,
-        // so its edge peeks into view — a visible cue the next card is
-        // there — without touching a card further back that's still mid-
-        // transition (which is exactly what caused the earlier bug).
-        var PEEK_PX = 130;
-        var parkPx = stageWidth / 2 + boxWidth / 2 + CARD_GAP - (prevSettled ? PEEK_PX : 0);
-        var offsetPx = (1 - t) * parkPx;
-        box.style.transform = "translate(-50%, -50%) translateX(" + offsetPx.toFixed(2) + "px)";
-        prevSettled = t >= 1;
+      it.boxes.forEach(function (box) {
+        var boxRect = box.getBoundingClientRect();
+        var boxCenter = boxRect.left + boxRect.width / 2;
+        var dist = Math.min(Math.abs(boxCenter - centerX) / (window.innerWidth * 0.55), 1);
+        var scale = 1.16 - dist * 0.36;
+        var opacity = 1 - dist * 0.55;
+        box.style.transform = "scale(" + scale.toFixed(3) + ")";
+        box.style.opacity = opacity.toFixed(3);
       });
     });
   }

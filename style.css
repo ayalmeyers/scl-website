@@ -1369,19 +1369,18 @@ a.pillar.pillar-link:focus-visible .more .arrow { transform: translateX(5px); }
   .flow-box { width: 100%; transform: none !important; opacity: 1 !important; }
 }
 
-/* ---------- stack-scroll: pinned, cards stack on top of each other ----------
-   Unlike .flow-scroll (a horizontal filmstrip that pans), each card here
-   sits in the exact same centered spot; as you scroll, the next card
-   slides in from the right and settles at that same spot, fully
-   covering the previous one (z-index by index) — modeled on the
-   reference recording's "Observed Systems" cards. JS (initStackScroll
-   in main.js) drives .stack-scroll-stage between position: absolute
-   (before/after the pin range) and position: fixed (during it), rather
-   than relying on position: sticky, specifically so the last card
-   holds its exact position on screen for the whole pin range instead
-   of un-sticking and scrolling away partway through — the section
-   right after it only starts covering the viewport once the pin ends,
-   a clean handoff rather than the outgoing card visibly scrolling up. */
+/* ---------- stack-scroll: pinned filmstrip that pans, then hands off ----------
+   The horizontal motion here is the same filmstrip pan as .flow-scroll —
+   one continuous track translateX plus the same scale/opacity spotlight
+   on whichever card is centered — just with much bigger cards. What's
+   different is the vertical behavior: JS (initStackScroll in main.js)
+   drives .stack-scroll-stage between position: absolute (before/after
+   the pin range) and position: fixed (during it), rather than relying
+   on position: sticky, specifically so the last card holds its exact
+   position on screen through a short hold instead of un-sticking and
+   scrolling away — the section right after it only starts covering the
+   viewport once the pin ends, a clean handoff rather than the outgoing
+   card visibly scrolling up. */
 .stack-scroll { position: relative; }
 .stack-scroll-stage {
   position: absolute;
@@ -1392,21 +1391,30 @@ a.pillar.pillar-link:focus-visible .more .arrow { transform: translateX(5px); }
   height: 100vh;
   overflow: hidden;
   display: flex;
-  align-items: center;
+  flex-direction: column;
   justify-content: center;
 }
-.stack-track { position: relative; width: 100%; height: 100%; }
+.stack-track {
+  position: relative;
+  display: flex;
+  gap: clamp(1.5rem, 3vw, 3rem);
+  width: max-content;
+  /* Half viewport minus half the (much bigger) card width, same
+     reasoning as .flow-track's padding: the first card is centered at
+     scroll progress 0, the last can reach true center too. */
+  padding: 0 calc(50vw - 550px);
+  will-change: transform;
+}
 .stack-box {
-  position: absolute;
-  top: 50%;
-  left: 50%;
   width: min(1100px, 94vw);
+  flex: none;
   background: var(--surface);
   color: var(--ink);
   padding: clamp(2.2rem, 4vw, 3.4rem);
   border: 1px solid var(--line);
   box-shadow: var(--shadow-lg);
-  will-change: transform;
+  transform-origin: center center;
+  will-change: transform, opacity;
 }
 .stack-box .video-card-poster { aspect-ratio: 16 / 9; }
 /* The section right after a .stack-scroll: stays in normal document flow
@@ -1417,8 +1425,8 @@ a.pillar.pillar-link:focus-visible .more .arrow { transform: translateX(5px); }
 @media (prefers-reduced-motion: reduce), (max-width: 900px) {
   .stack-scroll { height: auto !important; }
   .stack-scroll-stage { position: static !important; height: auto; overflow: visible; display: block; padding: 1rem 0 0; transform: none !important; }
-  .stack-track { height: auto; display: flex; flex-direction: column; gap: 1.5rem; }
-  .stack-box { position: static; width: 100%; transform: none !important; }
+  .stack-track { width: auto; min-width: 0; flex-direction: column; padding: 0 var(--pad); transform: none !important; }
+  .stack-box { width: 100%; transform: none !important; opacity: 1 !important; }
 }
 .article-body em { color: var(--green); font-style: normal; }
 .article-meta {
