@@ -759,6 +759,15 @@ a.pillar.pillar-link:focus-visible .more .arrow { transform: translateX(5px); }
   letter-spacing: 0.12em;
   color: var(--ink-dim);
 }
+.consulting-video { max-width: 900px; }
+.consulting-video video {
+  width: 100%;
+  display: block;
+  aspect-ratio: 16 / 9;
+  background: #000;
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-lg);
+}
 /* ---------- testimonial: sticky quote panel + hover list ----------
    Same mechanic as the old team roster (main.js): a panel holds
    whichever row's content is currently hovered/focused, swapping back
