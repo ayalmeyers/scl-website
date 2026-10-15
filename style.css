@@ -2130,3 +2130,67 @@ body.custom-cursor-active dialog * {
 @media (prefers-reduced-motion: reduce) {
   .roster-card-photo img, .roster-card-name { transition: none !important; }
 }
+
+/* ---------- our mark: three pieces assembling into the hexagon ----------
+   Each piece is the same shape rotated 0/120/240 degrees. Before the
+   figure scrolls into view every piece sits pushed outward along its own
+   axis (translate is in SVG user units, so the offset scales with the
+   mark) and faded; .is-visible (added by the shared reveal observer)
+   slides the three together, one after another, into the full mark.
+   The labels fade in once the hexagon has closed. */
+.hexmark-layout {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.9fr) 1.1fr;
+  gap: clamp(2rem, 6vw, 5rem);
+  align-items: center;
+}
+.hexmark { position: relative; margin: 0; max-width: 440px; width: 100%; justify-self: center; }
+.hexmark.reveal { transform: none; }
+.hexmark-svg { display: block; width: 100%; height: auto; overflow: visible; }
+.hexmark-piece {
+  fill: none;
+  stroke-width: 0.075;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  opacity: 0;
+  transform: translate(0.24px, -1.05px) rotate(-8deg);
+  transform-origin: 0 -1px;
+  transition:
+    transform 1.3s cubic-bezier(.2,.7,.15,1) calc(0.15s + var(--d, 0s)),
+    opacity 0.9s ease calc(0.15s + var(--d, 0s));
+}
+.hexmark.is-visible .hexmark-piece { opacity: 1; transform: none; }
+.hexmark-labels { position: absolute; inset: 0; pointer-events: none; }
+.hexmark-label {
+  position: absolute;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  opacity: 0;
+  transition: opacity 0.8s ease 1.9s;
+  white-space: nowrap;
+}
+.hexmark.is-visible .hexmark-label { opacity: 1; }
+.hexmark-label-coaching   { top: -0.6rem; left: 50%; transform: translate(-50%, -100%); }
+.hexmark-label-counsel    { right: -0.4rem; bottom: 12%; transform: translateX(100%); }
+.hexmark-label-consulting { left: -0.4rem; bottom: 12%; transform: translateX(-100%); }
+.hexmark-note {
+  margin-top: 1.3rem;
+  max-width: 60ch;
+  color: var(--ink-dim);
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  line-height: 1.8;
+}
+.hexmark-section .section-head { margin-bottom: 0; }
+@media (max-width: 900px) {
+  .hexmark-layout { grid-template-columns: 1fr; }
+  .hexmark { max-width: 300px; margin: 2.5rem auto 3.5rem; }
+  .hexmark-label-counsel    { right: 0; bottom: -1.8rem; transform: none; }
+  .hexmark-label-consulting { left: 0; bottom: -1.8rem; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hexmark-piece, .hexmark-label { transition: none; opacity: 1; transform: none; }
+}

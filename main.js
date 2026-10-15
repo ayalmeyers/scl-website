@@ -816,10 +816,15 @@ function initAttractorBackground() {
   // initial conditions" shows up as the two trails slowly diverging.
   var p1 = { x: 0.6, y: 0.6, z: 0.6 };
   var p2 = { x: 0.6001, y: 0.6, z: 0.6 };
+  // A third thread, one more step removed: coaching, counsel and
+  // consulting as three paths from nearly the same start (see the
+  // "Our Mark" section on the homepage).
+  var p3 = { x: 0.6, y: 0.6001, z: 0.6 };
 
   var MAX_POINTS = 24000;
   var trail1 = [];
   var trail2 = [];
+  var trail3 = [];
 
   function step(p) {
     var dx = sigma * (p.y - p.x);
@@ -835,6 +840,7 @@ function initAttractorBackground() {
     for (var w = 0; w < 3000; w++) {
       p1 = step(p1);
       p2 = step(p2);
+      p3 = step(p3);
     }
     // Pre-compute a long run instantly so the page doesn't open on an
     // empty canvas — matches the fully-formed butterfly seen on load.
@@ -843,6 +849,8 @@ function initAttractorBackground() {
       p2 = step(p2);
       trail1.push({ x: p1.x, y: p1.y, z: p1.z, dx: 0, dy: 0, vx: 0, vy: 0 });
       trail2.push({ x: p2.x, y: p2.y, z: p2.z, dx: 0, dy: 0, vx: 0, vy: 0 });
+      p3 = step(p3);
+      trail3.push({ x: p3.x, y: p3.y, z: p3.z, dx: 0, dy: 0, vx: 0, vy: 0 });
     }
   }
   seedTrail();
@@ -1003,7 +1011,8 @@ function initAttractorBackground() {
     // Warm gold on the near-black page, additive-blended (see drawTrail)
     // so the two nearby trails' overlap brightens like the reference.
     drawTrail(trail1, angle, tilt, scale, cx, cy, "rgba(47,111,237,0.32)");
-    drawTrail(trail2, angle, tilt, scale, cx, cy, "rgba(29,87,189,0.18)");
+    drawTrail(trail2, angle, tilt, scale, cx, cy, "rgba(95,160,176,0.22)");
+    drawTrail(trail3, angle, tilt, scale, cx, cy, "rgba(151,191,79,0.2)");
 
     drawCursorField();
   }
@@ -1022,6 +1031,9 @@ function initAttractorBackground() {
       trail2.push({ x: p2.x, y: p2.y, z: p2.z, dx: 0, dy: 0, vx: 0, vy: 0 });
       if (trail1.length > MAX_POINTS) trail1.shift();
       if (trail2.length > MAX_POINTS) trail2.shift();
+      p3 = step(p3);
+      trail3.push({ x: p3.x, y: p3.y, z: p3.z, dx: 0, dy: 0, vx: 0, vy: 0 });
+      if (trail3.length > MAX_POINTS) trail3.shift();
     }
     draw(now);
     rafId = window.requestAnimationFrame(loop);
