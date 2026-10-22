@@ -19,7 +19,7 @@ function renderTeam() {
       .map(function (p) {
         return (
           '<a class="team-teaser-card" href="who-we-are.html#dlg-' + p.id + '">' +
-            '<div class="team-teaser-photo"><img src="' + p.photo + '" alt="" loading="lazy" /></div>' +
+            '<div class="team-teaser-photo"><img src="' + p.photo + '" alt="" width="' + p.photoWidth + '" height="' + p.photoHeight + '" loading="lazy" /></div>' +
             '<span class="team-teaser-name">' + p.name + "</span>" +
             '<span class="team-teaser-role">' + p.role + "</span>" +
           "</a>"
@@ -35,7 +35,7 @@ function renderTeam() {
         return (
           "<li>" +
             '<button type="button" class="roster-card" data-roster-card="dlg-' + p.id + '">' +
-              '<span class="roster-card-photo"><img src="' + p.photo + '" alt="" loading="lazy" /></span>' +
+              '<span class="roster-card-photo"><img src="' + p.photo + '" alt="" width="' + p.photoWidth + '" height="' + p.photoHeight + '" loading="lazy" /></span>' +
               '<span class="roster-card-name">' + p.name + "</span>" +
               '<span class="roster-card-role">' + p.role + "</span>" +
             "</button>" +
@@ -53,7 +53,7 @@ function renderTeam() {
         return (
           '<dialog class="roster-dialog" id="dlg-' + p.id + '">' +
             '<button type="button" class="roster-dialog-close" data-roster-dialog-close aria-label="Close">✕</button>' +
-            '<img src="' + p.photo + '" alt="" class="roster-dialog-photo" />' +
+            '<img src="' + p.photo + '" alt="" class="roster-dialog-photo" width="' + p.photoWidth + '" height="' + p.photoHeight + '" />' +
             '<div class="roster-dialog-body">' +
               '<h3 class="roster-dialog-name">' + p.name + "</h3>" +
               '<span class="roster-dialog-role">' + p.role + "</span>" +

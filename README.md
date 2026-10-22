@@ -40,11 +40,29 @@ No build step — plain HTML/CSS/JS, ready to serve as-is via GitHub Pages.
 
 ## Editing the roster
 
-Team entries are currently hand-duplicated between `index.html` (the
-homepage teaser grid) and `who-we-are.html` (the full grid + bio dialogs).
-There is no shared data file yet — moving to one is tracked as a deferred
-item in `LAUNCH-CHECKLIST.md`. Until then, edit both files when you change
-someone's name, title, or bio.
+Team entries live in one place: `team.js`. Each person is one object with
+`id`, `name`, `role`, `photo`, `photoWidth`/`photoHeight`, and (optional)
+`bio` — an array of paragraph strings. `main.js`'s `renderTeam()` renders
+that single list into both index.html's homepage teaser grid and
+who-we-are.html's full roster grid + bio dialogs on page load, so there's
+nothing to duplicate by hand. To add, remove, or edit someone, change only
+`team.js`.
+
+Adding a new person's photo: drop the image in the repo root, then run
+`scripts/normalize-headshot.sh <file>` on it (see "Headshots" below) and
+copy the width/height it prints into that person's `photoWidth`/
+`photoHeight`.
+
+## Headshots
+
+`scripts/normalize-headshot.sh <input> [output]` re-encodes a photo to a
+consistent JPEG quality, strips embedded EXIF/ICC/XMP metadata, and caps
+the longest edge at 1280px (2x the largest size any headshot is ever
+displayed at on this site). Run it in place on any new or replaced team
+photo before adding it to `team.js` — it keeps file sizes and encoding
+consistent across a roster whose source photos otherwise arrive in every
+dimension and compression setting imaginable. It prints the final
+dimensions; put those in the person's `photoWidth`/`photoHeight`.
 
 ## Adding a musing
 
