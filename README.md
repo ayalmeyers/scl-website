@@ -32,6 +32,9 @@ privacy.html                                 Privacy page
 style.css                                    Shared stylesheet
 main.js                                      Nav, scroll-reveal, form handling, etc.
 logo-mark.png, logo-wordmark.png, logo-lockup.png   Brand assets (transparent PNG)
+favicon.ico, favicon-*.png, apple-touch-icon.png,
+android-chrome-*.png, site.webmanifest       Favicon/icon set (generated from logo-mark.png)
+fonts/                                       Self-hosted EB Garamond + Inter
 robots.txt, sitemap.xml                      SEO
 LAUNCH-CHECKLIST.md                          Open items before going live — read this first
 ```
