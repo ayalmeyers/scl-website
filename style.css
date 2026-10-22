@@ -57,8 +57,6 @@
 
   --blue:         #1d3557;    /* secondary accent */
   --blue-bright:  #2c4d78;
-  --blue-highlight:       #c6d5ec; /* same hue as --blue, lightened into a legible marker-highlight tint */
-  --blue-highlight-hover: #abc2e3;
 
   /* ---- color: dark ("paper") sections & the contact drawer ---- */
   --paper:        #0f2440;
@@ -878,11 +876,6 @@ a.pillar.pillar-link:focus-visible .more .arrow { transform: translateX(5px); }
 .stat { text-align: left; }
 .stat .num { font-size: clamp(2rem, 3.6vw, 2.8rem); color: var(--ink); font-family: var(--display); font-weight: 500; display: block; letter-spacing: -0.02em; }
 .section-light .stat .num { color: var(--paper-ink); }
-/* A stat value that's a short phrase rather than a number/symbol (e.g.
-   "Start-ups → F500") needs a smaller size and normal spacing so it
-   doesn't wrap awkwardly at the numeral-tuned size above. */
-.stat .num.is-compact { font-size: clamp(1.15rem, 2vw, 1.5rem); letter-spacing: -0.01em; white-space: nowrap; }
-@media (max-width: 560px) { .stat .num.is-compact { white-space: normal; } }
 .stat .label {
   font-family: var(--mono);
   font-size: 0.66rem;
@@ -1478,7 +1471,7 @@ a.pillar.pillar-link:focus-visible .more .arrow { transform: translateX(5px); }
 
 /* ---------- footer ---------- */
 .site-footer {
-  background: transparent;
+  background: var(--bg);
   color: var(--ink-dim);
   padding: var(--section-pad) 0 2.4rem;
 }
@@ -1949,10 +1942,9 @@ body.contact-drawer-locked { overflow: hidden; }
 
 /* ---------- inline highlight marks (yellow-marker style, in-brand blue) ---------- */
 mark, .hl-blue {
-  background: var(--blue-highlight);
-  color: #10233f;
-  padding: 0.05em 0.32em;
-  border-radius: 2px;
+  background: none;
+  color: var(--green);
+  font-weight: 500;
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;
 }
