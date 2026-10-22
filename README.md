@@ -121,6 +121,12 @@ is the one `npm run qa` failure you can expect on a clean checkout.
   service) directly to SCL's inbox — see `LAUNCH-CHECKLIST.md` for the
   one-time confirmation step this requires, and for the CC recipients that
   still need confirming.
-- Fonts are loaded from Google Fonts (EB Garamond, Inter) with no other
-  external dependencies. Self-hosting them is a deferred item (see
-  `LAUNCH-CHECKLIST.md`).
+- Fonts (EB Garamond, Inter) are self-hosted from `fonts/` — see
+  `fonts/fonts.css`, loaded by every page instead of a Google Fonts
+  `<link>`. Latin subset only (the site's content is English); each file
+  is a variable font covering its full weight range, matching how Google
+  itself serves this particular subset. No external font requests at
+  all now. To add a new weight/style, regenerate from
+  `https://fonts.googleapis.com/css2?family=...` with a modern
+  User-Agent (to get woff2 URLs), download the new file into `fonts/`,
+  and add an `@font-face` block to `fonts/fonts.css`.

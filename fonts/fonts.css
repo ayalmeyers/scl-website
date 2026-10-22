@@ -1,0 +1,27 @@
+/* Self-hosted EB Garamond + Inter — replaces the Google Fonts <link>
+   that used to load these on every page. Latin subset only (the site's
+   content is English); drops the cyrillic/greek/vietnamese/etc. subsets
+   Google's CSS2 endpoint otherwise ships. Each @font-face below is a
+   single variable-font file covering its whole weight range, which is
+   how Google itself serves this particular subset — not a mistake. */
+@font-face {
+  font-family: "EB Garamond";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("ebgaramond-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "EB Garamond";
+  font-style: italic;
+  font-weight: 400 500;
+  font-display: swap;
+  src: url("ebgaramond-italic.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("inter.woff2") format("woff2");
+}

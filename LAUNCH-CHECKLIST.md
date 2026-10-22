@@ -20,6 +20,10 @@ Before starting, I pulled the actual Granola meeting notes (Sep 22 – Oct 16) r
 
 ## Done this pass (verified by test)
 
+### Round 6 (follow-up)
+
+- **Self-hosted the site's fonts** (EB Garamond, Inter), dropping the Google Fonts `<link>` (and its preconnects) from all 14 pages in favor of one local `fonts/fonts.css`. Pulled the real Google Fonts CSS, kept only the "latin" subset (the site's content is English — the cyrillic/greek/vietnamese/etc. subsets Google's CSS2 endpoint otherwise ships aren't needed), and found it collapses to just 3 unique files: Google serves this particular subset as a variable font per style, so EB Garamond normal (weights 400–700), EB Garamond italic (400–500), and Inter normal (400–700) are each a single ~45KB file rather than one file per weight. Total: 140KB, fewer requests than the external version used to make. Verified: no `fonts.googleapis.com`/`fonts.gstatic.com` requests fire on page load, all 3 `document.fonts` entries report `status: "loaded"`, headings render in EB Garamond and body text in Inter at the correct weights (screenshot-compared against the pre-change render), and the full QA harness + regression sweep both still pass clean across all pages.
+
 ### Round 5 (follow-up)
 
 - **Built the full QA harness** (`npm run qa`, `package.json` + `qa/run.js`): serves the repo locally, drives every page in headless Chromium at three viewports, and checks console errors, broken local resources, horizontal overflow, and accessibility via `@axe-core/playwright` (WCAG 2.0/2.1 A + AA). Writes `qa/report/report.json` and a pass/fail summary; exits non-zero on failure, so it's CI-ready. `npm run qa:lighthouse` adds Lighthouse performance/accessibility/best-practices/SEO scores as a separate opt-in command — Lighthouse launches its own Chrome, and that launch reaches a few Google hosts on startup, which this session's sandboxed egress proxy blocks (the launch hangs rather than failing fast, confirmed by direct reproduction outside the harness too). It should run fine in a normal CI runner or on a laptop; this pass could not get Lighthouse scores for that reason, which is an environment limitation, not a code issue.
@@ -105,7 +109,7 @@ Before starting, I pulled the actual Granola meeting notes (Sep 22 – Oct 16) r
 - Full Playwright+axe+Lighthouse QA harness — **done** (see "Round 5" below): `npm run qa`.
 - Image optimization: `thumb1.png`/`thumb2.png` done in Round 2; all 7 team headshots plus `01.jpg`/`02.jpeg`/`03.jpg`/`leader-portrait.jpg` re-encoded and metadata-stripped in Round 4 (see below) — total payload across those 11 files dropped from ~1.08MB to ~0.70MB with no visible quality loss (verified by screenshot). What's still **not** done and still needs a decision, not a code fix: `03.jpg` (864px wide, a 2012 photo with no larger source in this repo) and `leader-portrait.jpg` (900×1091 portrait being `object-fit: cover`-cropped into a ~1100px-wide 16:9 landscape poster) are both genuine upscale situations — compressing them better doesn't make the source sharper at the sizes they're displayed at. WebP variants not generated (JPEG-only for now).
 - Visual/content audit items from the spec's section 3.2: hero `<br>` hard-breaks, stats reconciliation, `<mark>` highlight restyle, and the footer's canvas-over-text readability are **done** (see "Round 2" above). Testimonial clipping did not reproduce (tested, see above). A full site-wide WCAG AA color-contrast pass is **done** (see "Round 5" below) — run via the new QA harness, which is a more reliable way to check this than eyeballing specific pairs.
-- Self-hosting Google Fonts (to drop the external round-trip) — not done.
+- Self-hosting Google Fonts — **done** (see "Round 6" below).
 
 ### Explicitly out of reach for this session
 
