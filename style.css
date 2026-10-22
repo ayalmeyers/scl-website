@@ -283,7 +283,11 @@ p:last-child { margin-bottom: 0; }
   border-bottom: 1px solid transparent;
   transition: opacity 0.25s ease;
   color: var(--ink);
-  opacity: 0.62;
+  /* 0.68, not the 0.62 this was before: against the scrolled header's
+     #ecedf0 backdrop that's a 4.29:1 contrast, short of the 4.5:1 AA
+     minimum for normal-size text (confirmed with axe-core). 0.68 clears
+     it on both the unscrolled (white) and scrolled backdrop with margin. */
+  opacity: 0.68;
 }
 .nav-links a:hover,
 .nav-links a.is-active {
@@ -294,7 +298,7 @@ p:last-child { margin-bottom: 0; }
   padding: 0;
   border-radius: 0;
   color: var(--ink);
-  opacity: 0.62;
+  opacity: 0.68;
 }
 .nav-links a.nav-cta:hover {
   background: none;
@@ -908,7 +912,7 @@ a.pillar.pillar-link:focus-visible .more .arrow { transform: translateX(5px); }
   margin-bottom: 1.6rem;
   display: block;
 }
-.crumb a { color: var(--green); border-bottom: none; }
+.crumb a { color: var(--green); border-bottom: none; text-decoration: underline; text-underline-offset: 0.15em; }
 
 .pull-quote {
   border-left: 2px solid var(--green);

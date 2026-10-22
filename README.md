@@ -80,10 +80,31 @@ remove its `<section class="stack-scroll" id="insights-motion">` block
 
 ## Running QA
 
-No automated QA harness is set up yet (see `LAUNCH-CHECKLIST.md`). To
-check changes by hand: serve the folder locally (e.g.
-`python3 -m http.server`) and click through each page, or use a headless
-browser to scroll every page and watch for console errors / layout shift.
+`npm install` once (QA tooling only — the site itself still has no build
+step), then `npm run qa`. This serves the repo locally, drives every page
+in headless Chromium at three viewports (mobile/tablet/desktop), and
+checks for: console errors, broken (4xx/5xx) local resources, horizontal
+overflow, and accessibility issues via axe-core (WCAG 2.0/2.1 A + AA). It
+scrolls each page through fully and waits out the `.reveal` scroll-in
+transitions before auditing — catching a `.reveal` element mid-fade
+produces false-positive contrast failures, so don't shorten those waits
+in `qa/run.js` without re-checking that. Writes `qa/report/report.json`
+and prints a pass/fail summary; exits non-zero if anything failed.
+
+`npm run qa:lighthouse` adds Lighthouse performance/accessibility/
+best-practices/SEO scores per page. It's a separate opt-in command
+because Lighthouse launches its own Chrome, and that launch reaches out
+to a few Google hosts during startup — if you're running this in a
+sandboxed environment whose network policy blocks those hosts, that
+launch will hang rather than fail fast. It runs fine in a normal CI
+runner or on a laptop.
+
+One known, accepted (not a bug) QA finding: `index.html`'s "Coaches /
+Counsel / Consultants" flow-scroll cards intentionally fade non-centered
+cards as part of the spotlight scroll effect, which momentarily drops
+below WCAG AA contrast for the de-emphasized card's text — the same way
+a carousel's inactive slide is expected to read as de-emphasized. This
+is the one `npm run qa` failure you can expect on a clean checkout.
 
 ## Deploying with GitHub Pages
 
