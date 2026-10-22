@@ -1,6 +1,72 @@
 // Strategic Communication Lab — shared interactions
 // Minimal, quiet motion in the spirit of a slow editorial scroll.
 
+// ---------------------------------------------------------------------
+// Team roster: renders from the single data source in team.js into
+// whichever of these two containers is present on the page —
+// index.html's homepage teaser grid ([data-team-teaser]) and/or
+// who-we-are.html's full roster grid + bio dialogs ([data-roster-grid]).
+// Keeps both pages' markup (and the roster-dialog wiring further down,
+// which queries the DOM after this runs) in sync with one person list.
+// ---------------------------------------------------------------------
+function renderTeam() {
+  var team = window.SCL_TEAM || [];
+  if (!team.length) return;
+
+  var teaserGrid = document.querySelector("[data-team-teaser]");
+  if (teaserGrid) {
+    teaserGrid.innerHTML = team
+      .map(function (p) {
+        return (
+          '<a class="team-teaser-card" href="who-we-are.html#dlg-' + p.id + '">' +
+            '<div class="team-teaser-photo"><img src="' + p.photo + '" alt="" loading="lazy" /></div>' +
+            '<span class="team-teaser-name">' + p.name + "</span>" +
+            '<span class="team-teaser-role">' + p.role + "</span>" +
+          "</a>"
+        );
+      })
+      .join("");
+  }
+
+  var rosterGridEl = document.querySelector("[data-roster-grid]");
+  if (rosterGridEl) {
+    rosterGridEl.innerHTML = team
+      .map(function (p) {
+        return (
+          "<li>" +
+            '<button type="button" class="roster-card" data-roster-card="dlg-' + p.id + '">' +
+              '<span class="roster-card-photo"><img src="' + p.photo + '" alt="" loading="lazy" /></span>' +
+              '<span class="roster-card-name">' + p.name + "</span>" +
+              '<span class="roster-card-role">' + p.role + "</span>" +
+            "</button>" +
+          "</li>"
+        );
+      })
+      .join("");
+
+    var dialogsHost = document.querySelector("[data-roster-dialogs]") || rosterGridEl.parentNode;
+    var dialogsHtml = team
+      .filter(function (p) {
+        return p.bio && p.bio.length;
+      })
+      .map(function (p) {
+        return (
+          '<dialog class="roster-dialog" id="dlg-' + p.id + '">' +
+            '<button type="button" class="roster-dialog-close" data-roster-dialog-close aria-label="Close">✕</button>' +
+            '<img src="' + p.photo + '" alt="" class="roster-dialog-photo" />' +
+            '<div class="roster-dialog-body">' +
+              '<h3 class="roster-dialog-name">' + p.name + "</h3>" +
+              '<span class="roster-dialog-role">' + p.role + "</span>" +
+              p.bio.map(function (para) { return "<p>" + para + "</p>"; }).join("") +
+            "</div>" +
+          "</dialog>"
+        );
+      })
+      .join("");
+    dialogsHost.insertAdjacentHTML("beforeend", dialogsHtml);
+  }
+}
+
 document.addEventListener("DOMContentLoaded", function () {
   var header = document.querySelector(".site-header");
   var toggle = document.querySelector(".nav-toggle");
@@ -63,6 +129,8 @@ document.addEventListener("DOMContentLoaded", function () {
       a.classList.add("is-active");
     }
   });
+
+  renderTeam();
 
   // ---------------------------------------------------------------------
   // Who We Are: the team roster grid. Each card's photo sits in

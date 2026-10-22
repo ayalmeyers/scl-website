@@ -20,6 +20,10 @@ Before starting, I pulled the actual Granola meeting notes (Sep 22 – Oct 16) r
 
 ## Done this pass (verified by test)
 
+### Round 3 (follow-up)
+
+- **Made the team roster data-driven** (`team.js`), removing the duplication between `index.html`'s homepage teaser grid and `who-we-are.html`'s full roster grid + bio dialogs — each person's name, role, photo, and (where it exists) full bio now lives in exactly one place. Both pages render from it via a new `renderTeam()` in `main.js`, called before the existing dialog-wiring/deep-link code (which is otherwise unchanged). Names, roles (including the already-flagged Jim Zarvos "Leadership Counsel" inconsistency — not touched, still needs each person's own confirmation), and bios are copied verbatim from the prior hand-written markup; nothing was reworded or invented. Both pages keep a static `<noscript>` fallback list of names. Verified with Playwright: both grids render all 7 people in the original order, dialog open/close and the Escape/backdrop-close behavior are unchanged, bio content (including the two `<em>` titles and `&amp;`) renders correctly, and a fresh navigation to a deep link (`who-we-are.html#dlg-<id>`) still opens that person's dialog on load. Full regression sweep (all pages × 3 viewports, console/network/overflow checks) stayed clean.
+
 ### Round 2 (follow-up)
 
 - **Fixed a real readability bug**: the footer had `background: transparent`, so the background canvas's lines ran directly through the footer nav links at the bottom of every page (confirmed visually — text was genuinely obscured, not just a theoretical concern). Gave the footer an opaque background matching the page.
