@@ -53,11 +53,13 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // Mark current nav link active
-  var path = window.location.pathname.replace(/\/index\.html$/, "/");
+  // Mark current nav link active — compare by last path segment only, so
+  // this works whether the site serves from a domain root or a GitHub
+  // Pages subpath (e.g. /scl-website/who-we-are.html).
+  var page = window.location.pathname.split("/").pop() || "index.html";
   document.querySelectorAll(".nav-links a[data-nav]").forEach(function (a) {
     var target = a.getAttribute("href");
-    if (target === path || (target !== "/" && path.indexOf(target) === 0)) {
+    if (target === page || (page === "index.html" && target === "")) {
       a.classList.add("is-active");
     }
   });
@@ -112,7 +114,6 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   initAttractorBackground();
-  initClock();
   initContactDrawer();
   initCursorDot();
   initFlowScroll();
@@ -423,7 +424,6 @@ function initCursorDot() {
   var dot = document.createElement("div");
   dot.id = "cursor-dot";
   document.body.appendChild(dot);
-  document.body.classList.add("custom-cursor-active");
 
   var target = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
   var current = { x: target.x, y: target.y };
@@ -450,14 +450,22 @@ function initCursorDot() {
     dot.classList.remove("is-active");
   });
 
+  var rafId = null;
   function frame() {
     current.x += (target.x - current.x) * 0.35;
     current.y += (target.y - current.y) * 0.35;
-    dot.style.left = current.x + "px";
-    dot.style.top = current.y + "px";
-    window.requestAnimationFrame(frame);
+    dot.style.transform = "translate3d(" + current.x.toFixed(1) + "px, " + current.y.toFixed(1) + "px, 0) translate(-50%, -50%)";
+    rafId = window.requestAnimationFrame(frame);
   }
-  window.requestAnimationFrame(frame);
+  rafId = window.requestAnimationFrame(frame);
+  document.addEventListener("visibilitychange", function () {
+    if (document.hidden) {
+      if (rafId) window.cancelAnimationFrame(rafId);
+      rafId = null;
+    } else if (!rafId) {
+      rafId = window.requestAnimationFrame(frame);
+    }
+  });
 }
 
 // ---------------------------------------------------------------------
@@ -481,8 +489,9 @@ function initContactDrawer() {
       '  <button type="button" class="drawer-close" id="drawer-close">Close <span class="key">↵</span></button>' +
       "</div>" +
       '<div id="client-panel">' +
-      "  <h2>Tell us about your goals</h2>" +
+      '  <h2 id="drawer-heading">Tell us about your goals</h2>' +
       '  <p class="sub">The more context you share, the faster we can match you with the right consultant.</p>' +
+      '  <p class="form-scope-note">This form is for clients and prospective clients. Vendor solicitations are not reviewed.</p>' +
       '  <form id="contact-form" novalidate>' +
       '    <div class="drawer-grid">' +
       "      <div>" +
@@ -502,6 +511,18 @@ function initContactDrawer() {
       '        <input type="tel" id="phone" name="phone" autocomplete="tel" />' +
       "      </div>" +
       '      <div class="full">' +
+      '        <label for="purpose">What brings you to SCL?*</label>' +
+      '        <select id="purpose" name="purpose" required>' +
+      '          <option value="">Choose one…</option>' +
+      '          <option value="Engaging SCL for my team or myself">Engaging SCL for my team or myself</option>' +
+      '          <option value="Speaking or event inquiry">Speaking or event inquiry</option>' +
+      '          <option value="Joining SCL as a consultant">Joining SCL as a consultant</option>' +
+      '          <option value="Media">Media</option>' +
+      '          <option value="Vendor / sales inquiry">Vendor / sales inquiry</option>' +
+      "        </select>" +
+      '        <p class="vendor-note" id="vendor-note" hidden>We don’t take unsolicited vendor or sales pitches through this form. If we have a need, we’ll reach out.</p>' +
+      "      </div>" +
+      '      <div class="full">' +
       '        <label for="message">Message*</label>' +
       '        <textarea id="message" name="message" required></textarea>' +
       "      </div>" +
@@ -512,7 +533,7 @@ function initContactDrawer() {
       "    </div>" +
       '    <label class="consent-row">' +
       '      <input type="checkbox" id="consent" name="consent" required />' +
-      "      <span>I agree to be contacted about my enquiry.</span>" +
+      '      <span>I agree to be contacted about my inquiry. See our <a href="privacy.html" target="_blank" rel="noopener">privacy practices</a>.</span>' +
       "    </label>" +
       '    <div class="drawer-submit-row">' +
       '      <p id="form-note"></p>' +
@@ -532,27 +553,61 @@ function initContactDrawer() {
   // side: FormSubmit emails admin@scl.us.com a one-time "confirm this
   // form" link the first time a submission comes through, and every
   // submission after that confirmation click is delivered automatically.
-  var SCL_LEAD_SUBJECT = "[SCL Website Lead] New Contact Form Submission";
+  // TODO(confirm): jbrown@/jtarsitation@scl.us.com are the launch-spec's
+  // stated CC targets but have not been independently verified — confirm
+  // both before relying on this routing. See LAUNCH-CHECKLIST.md.
   var SCL_FORM_ENDPOINT = "https://formsubmit.co/ajax/admin@scl.us.com";
+  var SCL_FORM_CC = "jbrown@scl.us.com,jtarsitation@scl.us.com";
+  var SUBJECT_BY_PURPOSE = {
+    "Speaking or event inquiry": "[SCL Website – Speaking] New Contact Form Submission",
+    "Joining SCL as a consultant": "[SCL Website – Careers] New Contact Form Submission",
+    "Vendor / sales inquiry": "[SCL Website – Vendor] New Contact Form Submission"
+  };
+  var DEFAULT_SUBJECT = "[SCL Website Lead] New Contact Form Submission";
 
   function wireForm() {
     var form = document.querySelector("#contact-form");
     if (!form) return;
     var honeypotEl = document.querySelector("#website");
     var consentEl = document.querySelector("#consent");
+    var purposeEl = document.querySelector("#purpose");
+    var vendorNoteEl = document.querySelector("#vendor-note");
+    var renderedAt = Date.now();
+
+    if (purposeEl && vendorNoteEl) {
+      purposeEl.addEventListener("change", function () {
+        vendorNoteEl.hidden = purposeEl.value !== "Vendor / sales inquiry";
+      });
+    }
 
     form.addEventListener("submit", function (e) {
       e.preventDefault();
       var note = document.querySelector("#form-note");
 
-      // Honeypot tripped — behave as a bot would expect (quiet success)
-      // without actually processing anything further.
-      if (honeypotEl && honeypotEl.value) {
+      // Honeypot tripped, or submitted implausibly fast (under 3s) for a
+      // human filling in a multi-field form — behave as a bot would
+      // expect (quiet success) without actually processing anything.
+      if ((honeypotEl && honeypotEl.value) || Date.now() - renderedAt < 3000) {
         if (note) {
           note.className = "is-success";
           note.textContent = "Thank you — your message has been noted.";
         }
         form.reset();
+        return;
+      }
+
+      // Simple per-session rate limit — not a substitute for a real
+      // server-side limit, but static hosting has no server to enforce
+      // one, so this is a best-effort deterrent only.
+      var sentCount = 0;
+      try {
+        sentCount = parseInt(window.sessionStorage.getItem("scl-contact-sent") || "0", 10) || 0;
+      } catch (e) {}
+      if (sentCount >= 5) {
+        if (note) {
+          note.className = "is-error";
+          note.textContent = "Please call 1-877-266-6522 — this form has reached its limit for this session.";
+        }
         return;
       }
 
@@ -570,6 +625,14 @@ function initContactDrawer() {
         return;
       }
 
+      if (purposeEl && !purposeEl.value) {
+        if (note) {
+          note.className = "is-error";
+          note.textContent = "Please let us know what brings you to SCL.";
+        }
+        return;
+      }
+
       if (consentEl && !consentEl.checked) {
         if (note) {
           note.className = "is-error";
@@ -578,9 +641,11 @@ function initContactDrawer() {
         return;
       }
 
+      var purpose = purposeEl ? purposeEl.value : "";
       var submitterEmail = emailEl.value.trim();
       var payload = {
-        _subject: SCL_LEAD_SUBJECT,
+        _subject: SUBJECT_BY_PURPOSE[purpose] || DEFAULT_SUBJECT,
+        _cc: SCL_FORM_CC,
         _replyto: submitterEmail,
         _captcha: "false",
         _template: "table",
@@ -588,6 +653,7 @@ function initContactDrawer() {
         company: document.querySelector("#company").value.trim(),
         email: submitterEmail,
         phone: document.querySelector("#phone").value.trim(),
+        purpose: purpose,
         message: messageEl.value.trim(),
         submittedAt: new Date().toISOString()
       };
@@ -604,10 +670,13 @@ function initContactDrawer() {
       })
         .then(function (res) {
           if (!res.ok) throw new Error("Delivery failed");
+          try {
+            window.sessionStorage.setItem("scl-contact-sent", String(sentCount + 1));
+          } catch (e) {}
           if (note) {
             note.className = "is-success";
             note.textContent =
-              "Success! Your message is on its way — a consultant will follow up within one business day.";
+              "Thank you. A member of our team will be in touch shortly.";
           }
           form.reset();
         })
@@ -718,11 +787,51 @@ function initContactDrawer() {
     });
   }
 
-  function openDrawer() {
+  var lastTrigger = null;
+
+  function isDirty() {
+    var ids = ["name", "company", "email", "phone", "message"];
+    return ids.some(function (id) {
+      var el = document.getElementById(id);
+      return el && el.value && el.value.trim();
+    });
+  }
+
+  function trapFocus(e) {
+    if (e.key !== "Tab" || !drawer) return;
+    var focusable = drawer.querySelectorAll(
+      'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    );
+    if (!focusable.length) return;
+    var first = focusable[0];
+    var last = focusable[focusable.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  }
+
+  function openDrawer(purpose, triggerEl) {
     build();
+    lastTrigger = triggerEl || document.activeElement;
     scrim.classList.add("is-open");
     drawer.classList.add("is-open");
+    drawer.setAttribute("role", "dialog");
+    drawer.setAttribute("aria-modal", "true");
+    drawer.setAttribute("aria-labelledby", "drawer-heading");
     document.body.classList.add("contact-drawer-locked");
+    if (purpose === "careers") {
+      var heading = document.querySelector("#drawer-heading");
+      var sub = document.querySelector("#client-panel .sub");
+      var purposeEl = document.querySelector("#purpose");
+      if (heading) heading.textContent = "Join our roster";
+      if (sub) sub.textContent = "Tell us about your background and the kind of engagements you're looking for.";
+      if (purposeEl) purposeEl.value = "Joining SCL as a consultant";
+    }
+    drawer.addEventListener("keydown", trapFocus);
     window.requestAnimationFrame(function () {
       var nameEl = document.querySelector("#name");
       if (nameEl) nameEl.focus({ preventScroll: true });
@@ -731,12 +840,21 @@ function initContactDrawer() {
 
   function closeDrawer() {
     if (isContactPage) {
-      window.location.href = "index.html";
+      if (isDirty() && !window.confirm("Discard your message and return home?")) return;
+      if (window.history.length > 1 && document.referrer && document.referrer.indexOf(window.location.origin) === 0) {
+        window.history.back();
+      } else {
+        window.location.href = "index.html";
+      }
       return;
     }
     if (scrim) scrim.classList.remove("is-open");
-    if (drawer) drawer.classList.remove("is-open");
+    if (drawer) {
+      drawer.classList.remove("is-open");
+      drawer.removeEventListener("keydown", trapFocus);
+    }
     document.body.classList.remove("contact-drawer-locked");
+    if (lastTrigger && lastTrigger.focus) lastTrigger.focus();
   }
 
   // Every "Contact Us" link, anywhere on the page, opens the drawer
@@ -749,30 +867,16 @@ function initContactDrawer() {
     var isContactLink = /(^|\/)contact\.html$/.test(a.pathname || "");
     if (!isContactLink) return;
     e.preventDefault();
-    openDrawer();
+    var purpose = /(\?|&)purpose=careers(&|$)/.test(a.search || "") ? "careers" : null;
+    openDrawer(purpose, a);
   });
 
   if (isContactPage) {
-    openDrawer();
+    var purpose = /(\?|&)purpose=careers(&|$)/.test(window.location.search || "") ? "careers" : null;
+    openDrawer(purpose);
   }
 }
 
-// ---------------------------------------------------------------------
-// Live clock readout in the header, e.g. "CEST 14:32".
-// ---------------------------------------------------------------------
-function initClock() {
-  var el = document.getElementById("hdr-clock");
-  if (!el) return;
-  function tick() {
-    var d = new Date();
-    var tz = (d.toLocaleTimeString("en-US", { timeZoneName: "short" }).split(" ").pop() || "").toUpperCase();
-    var h = String(d.getHours()).padStart(2, "0");
-    var m = String(d.getMinutes()).padStart(2, "0");
-    el.textContent = tz + " " + h + ":" + m;
-  }
-  tick();
-  setInterval(tick, 15000);
-}
 
 // ---------------------------------------------------------------------
 // Live attractor background
