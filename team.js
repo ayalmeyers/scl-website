@@ -63,7 +63,7 @@ window.SCL_TEAM = [
     id: "jeff",
     name: "Jeff Penney",
     role: "Consultant",
-    photo: "JeffPenny.jpg",
+    photo: "JeffPenney.jpg",
     photoWidth: 880,
     photoHeight: 1100,
     bio: [

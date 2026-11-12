@@ -1,24 +1,90 @@
 # Launch Checklist
 
-This tracks what's done, what's deferred, and what needs a human decision before scl.us.com goes live on this codebase. It accompanies the `launch-final` branch/PR.
+What is done, what still blocks launch and who owns it, and the cutover steps for moving scl.us.com from Webflow to this site on GitHub Pages. Updated Nov 12, 2026 with the `launch-ready-nov12` pass. Owners: **Ayal**, **Jen** (Jennifer Tarsitano), **SJ** (Sarah-Jane Campbell), **Farhad**.
 
-## ⚠️ New finding this round — needs Farhad/JT/SJ decision before launch
+Merging the `launch-ready-nov12` pull request into `main` publishes the site to the GitHub Pages preview (`ayalmeyers.github.io/scl-website/`). It does not touch scl.us.com. The live domain changes only at the DNS step under "Cutover steps".
 
-**`thumb1.jpg`/`thumb1.png` (the "Leadership Counsel" video poster on index.html and musings.html) has "meetperry" branding burned into the image pixels** — visible in-frame: "meetperry" on a projection screen, plus "this is advancement" as on-screen text. This isn't an HTML/text mention (I'd already verified none of those exist); it's baked into the photo itself, so no grep or text search catches it. Per the real Sep 25 note, Meet Perry's branding/positioning on the site is still undecided ("no decision made, needs further thought"). I did not remove or hide this card myself — Ayal has, in this same working session, repeatedly and explicitly asked me to keep, enlarge, and refine this exact video card system, which reads as current direction overriding the older meeting note. But the team should know this specific image is sitting on the live site with third-party branding in it while that branding question is still open. **Owner: Farhad/JT/SJ** — decide whether this poster is acceptable as-is, needs a different frame grab, or should come down until the Meet Perry branding question is resolved.
+## Launch blockers
 
-## Important: scope of this pass
+These must be resolved before DNS is pointed at this site.
 
-The original ask for this round of work was a full-spec relaunch (logo SVG system, first-visit intro animation, a new background graphic, a data-driven team roster with a headshot-normalization pipeline, Turnstile/CAPTCHA, DNS cutover, a Playwright+Lighthouse QA harness with before/after scores, etc.). That is realistically several weeks of agency work, not one pass. **This pass intentionally did not attempt all of it** — see "Not done in this pass" below. What's listed as done has been verified by direct testing (Playwright regression sweep, console/network checks, visual screenshots), not assumed.
+| # | Item | Owner | What's needed |
+|---|---|---|---|
+| 1 | Privacy page sign-off | Jen | `privacy.html` is a draft that counsel has not reviewed. It now shows a visible "Draft" notice, is `noindex` and is out of `sitemap.xml`. On sign-off: delete the notice, remove the `noindex` tag, add the page back to `sitemap.xml`. The text should also mention that FormSubmit shows a Google reCAPTCHA check, and analytics cookies if an analytics ID is added. |
+| 2 | Contact form CC addresses | Ayal | `jtarsitano@scl.us.com` is now spelled correctly (it was `jtarsitation@`). `jbrown@scl.us.com` is still unverified: confirm it is a real, monitored mailbox, or remove it from `SCL_FORM_CC` in `main.js` and from the no-JS form in `contact.html`. |
+| 3 | Live form test and FormSubmit activation | Ayal | After cutover, send one real message from scl.us.com, complete FormSubmit's CAPTCHA, click the one-time activation email FormSubmit sends to admin@scl.us.com, then send a second message and confirm admin@ and both CCs receive it. |
+| 4 | Meet Perry branding decision | Farhad, Jen, SJ | The "Leadership Counsel" video poster had "meetperry" and "this is advancement" burned into the image. It is replaced with a neutral SCL title card (`leadership-counsel-poster.jpg`) and `thumb1.jpg` is removed from the site. The video itself (Vimeo 1227002649) comes from the same Meet Perry session, so watch it before launch and decide whether it stays. To restore the old poster: `git checkout 4b5eda7 -- thumb1.jpg` and point the two `<img>` tags back. |
+| 5 | Roster details | Farhad (each person approves their own entry) | Not changed on guesses. Open: Jeff's surname "Penney" (site and old site) vs the original photo filename "JeffPenny.jpg" (file now renamed `JeffPenney.jpg` to match the displayed name); Jim's title "Leadership Counsel" repeats a service name; Farhad's title "Consultant"; Jen's (397x398) and Megan's (380x475) headshots are low resolution, so higher-resolution originals are needed; Hunter is not on the roster (per the Oct 14 notes SJ is working her back in). |
+| 6 | DNS cutover | Ayal | See "Cutover steps". |
 
-## Correcting the record against the original spec
+## Needs a decision (not blocking DNS, but should be settled at or soon after launch)
+
+| Item | Owner | Detail |
+|---|---|---|
+| 5 Cs homepage slot | Ayal | Hidden (`hidden` attribute on `#five-cs` in `index.html`). The brand branch hotlinked a Webflow file that is the RPE / R-A-CT whiteboard video, not the 5 Cs, and dies when Webflow is retired. Either add the correct 5 Cs video file to the repo, or use the YouTube embed already on `managing-virtual-impressions.html` (`GQq321QrDS0`). The comment above the section gives the three steps to switch it on. |
+| Analytics | Ayal | No tag is installed. To add Google Analytics 4: put the measurement ID (`G-...`) in `SCL_SITE_CONFIG.gaMeasurementId` at the top of `main.js`. That one edit turns it on for every page. Update the privacy page first (blocker 1). |
+| reCAPTCHA v3 | Ayal | Not needed for launch: FormSubmit's own CAPTCHA is back on (see "Done"). If SCL later moves the form to an endpoint that verifies reCAPTCHA v3 tokens with the secret key (for example a Power Automate flow), put the public site key in `SCL_SITE_CONFIG.recaptchaV3SiteKey`. The hook loads Google's script and adds the token as `g-recaptcha-v3-token`. FormSubmit does not verify v3 tokens, so filling in the key while the form still posts to FormSubmit adds nothing. Never put the secret key in this repo. |
+| LinkedIn URL | SJ | The footer still links `linkedin.com/company/independent-coach-and-leadership-development-specialist/`, the old Webflow site's link. SJ is resetting the SCL page; send the final URL and it is one edit per page footer. |
+| Group photo | Farhad | The team group photo is still to come. Send it to Ayal to add. |
+| Coaches / Counsel / Consultants card fade | Ayal | The homepage flow-scroll fades the off-centre cards, so their body text drops below WCAG AA contrast while off-centre. This is the one remaining `npm run qa` failure and it is a deliberate part of the scroll effect. Keep it, or limit the fade to the card image so the text stays at full contrast. |
+| Form success wording | Jen | "A member of our team will be in touch shortly." Replace with a specific response time if SCL wants to commit to one. |
+| Older open items | see owner | Carried over from earlier passes, unchanged: full SVG logo system and a bolder small-size favicon (Ayal); embroidery-ready outline logo for merchandise (Ayal, needs the source vector); the two Musings articles rewritten from the old site's versions, keep or revert (Ayal); the old site's 14s hero montage video, send the file or drop it (Ayal); `03.jpg` and `leader-portrait.jpg` are shown larger than their source resolution (Ayal); Jennifer Tarsitano was not on the old site's roster (Farhad to confirm she belongs on the new one); background canvas performance work (ring buffer, point cap, static frame on low-power devices) not started. |
+
+## Cutover steps
+
+Do these in order. Only step 4 affects the live domain.
+
+1. **Merge the PR.** Merging `launch-ready-nov12` into `main` publishes to `ayalmeyers.github.io/scl-website/`. Click through that preview once: home, a service page, Musings, the contact form (stop before sending), and an old URL such as `/scl-website/our-team`.
+2. **Move the repo to an SCL-owned GitHub account** (Ayal), if it is moving before launch. Transfer `ayalmeyers/scl-website` to the SCL organization in GitHub settings, then re-enable Pages there (Settings → Pages → Deploy from a branch, `main`, `/ (root)`). If the repo name changes, update `PROJECT_PREFIX` in `404.html` and the `prefix` in `scripts/make-redirects.py` (then re-run the script); both are only used for the github.io preview path. The `www` CNAME in step 4 points at the new owner's `<owner>.github.io`.
+3. **Set the custom domain in GitHub** (Ayal). In Settings → Pages, enter `scl.us.com` as the custom domain. GitHub commits a `CNAME` file to `main` when you do this. First verify the domain for the account or organization (Settings → Pages → Verified domains, which adds a TXT record), which stops anyone else's Pages site from claiming it.
+   - Do steps 3 and 4 back to back: from step 3 until DNS points here, the github.io preview redirects to scl.us.com, which still shows the Webflow site.
+   - Why there is no `CNAME` file in this PR: with Pages publishing from a branch, a `CNAME` file in the repo sets the custom domain the moment it deploys. GitHub would then redirect the github.io preview to scl.us.com, which still serves Webflow, so the preview would disappear before DNS is ready, and GitHub would start certificate requests for a domain that does not point at it yet. Adding the domain is a cutover step, not a code change.
+4. **Point DNS at GitHub Pages** (Ayal; this is the step that takes the live site off Webflow). At the DNS host for scl.us.com, change only the web records:
+   - Apex `A` records: `185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153`
+   - Apex `AAAA` records: `2606:50c0:8000::153`, `2606:50c0:8001::153`, `2606:50c0:8002::153`, `2606:50c0:8003::153`
+   - `www` `CNAME` → `ayalmeyers.github.io` (or the new owner's `<owner>.github.io` after step 2)
+   - Remove the old Webflow `A`/`CNAME` records for the apex and `www`.
+   - Leave every mail record alone: `MX`, SPF/DKIM/DMARC `TXT`, `autodiscover` and any other Microsoft 365 records. scl.us.com email depends on them.
+5. **Enforce HTTPS** (Ayal). Once GitHub shows the certificate as issued (Settings → Pages; usually within an hour of DNS propagating), tick "Enforce HTTPS". Check `http://scl.us.com`, `https://scl.us.com` and `https://www.scl.us.com` all land on `https://scl.us.com/`.
+6. **Check the redirects** (Ayal). Each old Webflow path should land on its new page. Spot-check: `/our-team`, `/who-we-are/jeff-penney` (opens Jeff's bio), `/what-we-do/1-1-coaching`, `/contact-us`, `/blog`, `/post/learn-to-listen`, `/post/managing-virtual-impressions-the-5-cs`, and a made-up path such as `/post/nothing` (styled 404 page). Full map in `scripts/make-redirects.py`.
+7. **Run the live form test** (blocker 3).
+8. **Analytics ID** (Ayal), if one is being added: one edit in `SCL_SITE_CONFIG` (see "Needs a decision"), after the privacy text covers it.
+9. **reCAPTCHA key** (Ayal): only if the form moves to an endpoint that verifies it (see "Needs a decision").
+10. **Privacy sign-off** (Jen): blocker 1. Remove the draft notice and `noindex`, add the page back to `sitemap.xml`.
+11. **Group photo** (Farhad → Ayal): add when supplied.
+12. **Search Console and Webflow** (Ayal). Add scl.us.com to Google Search Console, submit `https://scl.us.com/sitemap.xml`, then cancel the Webflow site plan once the new site has been live and stable for a few days.
+
+## Done in the Nov 12 pass (`launch-ready-nov12`)
+
+Every item was verified in headless Chromium against a local server that follows GitHub Pages' path rules (exact file, `x` → `x.html`, folder → `index.html`, anything else → `404.html` with status 404). Before/after screenshots are in the PR description's screenshot summary.
+
+- **Brand branch merged.** `website-launch-mark-and-video` (Oct 15) is merged: the "Our Mark" section ("Three disciplines, one practice") with the hexagon assembling from three pieces, the background redrawn as three threads in SCL blue, teal and lime, and the 5 Cs slot (hidden, see below). The branch predated the Oct 23 pass but only added new blocks, so every Oct 23 fix survives (no header clock, no SharePoint video card, self-hosted fonts, data-driven roster, QA harness). One conflict, both sides appending to `style.css`, resolved by keeping both.
+- **Our Mark labels.** Between 901px and about 1340px the "Consulting" label ran off the left edge of the screen. The figure now leaves room for its labels at every width.
+- **Phone menu.** The closed panel no longer casts a grey shadow down the right edge of every page. The open panel used to cover the hamburger, leaving no way to close the menu except navigating; the toggle now stays on top and becomes an X, and Escape or a tap outside closes it. Closed-menu links are out of the tab order; the toggle reports `aria-expanded`.
+- **Contact form.** CC typo fixed (`jtarsitano@`). Spam protection: the form posted to FormSubmit's AJAX endpoint with `_captcha=false`; it now posts to the standard endpoint so FormSubmit's CAPTCHA runs, then returns the visitor to `contact.html?sent=1` with the thank-you message. The honeypot (also sent as FormSubmit's `_honey`) and the 3-second minimum still run first. Malformed emails are rejected, focus moves to the field that needs attention, and messages are announced to screen readers. Tested with FormSubmit intercepted, so no test email was sent.
+- **Launch config.** `SCL_SITE_CONFIG` at the top of `main.js` holds the analytics ID and the reCAPTCHA v3 site key, both empty and off.
+- **Who We Are.** "Hover a photo to meet them; click it to read their full bio" is now "Select a photo to meet them and read their full bio." Tapping each card on a phone opens the same bio as clicking on desktop.
+- **Hero.** The headline now reads "Aligning communication with intended results.", matching the page title, footer and closing CTA. The blurb's forced line breaks are gone; it wraps in three even lines from 1024 to 1920px and never strands a word.
+- **Video poster.** The Meet Perry-branded `thumb1.jpg` is replaced on the homepage and Musings by a neutral title card built from the SCL mark, fonts and colours (blocker 4).
+- **5 Cs slot.** Hidden, with no hotlinked source; the homepage now makes no external requests and logs no console errors.
+- **Old URLs.** All 17 paths from the Oct 23 audit of the Webflow site land on the right page; the six old bio pages open that person's bio. `/what-we-do`, `/our-clients` and `/who-we-are` resolve on their own. `404.html` catches trailing-slash and capitalised variants.
+- **404 page.** At nested paths (e.g. `/post/anything`) it rendered unstyled because its relative links pointed into a folder that does not exist. Fixed with a root `<base>`.
+- **Privacy page.** Marked as a draft, `noindex`, out of the sitemap (blocker 1).
+- **Insights in Motion filmstrip.** The pinned video cards registered a full-screen layout shift (CLS 1.0) on the homepage and Musings, and on Musings at desktop widths the pinned card covered the footer at the bottom of the page. The stage is now `position: sticky`: CLS 0, footer visible, homepage motion unchanged (frames match main within 0.6% of pixels).
+- **Heading outline.** Footer labels and several card and prose headings skipped levels on every page; fixed without any visual change.
+- **QA harness.** `npm run qa` now covers 390, 768, 1280 and 1440px and adds layout shift, the phone menu, titles, meta descriptions, favicon, alt text, heading order and internal links. Current result: every check passes on all 14 pages at all four widths except the card-fade contrast item above.
+
+## History: earlier passes (October 2026)
+
+Kept for reference. Items these rounds flagged that the Nov 12 pass resolved (hero "intended", the Meet Perry poster, old-URL redirects, the 5 Cs slot, the CC typo) are covered above; anything still open is in the tables above.
+
+### Correcting the record against the original spec (Oct pass)
 
 Before starting, I pulled the actual Granola meeting notes (Sep 22 – Oct 16) rather than trusting the pasted spec at face value. Most of it checked out. Two things didn't:
 
 - **Hunter is not a "hide pending decision" case.** The Oct 14 note says: *"Hunter still appears on the website; SJ is aware and working through content updates with her — 2 conversations completed; Hunter to return with remaining questions, then will be plugged in."* That's the team actively working to include her, not a pending removal. I did not touch her roster visibility — she's still showing exactly as before. **Don't hide her without checking with SJ/Farhad first**, contrary to what the pasted spec assumed.
 - **The "three-loop/trefoil" background replacement with Coach/Counsel/Consult hero labels is not a recorded decision.** The real note says the team wants *"a clear rationale tied to the Coach/Consult/Counsel story"* for the existing background graphic — that's a request for rationale, not a specification for a new curve. I did not rewrite the background animation on the strength of an invented design, and I also did not touch its performance characteristics this round (see "Canvas performance" below) — it's actively under discussion, so I left it untouched rather than risk changing the thing the team is deciding about.
 - Several other specifics in the pasted spec (an exact sound glitch at 0:24, a "leaders are born" dialogue slip, specific bio document filenames, specific email signatures) are not things I could verify in the notes available to me (30-day history limit on this Granola plan). I did not treat them as fact.
-
-## Done this pass (verified by test)
 
 ### Round 9 (follow-up): old-site content audit, diffed against the new site
 
@@ -102,47 +168,3 @@ Ayal had a separate Claude session (with real browser access, which this session
 - Added `robots.txt`, `sitemap.xml`, `404.html`, canonical + Open Graph + Twitter Card tags on every real page, and `Organization` JSON-LD on the homepage (no address, per the team's existing no-address decision — verified no street address exists anywhere on the site).
 - Generated `og-image.jpg` (1200×630, hexagon mark + tagline, navy on paper) and used it in the OG tags.
 - **Found and fixed a real asset bug from an earlier session**: `logo-mark.png`, `logo-wordmark.png`, and `logo-lockup.png` were supposed to have transparent backgrounds but didn't — the background was a faded ~37%-opacity wash, not true transparency. It only looked right because every previous placement happened to be on a white background; it visibly failed (a gray box) as soon as it was placed on navy (building the OG image surfaced it). Recomputed the alpha channel properly for all three files.
-
-## Not done in this pass — needs a follow-up engagement or a human decision
-
-### Needs a real team/owner decision before building
-
-- **Background graphic ("infinity" canvas).** Real decision recorded: it needs a rationale tied to Coach/Counsel/Consult. No decision on *what to replace it with*. Building a new three-loop parametric curve with hover-interactive hero labels, as the pasted spec specified, would be inventing a design the team hasn't actually agreed to. **Owner: Farhad/team** — needs an actual design decision, then a dedicated build pass.
-- **Meet Perry branding.** Confirmed still undecided (Sep 25 note: "no decision made, needs further thought"). Nothing on the site mentions Meet Perry (verified by search) — left that way.
-- **First-visit "3 blocks → hexagon" intro animation.** Real note: "Ayal to explore adding this" — an exploration, not a specified build (exact timing, skip behavior, etc. in the pasted spec were not confirmed anywhere). Needs its own scoped build.
-- **Roster visibility for Hunter, Stephanie, Jim, Jeff.** Per the real notes, Hunter is being worked back in, not hidden — do not hide her without checking with SJ/Farhad. Jim, Jeff, Stephanie status not independently verified this pass. **Owner: Farhad** (JT was emailing the group per notes).
-- **Job titles for Farhad, JT, SJ, and others.** The current site's titles were not changed this pass since I have no independently verified source for the "correct" titles beyond what the pasted spec asserted (which I can't confirm against an email signature I don't have access to). **Owner: each person approves their own title/bio.**
-- **Jeff's surname spelling ("Penney" vs "Penny").** Left unchanged. **Owner: verify against his own bio doc or LinkedIn.**
-- **LinkedIn company URL.** SJ is reportedly resetting the SCL LinkedIn page (per Sep 25 note — it may not be a proper business page). Left the current URL in place. **Owner: SJ**, confirm the final URL once reset.
-- **Logo merchandise/jacket vector.** Real decision: outline-only version, in white or gray (not black), since the gradient can't be embroidered. No vector source file exists in this repo to trace. Did not attempt a crude auto-trace of the gradient PNG and present it as "the jacket logo" — that would be guessing at a design the team needs to supply or approve. **Owner: Ayal** to supply the source vector, or sign off on a traced version.
-- **Response-time SLA in the form's success message.** Changed to a safe, non-committal default ("shortly") per the spec's own fallback — confirm with JT if a specific SLA should replace it.
-- **`privacy.html` content.** Short draft written, marked `TODO(legal review)` in an HTML comment on the page itself. **Owner: JT/SJ.**
-- **FormSubmit CC recipients** (`jbrown@scl.us.com`, `jtarsitation@scl.us.com` — spelling/addresses not independently verified) **and the one-time FormSubmit confirmation click** on admin@scl.us.com. **Owner: Ayal/JB**, confirm addresses are correct and complete the confirmation step after the first live submission attempt.
-- **DNS cutover.** No `CNAME` file committed (intentionally — this is a one-way, hard-to-reverse action). Records needed at the registrar:
-  - Apex A records: `185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153`
-  - AAAA records: `2606:50c0:8000::153`, `2606:50c0:8001::153`, `2606:50c0:8002::153`, `2606:50c0:8003::153`
-  - `www` CNAME → `ayalmeyers.github.io`
-  - Enable "Enforce HTTPS" in the repo's Pages settings once DNS has propagated
-  - **Owner: Ayal/JT.** Do this only when ready to retire the Webflow site — see below.
-- **Old Webflow URL redirects.** Not built this pass — doing this right requires crawling the *live* Webflow sitemap to get the real list of old paths, which needs the same domain access that's blocked for this session (see below). **Owner: Ayal**, or re-run this with that access available.
-- **Retiring the Webflow site** and submitting the new sitemap in Google Search Console. **Owner: Ayal/JT**, after DNS cutover.
-
-### Larger engineering subprojects, deferred (not asset- or decision-blocked, just large)
-
-- Data-driven `team.js`/roster refactor — **done** (see "Round 3" above).
-- Headshot normalization pipeline — **done** (see "Round 4" below): a repeatable script (`scripts/normalize-headshot.sh`) re-encodes any headshot to consistent quality/color space, strips metadata, and caps resolution at what the site actually displays. What's still a real, decision-blocked limitation: this normalizes *encoding*, not *framing* — it does not re-crop anyone's photo, since the crop/composition the person chose for their headshot isn't mine to override. A couple of source photos (`jennifer-tarsitano.jpg` at 397×398, `MeganBroker.jpg` at 380×475) are inherently lower-resolution than the others; normalizing didn't and can't fix that — a higher-res source would need to come from that person.
-- 5 Cs video and its player slot (the asset itself was not supplied this pass — a `TODO(asset)` placeholder slot was not added to Musings in this pass either; flagging it here since the spec called for it specifically).
-- Favicon set (32px/16px PNG, apple-touch-icon, site.webmanifest) — **done** (see "Round 7" below), generated from the existing `logo-mark.png`. Full SVG logo system (navy/white/gradient variants) — still not done; that's a hand-optimized vector trace, a dedicated design task that a PNG export pipeline can't substitute for.
-- Performance work on the background canvas (ring buffer instead of `Array.shift()`, point cap, spatial cursor-interaction check, frame-rate throttling, static frame on `pointer: coarse`/low-memory devices) — not attempted; this canvas's current behavior is unchanged.
-- Full Playwright+axe+Lighthouse QA harness — **done** (see "Round 5" below): `npm run qa`.
-- Image optimization: `thumb1.png`/`thumb2.png` done in Round 2; all 7 team headshots plus `01.jpg`/`02.jpeg`/`03.jpg`/`leader-portrait.jpg` re-encoded and metadata-stripped in Round 4 (see below) — total payload across those 11 files dropped from ~1.08MB to ~0.70MB with no visible quality loss (verified by screenshot). What's still **not** done and still needs a decision, not a code fix: `03.jpg` (864px wide, a 2012 photo with no larger source in this repo) and `leader-portrait.jpg` (900×1091 portrait being `object-fit: cover`-cropped into a ~1100px-wide 16:9 landscape poster) are both genuine upscale situations — compressing them better doesn't make the source sharper at the sizes they're displayed at. WebP variants not generated (JPEG-only for now).
-- Visual/content audit items from the spec's section 3.2: hero `<br>` hard-breaks, stats reconciliation, `<mark>` highlight restyle, and the footer's canvas-over-text readability are **done** (see "Round 2" above). Testimonial clipping did not reproduce (tested, see above). A full site-wide WCAG AA color-contrast pass is **done** (see "Round 5" below) — run via the new QA harness, which is a more reliable way to check this than eyeballing specific pairs.
-- Self-hosting Google Fonts — **done** (see "Round 6" below).
-
-### Explicitly out of reach for this session
-
-- **I could not access `https://www.scl.us.com`** (or any page on it) to crawl its live sitemap, verify current page titles/URLs for the redirect map, or compare its copy against this site's copy. This session's network egress proxy returns a hard `403 Forbidden` on the CONNECT to that domain — confirmed directly with `curl -v`, not a flaky/retriable failure. Anything in this checklist that depends on reading the live site (the old-URL redirect map in particular) needs to be done by someone who can reach it, or with this session's network policy updated to allow that domain.
-
-## Quick reference: what changed in this PR
-
-See the PR description for the file-by-file diff summary and the exact test commands run.
