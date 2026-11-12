@@ -444,7 +444,33 @@ function initStackScroll() {
       var panUnits = boxes.length - 1;
       var animUnits = panUnits + HOLD_UNITS;
       var pinRange = vh * animUnits;
+      var cover = findCover(section);
+
+      // The stage is position: sticky (style.css), so the browser pins it
+      // on the compositor with no JS position flips. A sticky element
+      // only stays pinned while its section's box is on screen. When the
+      // next section (the cover) is at least a viewport tall, the stage
+      // stays pinned until the cover reaches the top, so the cover slides
+      // up over the last card: measure that distance with the section at
+      // its normal height, stretch the section by the difference, and
+      // pull everything after it back up by the same amount with a
+      // negative bottom margin, so the layout after it is unchanged.
+      // A shorter cover (e.g. musings.html's one-line CTA band) can't hide
+      // the card, so there the pin simply ends after the hold and the card
+      // scrolls away with the page instead of sitting over the footer.
+      section.style.paddingTop = "0px";
+      section.style.paddingBottom = "0px";
+      section.style.marginBottom = "";
       section.style.height = (pinRange + vh) + "px";
+      var extended = !!cover && cover.offsetHeight >= vh;
+      if (extended) {
+        var pinDistance = Math.max(
+          cover.getBoundingClientRect().top - section.getBoundingClientRect().top,
+          pinRange
+        );
+        section.style.height = (pinDistance + vh) + "px";
+        section.style.marginBottom = (pinRange - pinDistance) + "px";
+      }
       items.push({
         section: section,
         stage: stage,
@@ -453,7 +479,8 @@ function initStackScroll() {
         panUnits: panUnits,
         animUnits: animUnits,
         pinRange: pinRange,
-        coverEl: findCover(section)
+        coverEl: cover,
+        extended: extended
       });
     });
   }
@@ -461,8 +488,11 @@ function initStackScroll() {
   function resetInline() {
     sections.forEach(function (section) {
       section.style.height = "";
+      section.style.paddingTop = "";
+      section.style.paddingBottom = "";
+      section.style.marginBottom = "";
       var stage = section.querySelector(".stack-scroll-stage");
-      if (stage) { stage.style.position = ""; stage.style.top = ""; }
+      if (stage) stage.style.visibility = "";
       var track = section.querySelector(".stack-track");
       if (track) track.style.transform = "";
       section.querySelectorAll(".stack-box").forEach(function (box) {
@@ -485,16 +515,12 @@ function initStackScroll() {
 
       var released = coverRect ? coverRect.top <= 0 : rect.top <= -it.pinRange;
 
-      if (rect.top > 0) {
-        it.stage.style.position = "absolute";
-        it.stage.style.top = "0px";
-      } else if (released) {
-        it.stage.style.position = "absolute";
-        it.stage.style.top = it.pinRange + "px";
-      } else {
-        it.stage.style.position = "fixed";
-        it.stage.style.top = "0px";
-      }
+      // Once the cover has reached the top, the stage is behind it for
+      // good: hide it so it can't show under shorter content further down.
+      // (Previously the stage flipped between position absolute and
+      // fixed here; Chrome scores that flip as a full-screen layout shift,
+      // CLS 1.0, on every page with this section.)
+      it.stage.style.visibility = it.extended && released ? "hidden" : "";
 
       // Same filmstrip pan as initFlowScroll: progress reaches 1 once the
       // cards themselves have finished panning (ignoring HOLD_UNITS, which

@@ -1417,17 +1417,20 @@ a.pillar.pillar-link:focus-visible .more .arrow { transform: translateX(5px); }
    The horizontal motion here is the same filmstrip pan as .flow-scroll —
    one continuous track translateX plus the same scale/opacity spotlight
    on whichever card is centered — just with much bigger cards. What's
-   different is the vertical behavior: JS (initStackScroll in main.js)
-   drives .stack-scroll-stage between position: absolute (before/after
-   the pin range) and position: fixed (during it), rather than relying
-   on position: sticky, specifically so the last card holds its exact
-   position on screen through a short hold instead of un-sticking and
-   scrolling away — the section right after it only starts covering the
-   viewport once the pin ends, a clean handoff rather than the outgoing
-   card visibly scrolling up. */
+   different is the vertical behavior: the stage is position: sticky, and
+   JS (initStackScroll in main.js) stretches the section so the pin lasts
+   until the next section (.stack-cover) reaches the top of the viewport,
+   pulling the following content back up with a negative margin. The last
+   card holds its exact position through a short hold, the next section
+   slides up over it, and once covered the stage is hidden: a clean
+   handoff rather than the outgoing card visibly scrolling up. */
 .stack-scroll { position: relative; }
 .stack-scroll-stage {
-  position: absolute;
+  /* Sticky, not JS-toggled absolute/fixed: the browser pins it without a
+     containing-block flip, which Chrome counted as a full-viewport layout
+     shift. initStackScroll sizes the section so the pin lasts until the
+     cover section arrives. */
+  position: sticky;
   z-index: 0;
   top: 0;
   left: 0;
