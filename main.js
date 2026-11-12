@@ -2,6 +2,40 @@
 // Minimal, quiet motion in the spirit of a slow editorial scroll.
 
 // ---------------------------------------------------------------------
+// SITE CONFIG: the launch settings that need a value from SCL. Each one
+// is a single edit here; every page loads this file, so nothing else
+// changes. Empty means off. See LAUNCH-CHECKLIST.md, "Cutover steps".
+// ---------------------------------------------------------------------
+window.SCL_SITE_CONFIG = {
+  // Google Analytics 4 measurement ID, e.g. "G-XXXXXXXXXX". While empty,
+  // no analytics script loads and no cookies are set. Before filling it
+  // in, have the privacy page updated to mention analytics cookies.
+  gaMeasurementId: "",
+
+  // reCAPTCHA v3 site key (public key only; never put the secret here).
+  // Off while empty. FormSubmit does not verify v3 tokens, so this adds
+  // protection only once the form posts to an endpoint that checks the
+  // token with the secret key. Until then FormSubmit's own CAPTCHA,
+  // the honeypot and the 3-second minimum are the spam protection.
+  recaptchaV3SiteKey: ""
+};
+
+// Analytics include point. Equivalent to Google's standard gtag.js
+// snippet, loaded only when gaMeasurementId above is set.
+(function loadAnalytics() {
+  var id = window.SCL_SITE_CONFIG.gaMeasurementId;
+  if (!id) return;
+  var sc = document.createElement("script");
+  sc.async = true;
+  sc.src = "https://www.googletagmanager.com/gtag/js?id=" + encodeURIComponent(id);
+  document.head.appendChild(sc);
+  window.dataLayer = window.dataLayer || [];
+  window.gtag = function () { window.dataLayer.push(arguments); };
+  window.gtag("js", new Date());
+  window.gtag("config", id);
+})();
+
+// ---------------------------------------------------------------------
 // Team roster: renders from the single data source in team.js into
 // whichever of these two containers is present on the page —
 // index.html's homepage teaser grid ([data-team-teaser]) and/or
@@ -578,7 +612,7 @@ function initContactDrawer() {
       '  <h2 id="drawer-heading">Tell us about your goals</h2>' +
       '  <p class="sub">The more context you share, the faster we can match you with the right consultant.</p>' +
       '  <p class="form-scope-note">This form is for clients and prospective clients. Vendor solicitations are not reviewed.</p>' +
-      '  <form id="contact-form" novalidate>' +
+      '  <form id="contact-form" method="POST" novalidate>' +
       '    <div class="drawer-grid">' +
       "      <div>" +
       '        <label for="name">Name*</label>' +
@@ -615,14 +649,14 @@ function initContactDrawer() {
       "    </div>" +
       '    <div class="hp-field" aria-hidden="true">' +
       '      <label for="website">Leave this field blank</label>' +
-      '      <input type="text" id="website" name="website" tabindex="-1" autocomplete="off" />' +
+      '      <input type="text" id="website" name="_honey" tabindex="-1" autocomplete="off" />' +
       "    </div>" +
       '    <label class="consent-row">' +
       '      <input type="checkbox" id="consent" name="consent" required />' +
       '      <span>I agree to be contacted about my inquiry. See our <a href="privacy.html" target="_blank" rel="noopener">privacy practices</a>.</span>' +
       "    </label>" +
       '    <div class="drawer-submit-row">' +
-      '      <p id="form-note"></p>' +
+      '      <p id="form-note" role="status" aria-live="polite"></p>' +
       '      <button type="submit" class="drawer-send">Send <span class="key">↳</span></button>' +
       "    </div>" +
       "  </form>" +
@@ -633,23 +667,68 @@ function initContactDrawer() {
   // ---- Lead-routing config ----
   // Routes through FormSubmit (https://formsubmit.co) rather than the
   // originally-planned Power Automate flow: Power Automate needs a flow
-  // built inside SCL's own Microsoft 365 tenant, which this session has
-  // no access to, while FormSubmit needs no account at all — just point
-  // it at the destination address. The one manual step is on the SCL
-  // side: FormSubmit emails admin@scl.us.com a one-time "confirm this
-  // form" link the first time a submission comes through, and every
-  // submission after that confirmation click is delivered automatically.
-  // TODO(confirm): jbrown@/jtarsitation@scl.us.com are the launch-spec's
-  // stated CC targets but have not been independently verified — confirm
-  // both before relying on this routing. See LAUNCH-CHECKLIST.md.
-  var SCL_FORM_ENDPOINT = "https://formsubmit.co/ajax/admin@scl.us.com";
-  var SCL_FORM_CC = "jbrown@scl.us.com,jtarsitation@scl.us.com";
+  // built inside SCL's own Microsoft 365 tenant, while FormSubmit needs
+  // no account at all, just the destination address. The one manual step
+  // is on the SCL side: FormSubmit emails admin@scl.us.com a one-time
+  // "confirm this form" link the first time a submission comes through,
+  // and every submission after that confirmation click is delivered.
+  //
+  // Spam protection, in layers:
+  //  1. Honeypot field (#website, posted as FormSubmit's own "_honey"
+  //     field, so FormSubmit also discards anything that fills it).
+  //  2. Minimum time on form: under 3 seconds is treated as a bot.
+  //  3. FormSubmit's own CAPTCHA. The form posts to FormSubmit's standard
+  //     endpoint (not its /ajax/ endpoint, which cannot show a CAPTCHA),
+  //     so the visitor completes FormSubmit's check on formsubmit.co and
+  //     is sent back to contact.html?sent=1, which shows the thank-you
+  //     message. No keys are needed on our side.
+  //  4. Optional reCAPTCHA v3 hook (SCL_SITE_CONFIG.recaptchaV3SiteKey,
+  //     off while empty). See LAUNCH-CHECKLIST.md before turning it on.
+  //
+  // TODO(confirm): jbrown@scl.us.com is a stated CC target that has not
+  // been verified. See LAUNCH-CHECKLIST.md.
+  var SCL_FORM_ENDPOINT = "https://formsubmit.co/admin@scl.us.com";
+  var SCL_FORM_CC = "jbrown@scl.us.com,jtarsitano@scl.us.com";
   var SUBJECT_BY_PURPOSE = {
     "Speaking or event inquiry": "[SCL Website – Speaking] New Contact Form Submission",
     "Joining SCL as a consultant": "[SCL Website – Careers] New Contact Form Submission",
     "Vendor / sales inquiry": "[SCL Website – Vendor] New Contact Form Submission"
   };
   var DEFAULT_SUBJECT = "[SCL Website Lead] New Contact Form Submission";
+  var MIN_FILL_MS = 3000;
+
+  function setHidden(form, name, value) {
+    var input = form.querySelector('input[type="hidden"][name="' + name + '"]');
+    if (!input) {
+      input = document.createElement("input");
+      input.type = "hidden";
+      input.name = name;
+      form.appendChild(input);
+    }
+    input.value = value;
+  }
+
+  // Optional reCAPTCHA v3, isolated here. Does nothing while the key in
+  // SCL_SITE_CONFIG (top of this file) is empty.
+  function recaptchaKey() {
+    return (window.SCL_SITE_CONFIG && window.SCL_SITE_CONFIG.recaptchaV3SiteKey) || "";
+  }
+  function loadRecaptchaV3() {
+    var key = recaptchaKey();
+    if (!key || document.getElementById("recaptcha-v3")) return;
+    var sc = document.createElement("script");
+    sc.id = "recaptcha-v3";
+    sc.async = true;
+    sc.src = "https://www.google.com/recaptcha/api.js?render=" + encodeURIComponent(key);
+    document.head.appendChild(sc);
+  }
+  function withRecaptchaToken(done) {
+    var key = recaptchaKey();
+    if (!key || !window.grecaptcha || !window.grecaptcha.execute) return done("");
+    window.grecaptcha.ready(function () {
+      window.grecaptcha.execute(key, { action: "contact" }).then(done, function () { done(""); });
+    });
+  }
 
   function wireForm() {
     var form = document.querySelector("#contact-form");
@@ -659,6 +738,16 @@ function initContactDrawer() {
     var purposeEl = document.querySelector("#purpose");
     var vendorNoteEl = document.querySelector("#vendor-note");
     var renderedAt = Date.now();
+    var note = document.querySelector("#form-note");
+
+    form.setAttribute("action", SCL_FORM_ENDPOINT);
+    loadRecaptchaV3();
+
+    // Back from FormSubmit after a completed submission.
+    if (/(\?|&)sent=1(&|$)/.test(window.location.search || "") && note) {
+      note.className = "is-success";
+      note.textContent = "Thank you. A member of our team will be in touch shortly.";
+    }
 
     if (purposeEl && vendorNoteEl) {
       purposeEl.addEventListener("change", function () {
@@ -666,113 +755,85 @@ function initContactDrawer() {
       });
     }
 
+    function showError(msg, field) {
+      if (note) {
+        note.className = "is-error";
+        note.textContent = msg;
+      }
+      if (field && field.focus) field.focus();
+    }
+
     form.addEventListener("submit", function (e) {
       e.preventDefault();
-      var note = document.querySelector("#form-note");
 
-      // Honeypot tripped, or submitted implausibly fast (under 3s) for a
-      // human filling in a multi-field form — behave as a bot would
-      // expect (quiet success) without actually processing anything.
-      if ((honeypotEl && honeypotEl.value) || Date.now() - renderedAt < 3000) {
+      // Honeypot tripped, or submitted implausibly fast for a human
+      // filling in a multi-field form: behave as a bot would expect
+      // (quiet success) without sending anything.
+      if ((honeypotEl && honeypotEl.value) || Date.now() - renderedAt < MIN_FILL_MS) {
         if (note) {
           note.className = "is-success";
-          note.textContent = "Thank you — your message has been noted.";
+          note.textContent = "Thank you. Your message has been noted.";
         }
         form.reset();
         return;
       }
 
-      // Simple per-session rate limit — not a substitute for a real
-      // server-side limit, but static hosting has no server to enforce
-      // one, so this is a best-effort deterrent only.
+      // Simple per-session cap. Static hosting has no server to enforce
+      // a real limit, so this is a best-effort deterrent only.
       var sentCount = 0;
       try {
         sentCount = parseInt(window.sessionStorage.getItem("scl-contact-sent") || "0", 10) || 0;
-      } catch (e) {}
+      } catch (err) {}
       if (sentCount >= 5) {
-        if (note) {
-          note.className = "is-error";
-          note.textContent = "Please call 1-877-266-6522 — this form has reached its limit for this session.";
-        }
+        showError("Please call 1-877-266-6522. This form has reached its limit for this session.");
         return;
       }
 
       var nameEl = document.querySelector("#name");
       var emailEl = document.querySelector("#email");
       var messageEl = document.querySelector("#message");
-      var missing = [nameEl, emailEl, messageEl].some(function (el) {
+      var firstMissing = [nameEl, emailEl, messageEl].filter(function (el) {
         return el && !el.value.trim();
-      });
-      if (missing) {
-        if (note) {
-          note.className = "is-error";
-          note.textContent = "Please fill in your name, email, and message before sending.";
-        }
+      })[0];
+      if (firstMissing) {
+        showError("Please fill in your name, email, and message before sending.", firstMissing);
         return;
       }
-
+      if (emailEl.checkValidity && !emailEl.checkValidity()) {
+        showError("Please enter a valid email address.", emailEl);
+        return;
+      }
       if (purposeEl && !purposeEl.value) {
-        if (note) {
-          note.className = "is-error";
-          note.textContent = "Please let us know what brings you to SCL.";
-        }
+        showError("Please let us know what brings you to SCL.", purposeEl);
         return;
       }
-
       if (consentEl && !consentEl.checked) {
-        if (note) {
-          note.className = "is-error";
-          note.textContent = "Please confirm you agree to be contacted before sending.";
-        }
+        showError("Please confirm you agree to be contacted before sending.", consentEl);
         return;
       }
 
       var purpose = purposeEl ? purposeEl.value : "";
-      var submitterEmail = emailEl.value.trim();
-      var payload = {
-        _subject: SUBJECT_BY_PURPOSE[purpose] || DEFAULT_SUBJECT,
-        _cc: SCL_FORM_CC,
-        _replyto: submitterEmail,
-        _captcha: "false",
-        _template: "table",
-        name: nameEl.value.trim(),
-        company: document.querySelector("#company").value.trim(),
-        email: submitterEmail,
-        phone: document.querySelector("#phone").value.trim(),
-        purpose: purpose,
-        message: messageEl.value.trim(),
-        submittedAt: new Date().toISOString()
-      };
+      setHidden(form, "_subject", SUBJECT_BY_PURPOSE[purpose] || DEFAULT_SUBJECT);
+      setHidden(form, "_cc", SCL_FORM_CC);
+      setHidden(form, "_replyto", emailEl.value.trim());
+      setHidden(form, "_template", "table");
+      setHidden(form, "_next", new URL("contact.html?sent=1", window.location.href).href);
+      setHidden(form, "submittedAt", new Date().toISOString());
 
       if (note) {
         note.className = "is-pending";
         note.textContent = "Sending…";
       }
+      try {
+        window.sessionStorage.setItem("scl-contact-sent", String(sentCount + 1));
+      } catch (err) {}
 
-      fetch(SCL_FORM_ENDPOINT, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify(payload)
-      })
-        .then(function (res) {
-          if (!res.ok) throw new Error("Delivery failed");
-          try {
-            window.sessionStorage.setItem("scl-contact-sent", String(sentCount + 1));
-          } catch (e) {}
-          if (note) {
-            note.className = "is-success";
-            note.textContent =
-              "Thank you. A member of our team will be in touch shortly.";
-          }
-          form.reset();
-        })
-        .catch(function () {
-          if (note) {
-            note.className = "is-error";
-            note.textContent =
-              "We couldn't confirm delivery just now — please call 1-877-266-6522 so we don't miss you.";
-          }
-        });
+      withRecaptchaToken(function (token) {
+        if (token) setHidden(form, "g-recaptcha-v3-token", token);
+        // Native submit (does not re-run this handler): FormSubmit shows
+        // its CAPTCHA, then returns the visitor to contact.html?sent=1.
+        HTMLFormElement.prototype.submit.call(form);
+      });
     });
   }
 
