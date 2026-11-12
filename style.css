@@ -505,6 +505,9 @@ p:last-child { margin-bottom: 0; }
 
 /* ---------- sections ---------- */
 section { padding: var(--section-pad) 0; position: relative; }
+/* Sections switched off with the hidden attribute stay off even where a
+   class sets display (see the 5 Cs slot on index.html). */
+[hidden] { display: none !important; }
 /* Keeps in-page anchor targets (nav links, deep links to a dialog's
    card, etc.) from landing underneath the fixed header. */
 section[id], [id] { scroll-margin-top: 90px; }

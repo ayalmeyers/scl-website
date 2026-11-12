@@ -172,8 +172,20 @@
     </div>
   </section>
 
-  <!-- THE 5 Cs -->
-  <section class="section-alt" id="five-cs">
+  <!-- THE 5 Cs
+       Hidden until the correct video is in this repo. The brand branch
+       pointed this slot at a Webflow-hosted file (SCL-2&3-transcode.mp4)
+       that is actually the RPE / R-A-CT whiteboard video, and that link
+       dies when Webflow is retired. To turn the slot on:
+         1. Add the 5 Cs video file to the repo root (e.g. five-cs.mp4)
+            and a poster still (e.g. five-cs-poster.jpg).
+         2. Add <source src="five-cs.mp4" type="video/mp4"> inside the
+            <video> below and set its poster attribute.
+         3. Delete the word "hidden" from the <section> tag.
+       The 5 Cs video already plays on managing-virtual-impressions.html
+       as a YouTube embed (GQq321QrDS0) if a YouTube embed is preferred
+       here instead. See LAUNCH-CHECKLIST.md. -->
+  <section class="section-alt" id="five-cs" hidden>
     <div class="container">
       <div class="section-head reveal">
         <span class="eyebrow">The 5 Cs</span>
@@ -181,8 +193,7 @@
         <p class="lede">A short film on the 5 Cs, the framework we use with leaders to establish credibility every time they communicate.</p>
       </div>
       <figure class="consulting-video reveal">
-        <video controls preload="metadata" playsinline>
-          <source src="https://cdn.prod.website-files.com/5ef0d1b4cb59483c91d1cb84/5f5b999f6f5b91055a078afd_SCL-2%263-transcode.mp4" type="video/mp4">
+        <video controls preload="metadata" playsinline aria-label="The 5 Cs">
         </video>
       </figure>
     </div>
