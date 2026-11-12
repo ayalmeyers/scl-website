@@ -68,7 +68,7 @@ function renderTeam() {
       .map(function (p) {
         return (
           "<li>" +
-            '<button type="button" class="roster-card" data-roster-card="dlg-' + p.id + '">' +
+            '<button type="button" class="roster-card" aria-haspopup="dialog" data-roster-card="dlg-' + p.id + '">' +
               '<span class="roster-card-photo"><img src="' + p.photo + '" alt="" width="' + p.photoWidth + '" height="' + p.photoHeight + '" loading="lazy" /></span>' +
               '<span class="roster-card-name">' + p.name + "</span>" +
               '<span class="roster-card-role">' + p.role + "</span>" +
