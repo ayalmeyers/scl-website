@@ -84,15 +84,33 @@ document.addEventListener("DOMContentLoaded", function () {
   window.addEventListener("scroll", onScroll, { passive: true });
 
   if (toggle && links) {
+    if (!links.id) links.id = "site-nav";
+    toggle.setAttribute("aria-controls", links.id);
+    toggle.setAttribute("aria-expanded", "false");
+    var setMenu = function (open) {
+      links.classList.toggle("is-open", open);
+      document.body.classList.toggle("nav-open", open);
+      toggle.setAttribute("aria-expanded", open ? "true" : "false");
+    };
     toggle.addEventListener("click", function () {
-      links.classList.toggle("is-open");
-      document.body.classList.toggle("nav-open");
+      setMenu(!links.classList.contains("is-open"));
     });
     links.querySelectorAll("a").forEach(function (a) {
       a.addEventListener("click", function () {
-        links.classList.remove("is-open");
-        document.body.classList.remove("nav-open");
+        setMenu(false);
       });
+    });
+    // Tapping the page outside the open panel closes it.
+    document.addEventListener("click", function (e) {
+      if (!links.classList.contains("is-open")) return;
+      if (links.contains(e.target) || toggle.contains(e.target)) return;
+      setMenu(false);
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && links.classList.contains("is-open")) {
+        setMenu(false);
+        toggle.focus();
+      }
     });
   }
 

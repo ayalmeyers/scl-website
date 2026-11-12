@@ -343,8 +343,13 @@ p:last-child { margin-bottom: 0; }
     -webkit-transform: translate3d(100%, 0, 0);
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
-    transition: transform 0.45s cubic-bezier(.65,0,.35,1);
-    box-shadow: -20px 0 60px rgba(0,0,0,0.5);
+    /* No shadow while closed: the panel sits just off the right edge, and
+       a shadow there bleeds back on screen as a grey band down every page.
+       visibility keeps the off-screen links out of the tab order; its
+       0.45s delay on close lets the slide-out finish before it hides. */
+    box-shadow: none;
+    visibility: hidden;
+    transition: transform 0.45s cubic-bezier(.65,0,.35,1), box-shadow 0.45s ease, visibility 0s linear 0.45s;
     z-index: 200;
   }
   .nav-links::before {
@@ -354,8 +359,19 @@ p:last-child { margin-bottom: 0; }
     background: var(--bg);
     z-index: -1;
   }
-  .nav-links.is-open { transform: translate3d(0, 0, 0); -webkit-transform: translate3d(0, 0, 0); }
-  .nav-toggle { display: block; }
+  .nav-links.is-open {
+    transform: translate3d(0, 0, 0);
+    -webkit-transform: translate3d(0, 0, 0);
+    box-shadow: -20px 0 60px rgba(0,0,0,0.5);
+    visibility: visible;
+    transition: transform 0.45s cubic-bezier(.65,0,.35,1), box-shadow 0.45s ease, visibility 0s;
+  }
+  .nav-toggle { display: block; z-index: 210; }
+  /* The open panel covers the right edge, where the toggle sits; keep
+     the toggle above it and turn it into a close (X) control. */
+  body.nav-open .nav-toggle span:nth-child(1) { top: 9px; transform: rotate(45deg); }
+  body.nav-open .nav-toggle span:nth-child(2) { opacity: 0; }
+  body.nav-open .nav-toggle span:nth-child(3) { top: 9px; transform: rotate(-45deg); }
 }
 
 /* ---------- hero ---------- */
