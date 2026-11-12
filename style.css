@@ -394,6 +394,11 @@ p:last-child { margin-bottom: 0; }
   letter-spacing: -0.03em;
 }
 .hero h1 em { font-style: normal; font-weight: 500; color: var(--green); }
+/* One phrase per line ("Aligning / communication / with intended /
+   results."), set by these spans rather than <br>, so the heading's text
+   and accessible name read as one sentence with normal spaces. */
+.hero h1 .hero-line { display: block; }
+.nowrap { white-space: nowrap; }
 .hero .lede {
   margin-top: 2.2rem;
   max-width: 46ch;
@@ -414,7 +419,10 @@ p:last-child { margin-bottom: 0; }
   position: absolute;
   right: var(--pad);
   bottom: 2.6rem;
-  max-width: 30ch;
+  /* No forced line breaks: max-width plus balanced wrapping gives three
+     even lines at desktop widths and never strands a single word. */
+  max-width: 46ch;
+  text-wrap: balance;
   text-align: right;
   font-family: var(--mono);
   font-size: 0.78rem;
