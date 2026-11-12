@@ -2416,3 +2416,16 @@ mark, .hl-blue {
 @media (prefers-reduced-motion: reduce) {
   .hexmark-piece, .hexmark-label { transition: none; opacity: 1; transform: none; }
 }
+
+/* ---------- draft notice (privacy.html until legal sign-off) ---------- */
+.draft-notice {
+  margin-top: 1.6rem;
+  display: inline-block;
+  padding: 0.7rem 1rem;
+  border-left: 3px solid var(--green);
+  background: var(--bg-alt);
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  line-height: 1.6;
+  color: var(--ink);
+}
