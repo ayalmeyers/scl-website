@@ -1,15 +1,22 @@
 #!/usr/bin/env node
-// Full QA harness for the SCL site: Playwright regression sweep
-// (console/network/overflow errors) + axe-core accessibility audit +
-// Lighthouse performance/SEO/best-practices scores, across every page
-// at three viewports. No build step — this only reads the static
-// files in the repo root and serves them locally.
+// Full QA harness for the SCL site: Playwright regression sweep +
+// axe-core accessibility audit (+ optional Lighthouse scores), across
+// every page at four viewports (390, 768, 1280, 1440). No build step:
+// this only reads the static files in the repo root and serves them
+// locally.
+//
+// Per page and viewport: console errors, broken (4xx/5xx) local
+// resources, horizontal overflow, cumulative layout shift while
+// scrolling through the page (fails above 0.1), axe WCAG 2.0/2.1 A+AA,
+// and at phone/tablet widths the menu (opens, closes, no shadow or
+// focusable links while closed). Once per page: <title>, meta
+// description, favicon link, alt attribute on every <img>, exactly one
+// <h1> and no skipped heading levels, and every internal link resolving.
 //
 // Usage: npm run qa   (equivalent to: node qa/run.js)
 // Writes qa/report/report.json (machine-readable) and prints a
-// human-readable summary. Exits non-zero if any page has a console
-// error, a broken (4xx/5xx) local resource, horizontal overflow, or
-// an axe violation of impact "serious" or "critical".
+// human-readable summary. Exits non-zero if any check fails, including
+// any axe violation of impact "serious" or "critical".
 
 const { spawn } = require("child_process");
 const path = require("path");
@@ -41,10 +48,18 @@ const PAGES = [
 ];
 
 const VIEWPORTS = [
-  { name: "mobile", width: 390, height: 844 },
-  { name: "tablet", width: 1280, height: 800 },
-  { name: "desktop", width: 1728, height: 1000 }
+  { name: "phone-390", width: 390, height: 844, mobile: true },
+  { name: "tablet-768", width: 768, height: 1024, mobile: true },
+  { name: "laptop-1280", width: 1280, height: 800 },
+  { name: "desktop-1440", width: 1440, height: 900 }
 ];
+
+// Page-level checks that don't depend on the viewport run once per page
+// (at the first viewport): title, meta description, favicon, image alt
+// text, heading order, and internal links.
+const PAGE_LEVEL_VIEWPORT = VIEWPORTS[0].name;
+// Layout shift budget: Google's "good" Core Web Vitals threshold.
+const CLS_LIMIT = 0.1;
 
 // Lighthouse is slow (~10-20s/page); run it once per page at desktop
 // width rather than once per page per viewport.
@@ -69,8 +84,25 @@ async function regressionAndAxe(browser, results) {
   for (const pg of PAGES) {
     results.pages[pg] = results.pages[pg] || {};
     for (const vp of VIEWPORTS) {
-      const context = await browser.newContext({ viewport: { width: vp.width, height: vp.height } });
+      const context = await browser.newContext({
+        viewport: { width: vp.width, height: vp.height },
+        isMobile: !!vp.mobile,
+        hasTouch: !!vp.mobile
+      });
       const page = await context.newPage();
+      // Cumulative layout shift, recorded from first paint, ignoring
+      // shifts within 500ms of user input (scrolling here is programmatic,
+      // so shifts while scrolling still count).
+      await page.addInitScript(() => {
+        window.__cls = 0;
+        try {
+          new PerformanceObserver((list) => {
+            for (const e of list.getEntries()) {
+              if (!e.hadRecentInput) window.__cls += e.value;
+            }
+          }).observe({ type: "layout-shift", buffered: true });
+        } catch (e) {}
+      });
       const consoleErrors = [];
       const brokenResources = [];
       page.on("pageerror", (e) => consoleErrors.push(String(e)));
@@ -104,8 +136,74 @@ async function regressionAndAxe(browser, results) {
         () => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1
       );
 
+      const cls = await page.evaluate(() => window.__cls || 0);
+
+      // Phone menu: opens, closes, and casts nothing while closed.
+      let menu = null;
+      if (vp.width <= 860 && (await page.$(".nav-toggle"))) {
+        menu = await page.evaluate(async () => {
+          const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+          const links = document.querySelector(".nav-links");
+          const toggle = document.querySelector(".nav-toggle");
+          if (getComputedStyle(toggle).display === "none") return { skipped: true };
+          window.scrollTo(0, 0);
+          const closedShadow = getComputedStyle(links).boxShadow;
+          const closedVisible = getComputedStyle(links).visibility;
+          toggle.click();
+          await wait(600);
+          const r = links.getBoundingClientRect();
+          const opened = links.classList.contains("is-open") && r.left < window.innerWidth && getComputedStyle(links).visibility === "visible";
+          const expandedOpen = toggle.getAttribute("aria-expanded");
+          toggle.click();
+          await wait(600);
+          const closed = !links.classList.contains("is-open") && getComputedStyle(links).visibility === "hidden";
+          return { closedShadow, closedVisible, opened, expandedOpen, closed };
+        });
+      }
+
+      let pageLevel = null;
+      if (vp.name === PAGE_LEVEL_VIEWPORT) {
+        pageLevel = await page.evaluate(() => {
+          const title = (document.title || "").trim();
+          const descEl = document.querySelector('meta[name="description"]');
+          const description = descEl ? (descEl.getAttribute("content") || "").trim() : "";
+          const favicon = !!document.querySelector('link[rel~="icon"]');
+          const imgsMissingAlt = [...document.querySelectorAll("img")]
+            .filter((i) => !i.hasAttribute("alt"))
+            .map((i) => i.getAttribute("src"));
+          const headings = [...document.querySelectorAll("h1,h2,h3,h4,h5,h6")].filter((h) => {
+            // Skip headings in closed dialogs/hidden sections: they are not
+            // in the page outline until shown.
+            return !h.closest("dialog:not([open]), [hidden], noscript");
+          });
+          const levels = headings.map((h) => Number(h.tagName[1]));
+          const h1Count = levels.filter((l) => l === 1).length;
+          const skips = [];
+          for (let i = 1; i < levels.length; i++) {
+            if (levels[i] > levels[i - 1] + 1) {
+              skips.push(`h${levels[i - 1]} -> h${levels[i]} ("${headings[i].textContent.trim().slice(0, 40)}")`);
+            }
+          }
+          if (levels.length && levels[0] !== 1) skips.unshift(`first heading is h${levels[0]}`);
+          const internalLinks = [...document.querySelectorAll("a[href]")]
+            .map((a) => a.href)
+            .filter((h) => h.startsWith(location.origin))
+            .map((h) => h.split("#")[0]);
+          return { title, description, favicon, imgsMissingAlt, h1Count, skips, internalLinks: [...new Set(internalLinks)] };
+        });
+        const brokenLinks = [];
+        for (const href of pageLevel.internalLinks) {
+          const status = await new Promise((resolve) => {
+            http.get(href, (res) => { res.resume(); resolve(res.statusCode); }).on("error", () => resolve(0));
+          });
+          if (status >= 400 || status === 0) brokenLinks.push(`${status} ${href}`);
+        }
+        pageLevel.brokenLinks = brokenLinks;
+        delete pageLevel.internalLinks;
+      }
+
       let axeViolations = [];
-      if (vp.name === "desktop") {
+      {
         const axeResults = await new AxeBuilder({ page })
           .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
           .analyze();
@@ -113,7 +211,8 @@ async function regressionAndAxe(browser, results) {
           id: v.id,
           impact: v.impact,
           help: v.help,
-          nodes: v.nodes.length
+          nodes: v.nodes.length,
+          targets: v.nodes.slice(0, 6).map((n) => n.target.join(" "))
         }));
       }
 
@@ -121,6 +220,9 @@ async function regressionAndAxe(browser, results) {
         consoleErrors,
         brokenResources: [...new Set(brokenResources)],
         overflow,
+        cls: Math.round(cls * 1000) / 1000,
+        menu,
+        pageLevel,
         axeViolations
       };
 
@@ -179,6 +281,23 @@ function printSummary(results) {
       if (r.consoleErrors.length) bad.push(`console: ${r.consoleErrors.join(" | ")}`);
       if (r.brokenResources.length) bad.push(`broken: ${r.brokenResources.join(" | ")}`);
       if (r.overflow) bad.push("horizontal overflow");
+      if (r.cls > CLS_LIMIT) bad.push(`layout shift CLS ${r.cls}`);
+      if (r.menu && !r.menu.skipped) {
+        if (r.menu.closedShadow !== "none") bad.push("closed menu casts a shadow");
+        if (r.menu.closedVisible !== "hidden") bad.push("closed menu links reachable");
+        if (!r.menu.opened || r.menu.expandedOpen !== "true") bad.push("menu did not open");
+        if (!r.menu.closed) bad.push("menu did not close");
+      }
+      if (r.pageLevel) {
+        const pl = r.pageLevel;
+        if (!pl.title) bad.push("missing <title>");
+        if (!pl.description) bad.push("missing meta description");
+        if (!pl.favicon) bad.push("missing favicon link");
+        if (pl.imgsMissingAlt.length) bad.push("img without alt: " + pl.imgsMissingAlt.join(", "));
+        if (pl.h1Count !== 1) bad.push(`${pl.h1Count} <h1> elements`);
+        if (pl.skips.length) bad.push("heading order: " + pl.skips.join("; "));
+        if (pl.brokenLinks.length) bad.push("broken links: " + pl.brokenLinks.join(" | "));
+      }
       const seriousAxe = r.axeViolations.filter((v) => v.impact === "serious" || v.impact === "critical");
       if (seriousAxe.length) {
         bad.push(

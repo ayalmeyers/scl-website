@@ -28,7 +28,10 @@ great-leadership.html
 learn-to-listen.html
 contact.html                                 Contact form + phone/LinkedIn
 privacy.html                                 Privacy page
-404.html                                     Not-found page
+404.html                                     Not-found page (also forwards old Webflow URLs)
+our-team.html, contact-us.html, blog.html,
+who-we-are/, what-we-do/, post/              Redirect stubs for the old Webflow URLs
+                                             (generated: scripts/make-redirects.py)
 style.css                                    Shared stylesheet
 main.js                                      Nav, scroll-reveal, form handling, etc.
 logo-mark.png, logo-wordmark.png, logo-lockup.png   Brand assets (transparent PNG)
@@ -36,6 +39,7 @@ favicon.ico, favicon-*.png, apple-touch-icon.png,
 android-chrome-*.png, site.webmanifest       Favicon/icon set (generated from logo-mark.png)
 fonts/                                       Self-hosted EB Garamond + Inter
 robots.txt, sitemap.xml                      SEO
+leadership-counsel-poster.jpg                Neutral poster for the Leadership Counsel video card
 LAUNCH-CHECKLIST.md                          Open items before going live — read this first
 ```
 
@@ -75,19 +79,35 @@ new standalone page for the full article (copy an existing one, e.g.
 
 ## Toggling sections / flags
 
-There's no central `site-config.js` yet (also tracked in
-`LAUNCH-CHECKLIST.md`). For now, sections are enabled by simply being
-present in the page's HTML — e.g. to hide Insights in Motion on a page,
-remove its `<section class="stack-scroll" id="insights-motion">` block
-(and the heading section just above it).
+Launch settings that need a value from SCL live in the `SCL_SITE_CONFIG`
+block at the top of `main.js` (every page loads it): the Google
+Analytics measurement ID and an optional reCAPTCHA v3 site key. Both are
+off while empty.
+
+A section can be switched off by adding the `hidden` attribute to its
+`<section>` tag (a global `[hidden]` rule keeps it off). The homepage's
+5 Cs slot ships this way until the correct video is in the repo; the
+comment above it gives the steps to switch it on. To remove a section
+for good, delete its block, e.g. `<section class="stack-scroll"
+id="insights-motion">` plus the heading section just above it.
+
+## Old URLs
+
+`scripts/make-redirects.py` holds the table of old Webflow paths and
+where each one now lands. Run it after editing the table: it rewrites
+the stub pages and the matching map inside `404.html`.
 
 ## Running QA
 
 `npm install` once (QA tooling only — the site itself still has no build
 step), then `npm run qa`. This serves the repo locally, drives every page
-in headless Chromium at three viewports (mobile/tablet/desktop), and
-checks for: console errors, broken (4xx/5xx) local resources, horizontal
-overflow, and accessibility issues via axe-core (WCAG 2.0/2.1 A + AA). It
+in headless Chromium at four widths (390, 768, 1280, 1440), and checks
+for: console errors, broken (4xx/5xx) local resources, horizontal
+overflow, layout shift while scrolling (CLS over 0.1 fails), the phone
+menu opening and closing cleanly, accessibility issues via axe-core
+(WCAG 2.0/2.1 A + AA), and once per page: title, meta description,
+favicon, alt text on every image, heading order, and broken internal
+links. It
 scrolls each page through fully and waits out the `.reveal` scroll-in
 transitions before auditing — catching a `.reveal` element mid-fade
 produces false-positive contrast failures, so don't shorten those waits
