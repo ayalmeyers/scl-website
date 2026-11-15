@@ -22,16 +22,17 @@
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
 <link rel="manifest" href="site.webmanifest" />
 <meta name="theme-color" content="#0f2440" />
+<script>document.documentElement.classList.add('js')</script>
 <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+<a href="#main" class="skip-link">Skip to content</a>
 
-<canvas id="attractor-bg" aria-hidden="true"></canvas>
 
 <header class="site-header">
   <div class="nav-inner">
     <a href="index.html" class="brand">
-      <img src="logo-mark.png" alt="" class="brand-icon" />
+      <img src="logo-mark-64.png" alt="" class="brand-icon" width="64" height="55" />
       <strong>Strategic Communication Lab</strong>
       <span>Coaches · Counsel · Consultants</span>
     </a>
@@ -42,16 +43,16 @@
       <a href="musings.html" data-nav>Musings</a>
       <a href="contact.html" class="nav-cta" data-nav>Contact Us</a>
     </nav>
-    <button class="nav-toggle" aria-label="Toggle navigation"><span></span><span></span><span></span></button>
+    <button class="nav-toggle" type="button" aria-label="Open menu"><span></span><span></span><span></span></button>
   </div>
 </header>
 
-<main>
+<main id="main">
   <section class="page-hero">
     <div class="container">
       <span class="crumb reveal"><a href="what-we-do.html">What We Do</a> / Executive Coaching</span>
       <h1 class="reveal reveal-delay-1">Executive Coaching</h1>
-      <p class="lede reveal reveal-delay-2">SCL operates as a trusted resource for leaders and their teams who want to enhance their communication abilities in preparation for significant initiatives, important events, or ambitious goal achievement.</p>
+      <p class="lede reveal reveal-delay-2">SCL is a trusted source for leaders and their teams when they are seeking to further refine their communication skills in preparation for high-stakes initiatives, key events, or successfully meeting aggressive goals.</p>
     </div>
   </section>
 
@@ -59,14 +60,19 @@
     <div class="container">
       <div class="two-col">
         <div class="prose reveal">
-          <p>SCL provides private communication coaching for executives and managers whose professional contribution and growth are limited by a skill gap, style conflict, or behavior issue. Our business-focused consultants partner directly with executives and their teams to strengthen, align, and clarify the communication skills that determine outcomes in the room that matters.</p>
+          <p>SCL provides private communication coaching for executives and managers whose professional contribution and growth are limited by a skill gap, style conflict, or behavior issue. Our business-savvy team of consultants works with executives, as well as their teams, to clarify, align, and strengthen communication capabilities.</p>
 
-          <p>Engagements are built around the individual — not a generic curriculum. We identify precisely where a leader's communication is limiting their impact, then work step by step toward a durable change in how they show up, present, and persuade.</p>
+          <blockquote class="pull-quote">
+            “Champions know there are no shortcuts to the top. They climb the mountain one step at a time.”
+            <cite>— Judy Adler</cite>
+          </blockquote>
+
+
 
           <h3>Delivered as:</h3>
           <ul>
-            <li>1:1 Coaching — individualized engagements built around a specific skill gap, upcoming event, or leadership transition.</li>
-            <li>Group Skills Development — team-wide programs that raise communication capability across an entire function or leadership cohort.</li>
+            <li>1:1 Coaching</li>
+            <li>Group Skills Development</li>
           </ul>
         </div>
         <aside>
@@ -84,7 +90,7 @@
     <div class="container">
       <div class="quote-block reveal">
         <span class="eyebrow">Client Testimonial</span>
-        <blockquote>"We consider SCL an integral part of our ongoing advisory team. Their advice is consistently insightful and applicable, and helps us get the most mileage out of meetings with serious investor prospects."</blockquote>
+        <blockquote>“We consider SCL an integral part of our ongoing advisory team. Their advice is consistently insightful and applicable and helps us get the most mileage out of meetings with serious investor prospects.”</blockquote>
         <cite>Partner, New York-Based Hedge Fund</cite>
       </div>
     </div>
@@ -94,7 +100,7 @@
     <div class="container">
       <div class="cta-band reveal">
         <h2>Ready to close a communication skill gap?</h2>
-        <a href="contact.html" class="btn btn-highlight">Start a conversation <span class="arrow">→</span></a>
+        <a href="contact.html" class="btn btn-highlight">Contact us <span class="arrow">→</span></a>
       </div>
     </div>
   </section>
@@ -102,10 +108,15 @@
 
 <footer class="site-footer">
   <div class="container">
+    <div class="footer-lead">
+      <p class="footer-lead-line">Aligning communication with intended results.</p>
+      <div class="footer-lead-contact">
+        <a href="tel:18772666522" class="footer-phone">1-877-266-6522</a>
+      </div>
+    </div>
     <div class="footer-top">
       <div>
-        <div class="footer-brand"><img src="logo-mark.png" alt="" />Strategic Communication Lab</div>
-        <p class="footer-tag">Aligning communication with intended results — as coaches, as counsel, and as consultants.</p>
+        <div class="footer-brand"><img src="logo-mark-64.png" alt="" width="64" height="55" loading="lazy" />Strategic Communication Lab</div>
       </div>
       <div class="footer-col">
         <h4>Explore</h4>

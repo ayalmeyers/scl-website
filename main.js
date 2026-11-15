@@ -51,11 +51,11 @@ function renderTeam() {
       })
       .map(function (p) {
         return (
-          '<dialog class="roster-dialog" id="dlg-' + p.id + '">' +
+          '<dialog class="roster-dialog" id="dlg-' + p.id + '" aria-labelledby="dlg-name-' + p.id + '">' +
             '<button type="button" class="roster-dialog-close" data-roster-dialog-close aria-label="Close">✕</button>' +
             '<img src="' + p.photo + '" alt="" class="roster-dialog-photo" width="' + p.photoWidth + '" height="' + p.photoHeight + '" />' +
             '<div class="roster-dialog-body">' +
-              '<h3 class="roster-dialog-name">' + p.name + "</h3>" +
+              '<h3 class="roster-dialog-name" id="dlg-name-' + p.id + '">' + p.name + "</h3>" +
               '<span class="roster-dialog-role">' + p.role + "</span>" +
               p.bio.map(function (para) { return "<p>" + para + "</p>"; }).join("") +
             "</div>" +
@@ -91,7 +91,7 @@ document.addEventListener("DOMContentLoaded", function () {
       var vh = window.innerHeight || 800;
       var start = window.matchMedia("(max-width: 860px)").matches ? 0.45 : 1;
       var t = Math.min(1, Math.max(0, window.scrollY / (vh * 0.7)));
-      bgCanvas.style.opacity = String(start - (start - 0.1) * t);
+      bgCanvas.style.opacity = String(start * (1 - t));
     };
     fadeBg();
     window.addEventListener("scroll", fadeBg, { passive: true });
@@ -99,15 +99,36 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   if (toggle && links) {
+    if (!links.id) links.id = "site-nav";
+    toggle.setAttribute("aria-controls", links.id);
+    toggle.setAttribute("aria-expanded", "false");
+    var setMenu = function (open) {
+      links.classList.toggle("is-open", open);
+      document.body.classList.toggle("nav-open", open);
+      toggle.setAttribute("aria-expanded", open ? "true" : "false");
+      toggle.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+      document.querySelectorAll("main, .site-footer").forEach(function (el) {
+        if (open) el.setAttribute("inert", ""); else el.removeAttribute("inert");
+      });
+      if (open) {
+        var first = links.querySelector("a");
+        if (first) first.focus();
+      }
+    };
     toggle.addEventListener("click", function () {
-      links.classList.toggle("is-open");
-      document.body.classList.toggle("nav-open");
+      setMenu(!links.classList.contains("is-open"));
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && links.classList.contains("is-open")) {
+        setMenu(false);
+        toggle.focus();
+      }
     });
     links.querySelectorAll("a").forEach(function (a) {
-      a.addEventListener("click", function () {
-        links.classList.remove("is-open");
-        document.body.classList.remove("nav-open");
-      });
+      a.addEventListener("click", function () { setMenu(false); });
+    });
+    window.addEventListener("resize", function () {
+      if (window.innerWidth > 860 && links.classList.contains("is-open")) setMenu(false);
     });
   }
 
@@ -142,6 +163,7 @@ document.addEventListener("DOMContentLoaded", function () {
     var target = a.getAttribute("href");
     if (target === page || (page === "index.html" && target === "")) {
       a.classList.add("is-active");
+      a.setAttribute("aria-current", "page");
     }
   });
 
@@ -198,9 +220,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
   initAttractorBackground();
   initContactDrawer();
-  initCursorDot();
-  initFlowScroll();
-  initStackScroll();
   initVideoCards();
   initTestimonials();
 });
@@ -225,26 +244,45 @@ function initTestimonials() {
 
     var selectedRow = rows[0];
 
+    panelQuote.setAttribute("aria-live", "polite");
+    var swapTimer = null, hoverTimer = null;
     function showQuote(row) {
       var quote = row && row.getAttribute("data-quote");
-      if (quote) panelQuote.textContent = quote;
+      if (!quote || panelQuote.textContent === quote) return;
+      if (swapTimer) window.clearTimeout(swapTimer);
+      panelQuote.classList.add("is-swapping");
+      swapTimer = window.setTimeout(function () {
+        panelQuote.textContent = quote;
+        panelQuote.classList.remove("is-swapping");
+      }, 160);
     }
 
     function selectRow(row) {
-      if (selectedRow) selectedRow.classList.remove("is-active");
+      if (selectedRow) {
+        selectedRow.classList.remove("is-active");
+        var prev = selectedRow.querySelector("[data-testimonial-trigger]");
+        if (prev) prev.setAttribute("aria-pressed", "false");
+      }
       row.classList.add("is-active");
+      var b = row.querySelector("[data-testimonial-trigger]");
+      if (b) b.setAttribute("aria-pressed", "true");
       selectedRow = row;
     }
 
-    rows.forEach(function (row) {
+    rows.forEach(function (row, i) {
       var btn = row.querySelector("[data-testimonial-trigger]");
       if (!btn) return;
-      btn.addEventListener("mouseenter", function () { showQuote(row); });
+      btn.setAttribute("aria-pressed", i === 0 ? "true" : "false");
+      btn.addEventListener("mouseenter", function () {
+        if (hoverTimer) window.clearTimeout(hoverTimer);
+        hoverTimer = window.setTimeout(function () { showQuote(row); }, 120);
+      });
       btn.addEventListener("focus", function () { showQuote(row); });
       btn.addEventListener("click", function () { selectRow(row); });
     });
 
     list.addEventListener("mouseleave", function () {
+      if (hoverTimer) window.clearTimeout(hoverTimer);
       showQuote(selectedRow);
     });
   });
@@ -587,7 +625,7 @@ function initContactDrawer() {
       "</div>" +
       '<div id="client-panel">' +
       '  <h2 id="drawer-heading">Tell us about your goals</h2>' +
-      '  <p class="sub">The more context you share, the faster we can match you with the right consultant. Prefer to talk? Call <a href="tel:18772666522">1-877-266-6522</a>.</p>' +
+      '  <p class="sub">To discuss how we can best assist you with your needs, contact us. Prefer to talk? Call <a href="tel:18772666522">1-877-266-6522</a>.</p>' +
       '  <p class="form-scope-note">This form is for clients and prospective clients. Vendor solicitations are not reviewed.</p>' +
       '  <form id="contact-form" novalidate>' +
       '    <div class="drawer-grid">' +
@@ -633,7 +671,7 @@ function initContactDrawer() {
       '      <span>I agree to be contacted about my inquiry. See our <a href="privacy.html" target="_blank" rel="noopener">privacy practices</a>.</span>' +
       "    </label>" +
       '    <div class="drawer-submit-row">' +
-      '      <p id="form-note"></p>' +
+      '      <p id="form-note" role="status" aria-live="polite"></p>' +
       '      <button type="submit" class="drawer-send">Send message <span class="arrow" aria-hidden="true">→</span></button>' +
       "    </div>" +
       "  </form>" +
@@ -692,18 +730,6 @@ function initContactDrawer() {
       e.preventDefault();
       var note = document.querySelector("#form-note");
 
-      // Honeypot tripped, or submitted implausibly fast (under 3s) for a
-      // human filling in a multi-field form — behave as a bot would
-      // expect (quiet success) without actually processing anything.
-      if ((honeypotEl && honeypotEl.value) || Date.now() - renderedAt < 3000) {
-        if (note) {
-          note.className = "is-success";
-          note.textContent = "Thank you — your message has been noted.";
-        }
-        form.reset();
-        return;
-      }
-
       // Simple per-session rate limit — not a substitute for a real
       // server-side limit, but static hosting has no server to enforce
       // one, so this is a best-effort deterrent only.
@@ -714,7 +740,7 @@ function initContactDrawer() {
       if (sentCount >= 5) {
         if (note) {
           note.className = "is-error";
-          note.textContent = "Please call 1-877-266-6522 — this form has reached its limit for this session.";
+          note.textContent = "This form has reached its limit for this session. Please call 1-877-266-6522.";
         }
         return;
       }
@@ -756,6 +782,19 @@ function initContactDrawer() {
         return;
       }
 
+      // Runs after validation so a person who submits too early sees the
+      // field errors. Honeypot tripped, or submitted implausibly fast (under 3s) for a
+      // human filling in a multi-field form — behave as a bot would
+      // expect (quiet success) without actually processing anything.
+      if ((honeypotEl && honeypotEl.value) || Date.now() - renderedAt < 3000) {
+        if (note) {
+          note.className = "is-success";
+          note.textContent = "Thank you! Your message has been received.";
+        }
+        form.reset();
+        return;
+      }
+
       var purpose = purposeEl ? purposeEl.value : "";
       var submitterEmail = emailEl.value.trim();
       var payload = {
@@ -794,7 +833,7 @@ function initContactDrawer() {
           if (note) {
             note.className = "is-success";
             note.textContent =
-              "Thank you. A member of our team will be in touch shortly.";
+              "Thank you! Your message has been received. A member of our team will be in touch shortly.";
           }
           form.reset();
           release();
@@ -804,7 +843,7 @@ function initContactDrawer() {
           if (note) {
             note.className = "is-error";
             note.textContent =
-              "We couldn't confirm delivery just now — please call 1-877-266-6522 so we don't miss you.";
+              "Something went wrong while sending your message. Please call 1-877-266-6522.";
           }
         });
     });
@@ -950,14 +989,16 @@ function initContactDrawer() {
       var sub = document.querySelector("#client-panel .sub");
       var purposeEl = document.querySelector("#purpose");
       if (heading) heading.textContent = "Join our roster";
-      if (sub) sub.textContent = "Tell us about your background and the kind of engagements you're looking for.";
+      if (sub) sub.textContent = "Are you an experienced communication consulting professional interested in working with SCL? Tell us about your background.";
       if (purposeEl) purposeEl.value = "Joining SCL as a consultant";
     }
     if (!isContactPage) drawer.addEventListener("keydown", trapFocus);
-    window.requestAnimationFrame(function () {
-      var nameEl = document.querySelector("#name");
-      if (nameEl) nameEl.focus({ preventScroll: true });
-    });
+    if (!isContactPage) {
+      window.requestAnimationFrame(function () {
+        var nameEl = document.querySelector("#name");
+        if (nameEl) nameEl.focus({ preventScroll: true });
+      });
+    }
   }
 
   function closeDrawer() {
@@ -1241,6 +1282,10 @@ function initAttractorBackground() {
 
   var rafId = null;
   function loop(now) {
+    if (canvas.style.opacity === "0") {
+      rafId = window.requestAnimationFrame(loop);
+      return;
+    }
     for (var i = 0; i < stepsPerFrame; i++) {
       p1 = step(p1);
       p2 = step(p2);

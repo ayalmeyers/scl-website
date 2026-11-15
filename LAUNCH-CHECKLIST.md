@@ -20,6 +20,26 @@ Before starting, I pulled the actual Granola meeting notes (Sep 22 – Oct 16) r
 
 ## Done this pass (verified by test)
 
+### Round 11: craft pass (type, spacing, word choice, seamlessness)
+
+Three agents worked this round: a design-direction agent studying Awwwards Sites of the Year for what makes a site feel human, a copy agent that compared every line against the old scl.us.com and restored SCL's own wording, and a micro-detail agent. A separate verifier then reviewed the result cold, and its findings are fixed below.
+
+- **Word choice.** 72 copy edits restore old-site wording (hero lede, "Contact us", "Meet our consultants", "We are a community of young and old, naive and wise.", "Musings from the Lab.", service and testimonial copy). The Judy Adler pull-quote is back on Executive Coaching. Invented lines were removed, including the expanded "1:1 Coaching" and "Group Skills Development" descriptions.
+- **Musings articles.** All three articles now carry the original text from scl.us.com, word for word. Only clear typos were corrected ("Napolean", missing spaces after commas, "statesmen" where singular). The 5 Cs page keeps the original intro and the embedded YouTube video, which is where the five Cs themselves are taught.
+- **Type and spacing.** Spacing scale tokens, one section rhythm, no double padding between same-colour sections, 64ch article measure with a drop cap, tabular numerals on stats, hanging punctuation on quotes.
+- **Calmer motion.** Pinned scroll sections and the custom cursor are removed; the same content now sits in static grids. Reveal motion is shorter and smaller. Page-to-page transitions use the browser's native view transitions. The background canvas runs on the homepage only and stops drawing once it has faded out.
+- **Human touches.** A signed note from Farhad with his portrait on the homepage. Navy footer led by the tagline and the phone number. Video cards carry captions.
+- **Usability and accessibility.** The mobile menu traps focus, closes on Escape and makes the page behind it inert. Testimonials announce changes. Bio dialogs are named by the person's name. The contact form validates before its anti-bot check, so a fast empty submit shows the field errors instead of a false "Thank you". Invalid fields stay red on focus, and the form note is announced to screen readers. A print stylesheet was added.
+- QA: `npm run qa` passes on every page at mobile, tablet and desktop. A 375/768/1440 screenshot sweep shows no overflow, no text under 13px and no console errors.
+
+**For the team to confirm before launch:**
+- The pinned scroll sections and the custom cursor were removed for calm and readability. Easy to restore if they are wanted.
+- The animated background now appears on the homepage only.
+- Farhad's homepage quote, “Leadership requires a high degree of versatility.”, is taken from the Advancement recording. Confirm he is happy to have it on the site.
+- "20+ years advising leaders" needs Farhad's confirmation.
+- "naive and wise" and the Judy Adler quote are restored from the old site. Confirm both still stand.
+- Two team headshots (Jennifer, Megan) are lower resolution than the others and look slightly soft on high-density screens. Larger originals would fix it.
+
 ### Round 10: Monday-review polish (usability, readability, one primary action per view)
 
 A second agent audited every page at 375/768/1024/1440 from an executive reviewer's point of view (Farhad/JT/SJ), and this pass fixed what it found.

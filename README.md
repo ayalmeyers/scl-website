@@ -102,12 +102,11 @@ sandboxed environment whose network policy blocks those hosts, that
 launch will hang rather than fail fast. It runs fine in a normal CI
 runner or on a laptop.
 
-One known, accepted (not a bug) QA finding: `index.html`'s "Coaches /
-Counsel / Consultants" flow-scroll cards intentionally fade non-centered
-cards as part of the spotlight scroll effect, which momentarily drops
-below WCAG AA contrast for the de-emphasized card's text — the same way
-a carousel's inactive slide is expected to read as de-emphasized. This
-is the one `npm run qa` failure you can expect on a clean checkout.
+`npm run qa` passes clean on every page at all three viewports. The pinned
+"spotlight" scroll sections (the one previous known exception) were
+replaced with static grids in round 2. If Playwright's own Chromium isn't
+installed, point the harness at any Chrome with
+`QA_CHROMIUM_PATH=/path/to/chrome npm run qa`.
 
 ## Deploying with GitHub Pages
 

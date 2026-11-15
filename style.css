@@ -86,9 +86,11 @@
   --dur-slow: 0.5s;
 
   /* ---- layout ---- */
+  --space-1: 0.5rem;  --space-2: 1rem;   --space-3: 1.5rem;  --space-4: 2rem;
+  --space-5: 3rem;    --space-6: 4rem;   --space-7: 6rem;    --space-8: 8rem;
   --maxw: 1320px;
   --pad: clamp(1.25rem, 4vw, 3.5rem);
-  --section-pad: clamp(3.25rem, 8vw, 6.5rem);
+  --section-pad: clamp(var(--space-7), 10vw, var(--space-8));
 }
 
 /* ---------- reset ---------- */
@@ -189,17 +191,13 @@ p:last-child { margin-bottom: 0; }
    so the animation stays visible around the copy without crossing through
    the letterforms. Sections with their own opaque background (.section-alt,
    .section-light, .section-navy, cards) don't need it and aren't touched. */
-.crumb,
-.hero-blurb,
-.article-meta,
-.article-body,
-.pull-quote {
+.hero-blurb {
   background: rgba(var(--bg-rgb), 0.86);
   backdrop-filter: blur(10px) saturate(120%);
   -webkit-backdrop-filter: blur(10px) saturate(120%);
 }
-.crumb, .article-meta { padding: 0.5rem 0.9rem; display: inline-flex; }
-.article-body { padding: 1.4rem clamp(1.1rem, 3vw, 1.8rem); }
+.crumb, .article-meta { padding: 0; display: flex; }
+.article-body { padding: 0; }
 .hero-blurb { padding: 1rem 1.3rem; }
 
 /* These already carry an opaque background of their own (.section-light's
@@ -505,7 +503,7 @@ p:last-child { margin-bottom: 0; }
 section { padding: var(--section-pad) 0; position: relative; }
 /* Keeps in-page anchor targets (nav links, deep links to a dialog's
    card, etc.) from landing underneath the fixed header. */
-section[id], [id] { scroll-margin-top: 90px; }
+section[id], [id] { scroll-margin-top: 96px; }
 .section-alt { background: transparent; }
 .section-light {
   background: var(--paper);
@@ -522,7 +520,7 @@ section[id], [id] { scroll-margin-top: 90px; }
 .section-navy .eyebrow { color: var(--ink-dim); }
 .section-navy p { color: var(--ink-dim); }
 
-.section-head { max-width: 46rem; margin-bottom: clamp(2.6rem, 6vw, 4.5rem); }
+.section-head { max-width: 46rem; margin-bottom: clamp(var(--space-5), 5vw, var(--space-6)); }
 .section-head .eyebrow { margin-bottom: 1.1rem; display: block; }
 .section-head h2 {
   font-family: var(--display);
@@ -2396,7 +2394,7 @@ mark, .hl-blue {
 
 /* Touch ergonomics: footer links get a full 44px row on touch screens. */
 @media (max-width: 760px), (pointer: coarse) {
-  .footer-col a { padding: 0.7rem 0; margin: 0; }
+  .footer-col a { padding: 0.7rem 0; margin: 0; min-height: 44px; display: flex; align-items: center; }
   .footer-bottom a { display: inline-flex; align-items: center; min-height: 44px; }
 }
 
@@ -2443,3 +2441,212 @@ mark, .hl-blue {
 
 /* The custom cursor dot never sits over the open mobile menu. */
 body.nav-open #cursor-dot { display: none; }
+
+
+/* =========================================================
+   Round 2 — craft pass
+   ========================================================= */
+
+/* Static, readable layouts instead of the pinned scroll sections. */
+.flow-scroll, .stack-scroll { height: auto !important; padding: 0 0 var(--section-pad); }
+.flow-scroll-stage, .stack-scroll-stage {
+  position: static !important; height: auto; overflow: visible; display: block; transform: none !important; padding: 0;
+}
+.flow-track, .stack-track {
+  display: grid; width: auto; min-width: 0; max-width: var(--maxw);
+  margin: 0 auto; padding: 0 var(--pad); transform: none !important; gap: var(--space-5);
+}
+.flow-track { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.stack-track { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.flow-box, .stack-box {
+  width: auto; transform: none !important; opacity: 1 !important;
+  padding: 0; border: none; box-shadow: none; background: none; will-change: auto;
+}
+.flow-box .num { font-size: var(--fs-label); letter-spacing: var(--track-label); color: var(--green); font-weight: 600; display: block; margin-bottom: var(--space-1); }
+.flow-box h3 { font-size: 1.5rem; margin-bottom: var(--space-2); }
+.flow-box p { font-size: 1rem; color: var(--ink-dim); max-width: 40ch; }
+.flow-box-visual { margin-bottom: var(--space-3); border: none; }
+.flow-box-visual.has-photo::after { display: none; }
+.flow-box-visual.has-photo img { transition: filter 0.6s var(--ease), transform 0.8s var(--ease); }
+.flow-box:hover .flow-box-visual.has-photo img { filter: grayscale(0); transform: scale(1.02); }
+.stack-box .video-card-poster { margin-bottom: var(--space-2); }
+.video-caption { font-size: var(--fs-sm); color: var(--ink-dim); margin: 0; }
+.video-caption strong { color: var(--ink); font-weight: 600; }
+@media (max-width: 860px) {
+  .flow-track, .stack-track { grid-template-columns: 1fr; gap: var(--space-5); }
+}
+
+/* Calmer reveal: small distance, shorter, never hides the hero. */
+.reveal { transform: translateY(12px); transition: opacity 0.6s var(--ease), transform 0.6s var(--ease); }
+.reveal-delay-1.is-visible { transition-delay: 0.06s; }
+.reveal-delay-2.is-visible { transition-delay: 0.12s; }
+.reveal-delay-3.is-visible { transition-delay: 0.18s; }
+.hero .reveal, .page-hero .reveal { opacity: 1; transform: none; animation: hero-in 0.5s var(--ease) both; }
+.hero .reveal-delay-1, .page-hero .reveal-delay-1 { animation-delay: 0.05s; }
+.hero .reveal-delay-2, .page-hero .reveal-delay-2 { animation-delay: 0.1s; }
+.hero .reveal-delay-3, .page-hero .reveal-delay-3 { animation-delay: 0.15s; }
+@keyframes hero-in { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .hero .reveal, .page-hero .reveal { animation: none; }
+}
+/* If scripts never run, nothing stays invisible. */
+html:not(.js) .reveal { opacity: 1; transform: none; }
+
+/* Gentle cross-page fade where the browser supports it. */
+@view-transition { navigation: auto; }
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: 0.2s; }
+
+/* A person on the first screen: Farhad, in his own words. */
+.signed-note {
+  display: grid; grid-template-columns: 72px 1fr; gap: var(--space-2); align-items: center;
+  margin: var(--space-6) 0 0; max-width: 26rem;
+  background: rgba(var(--bg-rgb), 0.94); padding: var(--space-2) var(--space-3) var(--space-2) var(--space-2);
+  border: 1px solid var(--line); box-shadow: var(--shadow-sm);
+}
+.signed-note img { width: 72px; height: 72px; border-radius: 50%; object-fit: cover; object-position: center 25%; filter: grayscale(1); }
+.signed-note blockquote { font-family: var(--display); font-style: italic; font-size: 1.25rem; line-height: 1.3; margin: 0 0 0.35rem; color: var(--ink); }
+.signed-note figcaption { font-size: var(--fs-sm); color: var(--ink-dim); }
+@media (min-width: 1100px) {
+  .signed-note { position: absolute; right: var(--pad); bottom: var(--space-4); margin: 0; }
+}
+
+/* Footer as a closing statement: every page ends on SCL navy. */
+.site-footer { background: var(--paper); color: var(--paper-dim); padding-top: clamp(var(--space-6), 8vw, var(--space-7)); }
+.footer-lead {
+  display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between;
+  gap: var(--space-4); padding-bottom: clamp(var(--space-5), 6vw, var(--space-6));
+  margin-bottom: clamp(var(--space-5), 6vw, var(--space-6)); border-bottom: 1px solid var(--paper-line);
+}
+.footer-lead-line {
+  font-family: var(--display); font-weight: 500; color: var(--paper-ink); margin: 0;
+  font-size: clamp(2rem, 4.4vw, 3.5rem); line-height: 1.08; letter-spacing: -0.015em; max-width: 16ch; text-wrap: balance;
+}
+.footer-lead-contact { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); }
+.footer-phone { font-family: var(--display); font-size: 1.5rem; color: var(--paper-ink); min-height: 44px; display: inline-flex; align-items: center; }
+.footer-phone:hover { color: var(--green-on-dark); }
+.site-footer .btn-highlight { background: #fff; color: var(--ink); }
+.site-footer .btn-highlight:hover { background: var(--green-highlight); color: var(--ink); }
+.site-footer .footer-top { border-bottom-color: var(--paper-line); }
+.site-footer .footer-brand { color: var(--paper-ink); }
+.site-footer .footer-tag, .site-footer .footer-bottom { color: var(--paper-dim); }
+.site-footer .footer-col h4 { color: var(--paper-dim); }
+.site-footer .footer-col a, .site-footer .footer-col p { color: var(--paper-ink); }
+.site-footer .footer-col a:hover { color: var(--green-on-dark); }
+.site-footer a:focus-visible, .site-footer button:focus-visible { outline-color: var(--green-on-dark); }
+.site-footer .footer-bottom a { color: var(--paper-ink); }
+
+/* Musings cards: quiet metadata, no repeated labels. */
+.musings-card-time { font-size: var(--fs-sm); letter-spacing: 0; text-transform: none; color: var(--ink-faint); }
+.musings-card-meta { border-bottom: none; padding-bottom: 0; margin-bottom: var(--space-2); }
+
+/* Cards reveal on hover instead of jumping: a brand line draws in along
+   the top edge, the title takes the accent color. */
+a.pillar.pillar-link, .musings-card { position: relative; }
+a.pillar.pillar-link::before, .musings-card::before {
+  content: ""; position: absolute; left: 0; right: 0; top: -1px; height: 2px;
+  background: var(--green); transform: scaleX(0); transform-origin: left;
+  transition: transform 0.4s var(--ease);
+}
+.section-light a.pillar.pillar-link::before { background: var(--green-on-dark); }
+a.pillar.pillar-link:hover::before, a.pillar.pillar-link:focus-visible::before,
+.musings-card:hover::before, .musings-card:focus-within::before { transform: scaleX(1); }
+a.pillar.pillar-link:hover, a.pillar.pillar-link:focus-visible { transform: none; }
+.musings-card:hover { transform: none; box-shadow: var(--shadow-sm); }
+a.pillar.pillar-link:hover h3, .musings-card:hover h3 { color: var(--green); }
+.section-light a.pillar.pillar-link:hover h3 { color: var(--paper-ink); }
+a.pillar.pillar-link h3, .musings-card h3 { transition: color 0.25s ease; }
+
+/* Stats: big serif numerals with thin dividers. */
+.stat-row { border: none; padding: 0; gap: 0; }
+.stat { padding: 0 var(--space-4); border-left: 1px solid var(--line); }
+.stat:first-child { padding-left: 0; border-left: none; }
+.stat .num { font-variant-numeric: lining-nums tabular-nums; font-size: clamp(3rem, 6vw, 4.75rem); }
+@media (max-width: 700px) {
+  .stat { padding: var(--space-3) 0 0; border-left: none; border-top: 1px solid var(--line); }
+  .stat:first-child { border-top: none; padding-top: 0; }
+}
+
+/* Header settles to a slimmer bar once you scroll. */
+.nav-inner { transition: padding 0.25s var(--ease); }
+.site-header.is-scrolled .nav-inner { padding-top: 0.9rem; padding-bottom: 0.9rem; }
+
+/* Quotes hang their opening mark into the margin. */
+blockquote { hanging-punctuation: first; }
+
+/* Testimonials: a large, steady quote with a hanging mark; rows show
+   clearly which one is selected. */
+.testimonial-panel { min-height: 22rem; box-shadow: var(--shadow-md); }
+.testimonial-quote { font-style: italic; font-weight: 400; font-size: clamp(1.3rem, 2.2vw, 1.75rem); line-height: 1.38; position: relative; }
+.testimonial-quote::before {
+  content: "\201C"; position: absolute; left: -0.08em; top: -0.62em;
+  font-size: 3.2em; line-height: 1; color: var(--green); opacity: 0.35; font-style: normal;
+}
+.testimonial-trigger { min-height: 44px; padding-left: var(--space-2); border-left: 2px solid transparent; transition: background-color 0.2s ease, border-color 0.2s ease; }
+.testimonial-row:hover .testimonial-trigger { background: var(--bg-alt); }
+.testimonial-row.is-active .testimonial-trigger { border-left-color: var(--green); }
+@media (max-width: 860px) { .testimonial-panel { min-height: 0; position: static; } }
+
+/* The section that introduces a grid sits close to it. */
+section:has(+ .flow-scroll), section:has(+ .stack-scroll) { padding-bottom: var(--space-5); }
+
+/* Articles read like print: a larger reading column and a drop cap. */
+.article-body p, .article-body li { font-size: 1.1875rem; line-height: 1.65; max-width: 64ch; }
+.article-body > p:first-of-type::first-letter {
+  font-family: var(--display); float: left; font-size: 3.6em; line-height: 0.85;
+  padding: 0.06em 0.1em 0 0; color: var(--ink);
+}
+
+/* One left edge: logo, hero and page content share the container line. */
+.nav-inner, .hero-inner { max-width: var(--maxw); margin-left: auto; margin-right: auto; }
+
+/* Slimmer header (it was 96px tall on phones). */
+.nav-inner { padding-top: 1.1rem; padding-bottom: 1.1rem; }
+@media (max-width: 860px) { .nav-inner { padding-top: 0.6rem; padding-bottom: 0.6rem; } }
+.site-header.is-scrolled { box-shadow: 0 1px 12px rgba(15, 36, 64, 0.06); }
+section[id], [id] { scroll-margin-top: 96px; }
+
+/* No doubled gaps between two sections on the same background. */
+main > section:not(.section-light):not(.hero):not(.page-hero) + section:not(.section-light):not(.stack-cover) { padding-top: 0; }
+
+/* Form fields: a clear focus line, and the label lights up with it. */
+input:focus, textarea:focus, select:focus { box-shadow: 0 2px 0 0 var(--green); }
+.contact-drawer input:focus, .contact-drawer textarea:focus, .contact-drawer select:focus { box-shadow: 0 2px 0 0 var(--green-on-dark); }
+.drawer-grid > div:focus-within label { color: var(--paper-ink); }
+
+/* Contact page: reserve the form's space so nothing jumps while it loads. */
+body[data-contact-page] .contact-drawer { min-height: 100svh; }
+
+/* Bio dialog eases in instead of snapping. */
+.roster-dialog[open] { animation: dlg-in 0.28s var(--ease); }
+.roster-dialog[open]::backdrop { animation: dlg-fade 0.28s ease; }
+@keyframes dlg-in { from { opacity: 0; transform: translateY(10px) scale(0.99); } to { opacity: 1; transform: none; } }
+@keyframes dlg-fade { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .roster-dialog[open], .roster-dialog[open]::backdrop { animation: none; }
+}
+
+/* Testimonial quote crossfades when it changes (main.js toggles .is-swapping). */
+.testimonial-quote { transition: opacity 0.2s ease; }
+.testimonial-quote.is-swapping { opacity: 0; }
+
+/* Shared line-heights: running text 1.6, UI and meta 1.4. */
+.nav-links, .btn, label, .video-caption, .musings-card-time, .roster-card-role, .team-teaser-role, .stat .label, .footer-col a { line-height: 1.4; }
+
+@media print {
+  .site-header, .site-footer, #attractor-bg, .nav-toggle, .hero-actions, .cta-band, .signed-note, .skip-link { display: none !important; }
+  body { font-size: 12pt; color: #000; }
+  .reveal { opacity: 1 !important; transform: none !important; }
+  a[href^="http"]::after { content: " (" attr(href) ")"; font-size: 0.85em; }
+}
+.footer-lead-line { max-width: 22ch; }
+.page-hero { padding-bottom: var(--space-5); }
+
+/* Round 2 follow-ups: stacked pillars get horizontal dividers; invalid fields stay red on focus */
+@media (max-width: 860px) {
+  .grid-3 .pillar { border-right: none; border-bottom: 1px solid var(--line); }
+  .section-light .grid-3 .pillar { border-bottom-color: var(--paper-line); }
+  .grid-3 .pillar:last-child { border-bottom: none; }
+}
+[aria-invalid="true"], [aria-invalid="true"]:focus { border-color: #b3261e; }
+[aria-invalid="true"]:focus { box-shadow: 0 2px 0 0 #b3261e; }
