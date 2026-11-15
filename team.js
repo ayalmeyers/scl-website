@@ -20,7 +20,7 @@ window.SCL_TEAM = [
   {
     id: "farhad",
     name: "Farhad Motiwalla",
-    role: "Consultant",
+    role: "Founder",
     photo: "farhad-motiwalla.jpg",
     photoWidth: 600,
     photoHeight: 600,
