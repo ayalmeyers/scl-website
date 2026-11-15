@@ -22,16 +22,17 @@
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
 <link rel="manifest" href="site.webmanifest" />
 <meta name="theme-color" content="#0f2440" />
+<script>document.documentElement.classList.add('js')</script>
 <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+<a href="#main" class="skip-link">Skip to content</a>
 
-<canvas id="attractor-bg" aria-hidden="true"></canvas>
 
 <header class="site-header">
   <div class="nav-inner">
     <a href="index.html" class="brand">
-      <img src="logo-mark.png" alt="" class="brand-icon" />
+      <img src="logo-mark-64.png" alt="" class="brand-icon" width="64" height="55" />
       <strong>Strategic Communication Lab</strong>
       <span>Coaches · Counsel · Consultants</span>
     </a>
@@ -42,11 +43,11 @@
       <a href="musings.html" data-nav class="is-active">Musings</a>
       <a href="contact.html" class="nav-cta" data-nav>Contact Us</a>
     </nav>
-    <button class="nav-toggle" aria-label="Toggle navigation"><span></span><span></span><span></span></button>
+    <button class="nav-toggle" type="button" aria-label="Open menu"><span></span><span></span><span></span></button>
   </div>
 </header>
 
-<main>
+<main id="main">
   <section class="page-hero">
     <div class="container">
       <span class="crumb reveal"><a href="musings.html">Musings</a> / Listen to be Heard</span>
@@ -60,17 +61,9 @@
         <span>SCL Musings</span>
       </div>
       <div class="article-body reveal">
-        <p>Effective communication requires reciprocal listening. Developing your speaking skills — clarity, engagement, coherence — helps you convey a message. But true persuasiveness depends on being heard generously by others. And to receive generous listening, you must first listen generously to others.</p>
-        <p>That means:</p>
-        <ul>
-          <li>Demonstrating genuine comprehension of what others truly communicate, including what goes unspoken.</li>
-          <li>Reading between the lines and the pauses to understand underlying tension and intention.</li>
-          <li>Setting aside personal assumptions, biases, and agendas.</li>
-          <li>Showing an authentic desire to build mutually beneficial understanding.</li>
-          <li>Maintaining genuine curiosity and openness.</li>
-        </ul>
-        <p><em>"To be heard, first be willing to hear. To be listened to, first be willing to demonstrate you are listening."</em></p>
-        <p>Authentic listening creates the foundation for being truly heard and understood by others — a fundamental principle for effective leadership communication, and one that no framework or technique can substitute for.</p>
+        <p>One of the hardest things in communication is trying to get others to hear what is being said. So we work on our skills to be engaging, coherent, clear, meaningful. While useful, this is invariably a compromised approach in being convincing, compelling or persuasive.</p>
+        <p>To be convincing, compelling or persuasive, you need others to hear you generously. To be heard or listened to generously, you need to first listen to others generously. You need to demonstrate clearly that you have understood what the other is truly saying, valuing and wanting you to hear. It requires you to read/listen between the lines, between the words, within the pause. It requires you to pick up on the tension and the intension behind what is being said. It requires you to truly put your own suppositions, preconceived notions, biases, agendas to the side. It requires you to demonstrate a high degree of desire to understand with intent to create mutually beneficial value. It requires you to be truly of an open mind and, most importantly, be curious.</p>
+        <blockquote class="pull-quote"><p>“To be heard, first be willing to hear. To be listened to, first be willing to demonstrate you are listening.”</p></blockquote>
       </div>
     </div>
   </section>
@@ -89,7 +82,7 @@
         </div>
         <div class="post-row reveal">
           <span class="date">Musings</span>
-          <div><h3>Finding the Right Mix: Leadership vs. "Executiveship"</h3></div>
+          <div><h3>Finding the Right Mix: Leadership vs. “Executiveship”</h3></div>
           <a href="great-leadership.html" class="read">Read →</a>
         </div>
       </div>
@@ -99,10 +92,15 @@
 
 <footer class="site-footer">
   <div class="container">
+    <div class="footer-lead">
+      <p class="footer-lead-line">Aligning communication with intended results.</p>
+      <div class="footer-lead-contact">
+        <a href="tel:18772666522" class="footer-phone">1-877-266-6522</a>
+      </div>
+    </div>
     <div class="footer-top">
       <div>
-        <div class="footer-brand"><img src="logo-mark.png" alt="" />Strategic Communication Lab</div>
-        <p class="footer-tag">Aligning communication with intended results — as coaches, as counsel, and as consultants.</p>
+        <div class="footer-brand"><img src="logo-mark-64.png" alt="" width="64" height="55" loading="lazy" />Strategic Communication Lab</div>
       </div>
       <div class="footer-col">
         <h4>Explore</h4>

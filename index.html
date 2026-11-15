@@ -22,6 +22,7 @@
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
 <link rel="manifest" href="site.webmanifest" />
 <meta name="theme-color" content="#0f2440" />
+<script>document.documentElement.classList.add('js')</script>
 <link rel="stylesheet" href="style.css" />
 <script type="application/ld+json">
 {
@@ -36,13 +37,14 @@
 </script>
 </head>
 <body>
+<a href="#main" class="skip-link">Skip to content</a>
 
 <canvas id="attractor-bg" aria-hidden="true"></canvas>
 
 <header class="site-header">
   <div class="nav-inner">
     <a href="index.html" class="brand">
-      <img src="logo-mark.png" alt="" class="brand-icon" />
+      <img src="logo-mark-64.png" alt="" class="brand-icon" width="64" height="55" />
       <strong>Strategic Communication Lab</strong>
       <span>Coaches · Counsel · Consultants</span>
     </a>
@@ -53,22 +55,29 @@
       <a href="musings.html" data-nav>Musings</a>
       <a href="contact.html" class="nav-cta" data-nav>Contact Us</a>
     </nav>
-    <button class="nav-toggle" aria-label="Toggle navigation"><span></span><span></span><span></span></button>
+    <button class="nav-toggle" type="button" aria-label="Open menu"><span></span><span></span><span></span></button>
   </div>
 </header>
 
-<main>
+<main id="main">
 
   <!-- HERO -->
   <section class="hero">
     <div class="hero-inner">
       <span class="eyebrow reveal">Coaches · Counsel · Consultants</span>
       <h1 class="reveal reveal-delay-1">Aligning communication with <em>intended results.</em></h1>
-      <p class="lede reveal reveal-delay-2">Strategic Communication Lab helps senior leaders and their teams prepare for the moments that matter: the board meeting, the big pitch, the hard conversation, the change that has to land.</p>
+      <p class="lede reveal reveal-delay-2">When a significant deal or major change initiative is at stake, business leaders look to SCL for guidance on the strategic thinking and communication practices needed to ensure success.</p>
       <div class="hero-actions reveal reveal-delay-3">
-        <a href="contact.html" class="btn btn-highlight">Start a conversation <span class="arrow">→</span></a>
+        <a href="contact.html" class="btn btn-highlight">Contact us <span class="arrow">→</span></a>
         <a href="what-we-do.html" class="btn btn-primary">See what we do <span class="arrow">→</span></a>
       </div>
+      <figure class="signed-note reveal reveal-delay-3">
+        <img src="farhad-motiwalla.jpg" alt="Farhad Motiwalla" width="600" height="600" decoding="async" />
+        <div>
+          <blockquote>&ldquo;Leadership requires a high degree of versatility.&rdquo;</blockquote>
+          <figcaption>Farhad Motiwalla, Founder</figcaption>
+        </div>
+      </figure>
     </div>
     <div class="scroll-cue">
       <span class="line"></span>
@@ -81,8 +90,8 @@
     <div class="container">
       <div class="section-head reveal">
         <span class="eyebrow">Who We Are</span>
-        <h2>A senior bench for your hardest conversations.</h2>
-        <p class="lede">Our coaches, counselors, and consultants prepare leaders for the moments that matter, anywhere in the world. Every engagement is met with <mark>curiosity, possibility, and delivery</mark>.</p>
+        <h2>We are a community of young and old, naive and wise.</h2>
+        <p class="lede">Our desires to build and contribute are met with <mark>curiosity, possibility, and delivery</mark>. SCL has a team of deeply experienced consultants, coaches, and facilitators ready to be deployed against small and large engagements anywhere in the world.</p>
       </div>
     </div>
   </section>
@@ -92,27 +101,27 @@
       <div class="flow-track">
         <article class="flow-box">
           <div class="flow-box-visual has-photo" aria-hidden="true">
-            <img src="01.jpg" alt="" loading="lazy" />
+            <img src="01.jpg" alt="" width="1080" height="1049" loading="lazy" decoding="async" />
           </div>
           <span class="num">01</span>
           <h3>Coaches</h3>
-          <p>We work with leaders and teams to refine their communication abilities in preparation for significant events and high-stakes initiatives.</p>
+          <p>We work with leaders and their teams to clarify, align, and strengthen the communication skills needed to prepare for key events and high-stakes initiatives.</p>
         </article>
         <article class="flow-box">
           <div class="flow-box-visual has-photo" aria-hidden="true">
-            <img src="02.jpeg" alt="" loading="lazy" />
+            <img src="02.jpeg" alt="" width="1080" height="720" loading="lazy" decoding="async" />
           </div>
           <span class="num">02</span>
           <h3>Counsel</h3>
-          <p>We combine leadership advisory with communication development, serving as a strategic sounding board to align vision and action.</p>
+          <p>We are uniquely qualified to combine leadership counsel with communication skills development. We provide a sounding board to ensure that the vision is well aligned with required actions.</p>
         </article>
         <article class="flow-box">
           <div class="flow-box-visual has-photo" aria-hidden="true">
-            <img src="03.jpg" alt="" loading="lazy" />
+            <img src="03.jpg" alt="" width="864" height="576" loading="lazy" decoding="async" />
           </div>
           <span class="num">03</span>
           <h3>Consultants</h3>
-          <p>We enable executives to craft strategically sound solutions and navigate demanding meetings with confidence and credibility.</p>
+          <p>We enable executives to develop strategically appropriate solutions and manage high-stakes meetings with confidence, clarity, and credibility.</p>
         </article>
       </div>
     </div>
@@ -122,8 +131,8 @@
     <div class="container">
       <div class="section-head reveal">
         <span class="eyebrow">Our Team</span>
-        <h2>Seasoned professionals, ready when you are.</h2>
-        <p class="lede">A team of skillful, dynamic consultants, coaches, and facilitators — prepared to handle engagements of any scale, anywhere in the world.</p>
+        <h2>Meet our consultants.</h2>
+        <p class="lede">SCL&rsquo;s value is driven by our skillful, dynamic consultants, coaches, and facilitators.</p>
       </div>
       <div class="team-teaser-grid reveal" data-team-teaser></div>
       <noscript>
@@ -148,7 +157,7 @@
     <div class="container">
       <div class="section-head reveal">
         <span class="eyebrow">Insights in Motion</span>
-        <h2>Two conversations with SCL's consultants.</h2>
+        <h2>Two conversations with SCL’s consultants.</h2>
         <p class="lede">Short videos on executive presence and on putting the right people behind your strategy.</p>
       </div>
     </div>
@@ -164,7 +173,7 @@
               <svg viewBox="0 0 24 24" class="video-card-icon" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M9.5 8.3v7.4l6.3-3.7-6.3-3.7z" fill="currentColor"/></svg>
             </button>
           </div>
-          <span class="num">01 / 02</span>
+          <p class="video-caption"><strong>Executive presence.</strong> How senior leaders show up, speak, and are heard.</p>
         </article>
         <article class="stack-box video-card" data-video-card data-stack-index="1">
           <div class="video-card-poster has-photo is-designed" data-video-embed="scl-develop-layer-hire.mp4">
@@ -173,13 +182,11 @@
               <svg viewBox="0 0 24 24" class="video-card-icon" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M9.5 8.3v7.4l6.3-3.7-6.3-3.7z" fill="currentColor"/></svg>
             </button>
           </div>
-          <span class="num">02 / 02</span>
+          <p class="video-caption"><strong>Develop, layer, or hire.</strong> Farhad Motiwalla on aligning people with strategy.</p>
         </article>
       </div>
     </div>
   </section>
-
-  <hr class="rule container" />
 
   <!-- WHAT WE DO -->
   <section class="section-light stack-cover">
@@ -206,7 +213,7 @@
         <a href="strategic-communication-consulting.html" class="pillar pillar-link reveal reveal-delay-2">
           <span class="num">Consulting</span>
           <h3>Strategic Communication Consulting</h3>
-          <p>Practical, powerful processes and tools for developing strategically appropriate solutions to organization-specific challenges and needs.</p>
+          <p>Practical but powerful processes and tools for developing strategically appropriate solutions to organization-specific challenges and needs.</p>
           <span class="more">Learn more <span class="arrow">→</span></span>
         </a>
       </div>
@@ -224,12 +231,12 @@
       <div class="section-head reveal">
         <span class="eyebrow">Our Reach</span>
         <h2>From fast-growing start-ups to blue-chip multinationals.</h2>
-        <p class="lede">SCL works across North America, Europe, Asia, and the Middle East, on engagements of every scale.</p>
+        <p class="lede">SCL operates across North America, Europe, Asia, and the Middle East.</p>
       </div>
       <div class="stat-row reveal">
         <div class="stat"><span class="num">20+</span><span class="label">Years advising leaders</span></div>
         <div class="stat"><span class="num">4</span><span class="label">Continents served</span></div>
-        <div class="stat"><span class="num">14</span><span class="label">Industries, from start-ups to the Fortune 100</span></div>
+        <div class="stat"><span class="num">14</span><span class="label">Industries served</span></div>
       </div>
     </div>
   </section>
@@ -243,40 +250,40 @@
       </div>
       <div class="testimonial reveal">
         <div class="testimonial-panel">
-          <blockquote class="testimonial-quote" data-testimonial-quote>"SCL has provided my organization with senior leadership coaching support, both at individual and team levels. The value provided comes from unlocking the full potential of leadership contributions to business performance."</blockquote>
+          <blockquote class="testimonial-quote" data-testimonial-quote>SCL has provided my organization with senior leadership coaching support, both at individual and team levels. The value provided comes from unlocking the full potential of leadership contributions to business performance.</blockquote>
         </div>
         <ul class="testimonial-list">
-          <li class="testimonial-row is-active" data-testimonial-row data-quote="&quot;SCL has provided my organization with senior leadership coaching support, both at individual and team levels. The value provided comes from unlocking the full potential of leadership contributions to business performance.&quot;">
+          <li class="testimonial-row is-active" data-testimonial-row data-quote="SCL has provided my organization with senior leadership coaching support, both at individual and team levels. The value provided comes from unlocking the full potential of leadership contributions to business performance.">
             <button type="button" class="testimonial-trigger" data-testimonial-trigger>
               <span class="testimonial-dot" aria-hidden="true"></span>
               <span class="testimonial-line"><span class="testimonial-title">President</span><span class="testimonial-connector">at</span><span class="testimonial-org">Fortune 100 Company</span></span>
             </button>
           </li>
-          <li class="testimonial-row" data-testimonial-row data-quote="&quot;I would describe my interaction with SCL as: Insightful, Actionable, Inspiring, Motivational. Their advice and guidance is a critical part of my leadership.&quot;">
+          <li class="testimonial-row" data-testimonial-row data-quote="I would describe my interaction with SCL as: Insightful, Actionable, Inspiring, Motivational. Their advice and guidance is a critical part of my leadership.">
             <button type="button" class="testimonial-trigger" data-testimonial-trigger>
               <span class="testimonial-dot" aria-hidden="true"></span>
               <span class="testimonial-line"><span class="testimonial-title">Managing Director</span><span class="testimonial-connector">at</span><span class="testimonial-org">International Financial Institution</span></span>
             </button>
           </li>
-          <li class="testimonial-row" data-testimonial-row data-quote="&quot;SCL's ability to understand and adapt to an organization's culture, while still providing unique perspectives, is exceptional.&quot;">
+          <li class="testimonial-row" data-testimonial-row data-quote="SCL’s ability to understand and adapt to an organization’s culture, while still providing unique perspectives, is exceptional.">
             <button type="button" class="testimonial-trigger" data-testimonial-trigger>
               <span class="testimonial-dot" aria-hidden="true"></span>
               <span class="testimonial-line"><span class="testimonial-title">Chief Strategy Officer</span><span class="testimonial-connector">at</span><span class="testimonial-org">Top-Tier Teaching Hospital</span></span>
             </button>
           </li>
-          <li class="testimonial-row" data-testimonial-row data-quote="&quot;SCL has raised the bar on management skills in our Corporate Group, and has worked successfully with our mid-level bankers in terms of key skills to accelerate their career progress.&quot;">
+          <li class="testimonial-row" data-testimonial-row data-quote="SCL has raised the bar on management skills in our Corporate Group, and has worked successfully with our mid-level bankers in terms of key skills to accelerate their career progress.">
             <button type="button" class="testimonial-trigger" data-testimonial-trigger>
               <span class="testimonial-dot" aria-hidden="true"></span>
               <span class="testimonial-line"><span class="testimonial-title">Managing Director</span><span class="testimonial-connector">at</span><span class="testimonial-org">Global Investment Bank Advisory</span></span>
             </button>
           </li>
-          <li class="testimonial-row" data-testimonial-row data-quote="&quot;The SCL team definitely helps increase our win rate on important opportunities. We have brought them in on numerous occasions where the stakes were high. They run a very efficient pitch development process that keeps our people focused on what really matters. We rely on SCL to challenge our thinking about our messages and their impact on our prospects.&quot;">
+          <li class="testimonial-row" data-testimonial-row data-quote="The SCL team definitely helps increase our win rate on important opportunities. We have brought them in on numerous occasions where the stakes were high. They run a very efficient pitch development process that keeps our people focused on what really matters. We rely on SCL to challenge our thinking about our messages and their impact on our prospects.">
             <button type="button" class="testimonial-trigger" data-testimonial-trigger>
               <span class="testimonial-dot" aria-hidden="true"></span>
               <span class="testimonial-line"><span class="testimonial-title">SVP Multinational Sales</span><span class="testimonial-connector">at</span><span class="testimonial-org">Fortune 100 Expense Management Company</span></span>
             </button>
           </li>
-          <li class="testimonial-row" data-testimonial-row data-quote="&quot;We consider SCL an integral part of our ongoing advisory team. Their advice is consistently insightful and applicable and helps us get the most mileage out of meetings with serious investor prospects.&quot;">
+          <li class="testimonial-row" data-testimonial-row data-quote="We consider SCL an integral part of our ongoing advisory team. Their advice is consistently insightful and applicable and helps us get the most mileage out of meetings with serious investor prospects.">
             <button type="button" class="testimonial-trigger" data-testimonial-trigger>
               <span class="testimonial-dot" aria-hidden="true"></span>
               <span class="testimonial-line"><span class="testimonial-title">Partner</span><span class="testimonial-connector">at</span><span class="testimonial-org">New York-Based Hedge Fund</span></span>
@@ -296,33 +303,30 @@
     <div class="container">
       <div class="section-head reveal">
         <span class="eyebrow">Musings</span>
-        <h2>Short reflections on the habits and disciplines of effective communication.</h2>
-        <p class="lede">Field notes from SCL's consultants on the tensions and skills that shape how leaders show up, speak, and are heard.</p>
+        <h2>Musings from the Lab.</h2>
+        <p class="lede">At SCL, we pride ourselves on constantly improving our methods and materials. Business changes constantly, and we strive to stay at the forefront of emerging trends to share our expertise with our clients and community.</p>
       </div>
 
       <div class="grid-3">
         <a href="managing-virtual-impressions.html" class="pillar pillar-link reveal">
-          <span class="num">Musings</span>
-          <h3>Managing Virtual Impressions: The 5 Cs</h3>
-          <p>What you say is important, but how you come across when you say it matters even more — a framework for virtual presence.</p>
+                    <h3>Managing Virtual Impressions: The 5 Cs</h3>
+          <p>What you say is important, but how you come across when you say it matters even more.</p>
           <span class="more">Read <span class="arrow">→</span></span>
         </a>
         <a href="great-leadership.html" class="pillar pillar-link reveal reveal-delay-1">
-          <span class="num">Musings</span>
-          <h3>Finding the Right Mix: Leadership vs. "Executiveship"</h3>
-          <p>Execution appears to have come at the expense of leadership. Neither is enough alone — it's the balance that makes a team great.</p>
+                    <h3>Finding the Right Mix: Leadership vs. “Executiveship”</h3>
+          <p>Things get done by those who execute. But execution has come at the expense of leadership.</p>
           <span class="more">Read <span class="arrow">→</span></span>
         </a>
         <a href="learn-to-listen.html" class="pillar pillar-link reveal reveal-delay-2">
-          <span class="num">Musings</span>
-          <h3>Listen to be Heard</h3>
-          <p>To be heard, first be willing to hear. Generous listening is the foundation of persuasive communication.</p>
+                    <h3>Listen to be Heard</h3>
+          <p>One of the hardest things in communication is trying to get others to hear what is being said.</p>
           <span class="more">Read <span class="arrow">→</span></span>
         </a>
       </div>
 
       <a href="musings.html" class="teaser-cta reveal">
-        <span class="teaser-cta-label">Read more musings</span>
+        <span class="teaser-cta-label">View all musings</span>
         <span class="arrow-circle"><span class="arrow">→</span></span>
       </a>
     </div>
@@ -333,7 +337,7 @@
     <div class="container">
       <div class="cta-band reveal">
         <h2>Ready to align your communication with intended results?</h2>
-        <a href="contact.html" class="btn btn-highlight">Start a conversation <span class="arrow">→</span></a>
+        <a href="contact.html" class="btn btn-highlight">Contact us <span class="arrow">→</span></a>
       </div>
     </div>
   </section>
@@ -342,10 +346,15 @@
 
 <footer class="site-footer">
   <div class="container">
+    <div class="footer-lead">
+      <p class="footer-lead-line">Aligning communication with intended results.</p>
+      <div class="footer-lead-contact">
+        <a href="tel:18772666522" class="footer-phone">1-877-266-6522</a>
+      </div>
+    </div>
     <div class="footer-top">
       <div>
-        <div class="footer-brand"><img src="logo-mark.png" alt="" />Strategic Communication Lab</div>
-        <p class="footer-tag">Aligning communication with intended results — as coaches, as counsel, and as consultants.</p>
+        <div class="footer-brand"><img src="logo-mark-64.png" alt="" width="64" height="55" loading="lazy" />Strategic Communication Lab</div>
       </div>
       <div class="footer-col">
         <h4>Explore</h4>

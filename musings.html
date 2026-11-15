@@ -22,18 +22,18 @@
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
 <link rel="manifest" href="site.webmanifest" />
 <meta name="theme-color" content="#0f2440" />
+<script>document.documentElement.classList.add('js')</script>
 <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
 <a href="#main" class="skip-link">Skip to content</a>
 
-<canvas id="attractor-bg" aria-hidden="true"></canvas>
 
 <header class="site-header">
   <div class="nav-inner">
     <a href="index.html" class="brand">
-      <img src="logo-mark.png" alt="" class="brand-icon" />
+      <img src="logo-mark-64.png" alt="" class="brand-icon" width="64" height="55" />
       <strong>Strategic Communication Lab</strong>
       <span>Coaches · Counsel · Consultants</span>
     </a>
@@ -44,7 +44,7 @@
       <a href="musings.html" data-nav class="is-active" aria-current="page">Musings</a>
       <a href="contact.html" class="nav-cta" data-nav>Contact Us</a>
     </nav>
-    <button class="nav-toggle" aria-label="Toggle navigation"><span></span><span></span><span></span></button>
+    <button class="nav-toggle" type="button" aria-label="Open menu"><span></span><span></span><span></span></button>
   </div>
 </header>
 
@@ -52,8 +52,8 @@
   <section class="page-hero">
     <div class="container">
       <span class="eyebrow reveal">Musings</span>
-      <h1 class="reveal reveal-delay-1">Notes on leadership and listening.</h1>
-      <p class="lede reveal reveal-delay-2">Short reflections from SCL's consultants on the habits, tensions, and disciplines that shape effective communication.</p>
+      <h1 class="reveal reveal-delay-1">Musings from the Lab.</h1>
+      <p class="lede reveal reveal-delay-2">At SCL, we pride ourselves on constantly improving our methods and materials. Business changes constantly, and we strive to stay at the forefront of emerging trends to share our expertise with our clients and community.</p>
     </div>
   </section>
 
@@ -66,34 +66,28 @@
 
         <article class="musings-card reveal">
           <div class="musings-card-meta">
-            <span class="musings-card-tag">01 / 03</span>
-            <span class="musings-card-badge">WRITING</span>
-            <span class="musings-card-time">4 MIN READ</span>
+            <span class="musings-card-time">4 min read</span>
           </div>
           <h3>Managing Virtual Impressions: The 5 Cs</h3>
-          <p class="excerpt">What you say is important, but how you come across when you say it matters even more — a framework for virtual presence.</p>
+          <p class="excerpt">What you say is important, but how you come across when you say it matters even more.</p>
           <a href="managing-virtual-impressions.html" class="read" aria-label="Read: Managing Virtual Impressions: The 5 Cs">Read →</a>
         </article>
 
         <article class="musings-card reveal reveal-delay-1">
           <div class="musings-card-meta">
-            <span class="musings-card-tag">02 / 03</span>
-            <span class="musings-card-badge">WRITING</span>
-            <span class="musings-card-time">5 MIN READ</span>
+            <span class="musings-card-time">5 min read</span>
           </div>
-          <h3>Finding the Right Mix: Leadership vs. "Executiveship"</h3>
-          <p class="excerpt">Execution appears to have come at the expense of leadership. Neither is enough alone — it's the balance that makes a team great.</p>
+          <h3>Finding the Right Mix: Leadership vs. “Executiveship”</h3>
+          <p class="excerpt">Things get done by those who execute. But execution has come at the expense of leadership.</p>
           <a href="great-leadership.html" class="read" aria-label="Read: Finding the Right Mix: Leadership vs. Executiveship">Read →</a>
         </article>
 
         <article class="musings-card reveal reveal-delay-2">
           <div class="musings-card-meta">
-            <span class="musings-card-tag">03 / 03</span>
-            <span class="musings-card-badge">WRITING</span>
-            <span class="musings-card-time">3 MIN READ</span>
+            <span class="musings-card-time">3 min read</span>
           </div>
           <h3>Listen to be Heard</h3>
-          <p class="excerpt">To be heard, first be willing to hear. Generous listening is the foundation of persuasive communication.</p>
+          <p class="excerpt">One of the hardest things in communication is trying to get others to hear what is being said.</p>
           <a href="learn-to-listen.html" class="read" aria-label="Read: Listen to be Heard">Read →</a>
         </article>
 
@@ -105,7 +99,7 @@
     <div class="container">
       <div class="section-head reveal">
         <span class="eyebrow">Insights in Motion</span>
-        <h2>Two conversations with SCL's consultants.</h2>
+        <h2>Two conversations with SCL’s consultants.</h2>
         <p class="lede">Short videos on executive presence and on putting the right people behind your strategy.</p>
       </div>
     </div>
@@ -121,7 +115,7 @@
               <svg viewBox="0 0 24 24" class="video-card-icon" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M9.5 8.3v7.4l6.3-3.7-6.3-3.7z" fill="currentColor"/></svg>
             </button>
           </div>
-          <span class="num">01 / 02</span>
+          <p class="video-caption"><strong>Executive presence.</strong> How senior leaders show up, speak, and are heard.</p>
         </article>
         <article class="stack-box video-card" data-video-card data-stack-index="1">
           <div class="video-card-poster has-photo is-designed" data-video-embed="scl-develop-layer-hire.mp4">
@@ -130,7 +124,7 @@
               <svg viewBox="0 0 24 24" class="video-card-icon" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M9.5 8.3v7.4l6.3-3.7-6.3-3.7z" fill="currentColor"/></svg>
             </button>
           </div>
-          <span class="num">02 / 02</span>
+          <p class="video-caption"><strong>Develop, layer, or hire.</strong> Farhad Motiwalla on aligning people with strategy.</p>
         </article>
       </div>
     </div>
@@ -139,8 +133,8 @@
   <section class="section-alt stack-cover">
     <div class="container">
       <div class="cta-band reveal">
-        <h2>Want to put these ideas to work with your team?</h2>
-        <a href="contact.html" class="btn btn-highlight">Start a conversation <span class="arrow">→</span></a>
+        <h2>To discuss how we can best assist you with your needs, contact us.</h2>
+        <a href="contact.html" class="btn btn-highlight">Contact us <span class="arrow">→</span></a>
       </div>
     </div>
   </section>
@@ -148,10 +142,15 @@
 
 <footer class="site-footer">
   <div class="container">
+    <div class="footer-lead">
+      <p class="footer-lead-line">Aligning communication with intended results.</p>
+      <div class="footer-lead-contact">
+        <a href="tel:18772666522" class="footer-phone">1-877-266-6522</a>
+      </div>
+    </div>
     <div class="footer-top">
       <div>
-        <div class="footer-brand"><img src="logo-mark.png" alt="" />Strategic Communication Lab</div>
-        <p class="footer-tag">Aligning communication with intended results — as coaches, as counsel, and as consultants.</p>
+        <div class="footer-brand"><img src="logo-mark-64.png" alt="" width="64" height="55" loading="lazy" />Strategic Communication Lab</div>
       </div>
       <div class="footer-col">
         <h4>Explore</h4>

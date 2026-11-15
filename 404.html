@@ -12,16 +12,17 @@
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
 <link rel="manifest" href="site.webmanifest" />
 <meta name="theme-color" content="#0f2440" />
+<script>document.documentElement.classList.add('js')</script>
 <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+<a href="#main" class="skip-link">Skip to content</a>
 
-<canvas id="attractor-bg" aria-hidden="true"></canvas>
 
 <header class="site-header">
   <div class="nav-inner">
     <a href="index.html" class="brand">
-      <img src="logo-mark.png" alt="" class="brand-icon" />
+      <img src="logo-mark-64.png" alt="" class="brand-icon" width="64" height="55" />
       <strong>Strategic Communication Lab</strong>
       <span>Coaches · Counsel · Consultants</span>
     </a>
@@ -32,11 +33,11 @@
       <a href="musings.html" data-nav>Musings</a>
       <a href="contact.html" class="nav-cta" data-nav>Contact Us</a>
     </nav>
-    <button class="nav-toggle" aria-label="Toggle navigation"><span></span><span></span><span></span></button>
+    <button class="nav-toggle" type="button" aria-label="Open menu"><span></span><span></span><span></span></button>
   </div>
 </header>
 
-<main>
+<main id="main">
   <section class="page-hero">
     <div class="container">
       <span class="eyebrow">Page Not Found</span>
@@ -61,10 +62,15 @@
 
 <footer class="site-footer">
   <div class="container">
+    <div class="footer-lead">
+      <p class="footer-lead-line">Aligning communication with intended results.</p>
+      <div class="footer-lead-contact">
+        <a href="tel:18772666522" class="footer-phone">1-877-266-6522</a>
+      </div>
+    </div>
     <div class="footer-top">
       <div>
-        <div class="footer-brand"><img src="logo-mark.png" alt="" />Strategic Communication Lab</div>
-        <p class="footer-tag">Aligning communication with intended results — as coaches, as counsel, and as consultants.</p>
+        <div class="footer-brand"><img src="logo-mark-64.png" alt="" width="64" height="55" loading="lazy" />Strategic Communication Lab</div>
       </div>
       <div class="footer-col">
         <h4>Contact</h4>
