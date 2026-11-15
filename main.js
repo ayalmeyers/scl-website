@@ -83,6 +83,21 @@ document.addEventListener("DOMContentLoaded", function () {
   onScroll();
   window.addEventListener("scroll", onScroll, { passive: true });
 
+  // Fade the background line-art as the visitor leaves the hero, so it
+  // sits behind headlines only and never runs through cards or copy.
+  var bgCanvas = document.getElementById("attractor-bg");
+  if (bgCanvas) {
+    var fadeBg = function () {
+      var vh = window.innerHeight || 800;
+      var start = window.matchMedia("(max-width: 860px)").matches ? 0.45 : 1;
+      var t = Math.min(1, Math.max(0, window.scrollY / (vh * 0.7)));
+      bgCanvas.style.opacity = String(start - (start - 0.1) * t);
+    };
+    fadeBg();
+    window.addEventListener("scroll", fadeBg, { passive: true });
+    window.addEventListener("resize", fadeBg);
+  }
+
   if (toggle && links) {
     toggle.addEventListener("click", function () {
       links.classList.toggle("is-open");
@@ -249,9 +264,23 @@ function initVideoCards() {
       if (!poster) return;
       var src = poster.getAttribute("data-video-embed");
       if (!src) return;
+      var label = btn.getAttribute("aria-label") || "Video";
+      // Self-hosted clips (.mp4) play in a native <video> element with
+      // controls; anything else (Vimeo/YouTube) loads as an iframe.
+      if (/\.mp4(\?|$)/i.test(src)) {
+        var video = document.createElement("video");
+        video.src = src;
+        video.controls = true;
+        video.autoplay = true;
+        video.playsInline = true;
+        video.setAttribute("aria-label", label.replace(/^Play video:\s*/, ""));
+        poster.classList.add("has-embed");
+        poster.innerHTML = "";
+        poster.appendChild(video);
+        return;
+      }
       var iframe = document.createElement("iframe");
       iframe.src = src + (src.indexOf("?") > -1 ? "&" : "?") + "autoplay=1";
-      var label = btn.getAttribute("aria-label") || "Video";
       iframe.title = label.replace(/^Play video:\s*/, "");
       iframe.allow = "autoplay; fullscreen; picture-in-picture";
       iframe.allowFullscreen = true;
@@ -554,11 +583,11 @@ function initContactDrawer() {
       '<div class="drawer-resize-handle" id="drawer-resize-handle" title="Drag to resize"></div>' +
       '<div class="contact-drawer-top">' +
       '  <span class="eyebrow">Get In Touch</span>' +
-      '  <button type="button" class="drawer-close" id="drawer-close">Close <span class="key">↵</span></button>' +
+      (isContactPage ? '' : '  <button type="button" class="drawer-close" id="drawer-close" aria-label="Close contact form">Close <span class="key" aria-hidden="true">✕</span></button>') +
       "</div>" +
       '<div id="client-panel">' +
       '  <h2 id="drawer-heading">Tell us about your goals</h2>' +
-      '  <p class="sub">The more context you share, the faster we can match you with the right consultant.</p>' +
+      '  <p class="sub">The more context you share, the faster we can match you with the right consultant. Prefer to talk? Call <a href="tel:18772666522">1-877-266-6522</a>.</p>' +
       '  <p class="form-scope-note">This form is for clients and prospective clients. Vendor solicitations are not reviewed.</p>' +
       '  <form id="contact-form" novalidate>' +
       '    <div class="drawer-grid">' +
@@ -605,7 +634,7 @@ function initContactDrawer() {
       "    </label>" +
       '    <div class="drawer-submit-row">' +
       '      <p id="form-note"></p>' +
-      '      <button type="submit" class="drawer-send">Send <span class="key">↳</span></button>' +
+      '      <button type="submit" class="drawer-send">Send message <span class="arrow" aria-hidden="true">→</span></button>' +
       "    </div>" +
       "  </form>" +
       "</div>"
@@ -641,6 +670,17 @@ function initContactDrawer() {
     var purposeEl = document.querySelector("#purpose");
     var vendorNoteEl = document.querySelector("#vendor-note");
     var renderedAt = Date.now();
+
+    form.addEventListener("input", function (e) {
+      if (e.target && e.target.getAttribute("aria-invalid") === "true" && e.target.value.trim()) {
+        e.target.setAttribute("aria-invalid", "false");
+      }
+    });
+    form.addEventListener("change", function (e) {
+      if (e.target && e.target.getAttribute("aria-invalid") === "true" && e.target.value) {
+        e.target.setAttribute("aria-invalid", "false");
+      }
+    });
 
     if (purposeEl && vendorNoteEl) {
       purposeEl.addEventListener("change", function () {
@@ -682,14 +722,21 @@ function initContactDrawer() {
       var nameEl = document.querySelector("#name");
       var emailEl = document.querySelector("#email");
       var messageEl = document.querySelector("#message");
-      var missing = [nameEl, emailEl, messageEl].some(function (el) {
-        return el && !el.value.trim();
+      var invalid = [];
+      [nameEl, emailEl, messageEl, purposeEl].forEach(function (el) {
+        if (!el) return;
+        var bad = !el.value.trim() || (el === emailEl && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(el.value.trim()));
+        el.setAttribute("aria-invalid", bad ? "true" : "false");
+        if (bad) invalid.push(el);
       });
-      if (missing) {
+      if (invalid.length) {
         if (note) {
           note.className = "is-error";
-          note.textContent = "Please fill in your name, email, and message before sending.";
+          note.textContent = invalid.indexOf(emailEl) !== -1 && emailEl.value.trim()
+            ? "Please check your email address, and fill in the highlighted fields."
+            : "Please fill in the highlighted fields before sending.";
         }
+        invalid[0].focus();
         return;
       }
 
@@ -730,6 +777,9 @@ function initContactDrawer() {
         note.className = "is-pending";
         note.textContent = "Sending…";
       }
+      var sendBtn = form.querySelector(".drawer-send");
+      if (sendBtn) { sendBtn.disabled = true; sendBtn.setAttribute("aria-busy", "true"); }
+      var release = function () { if (sendBtn) { sendBtn.disabled = false; sendBtn.removeAttribute("aria-busy"); } };
 
       fetch(SCL_FORM_ENDPOINT, {
         method: "POST",
@@ -747,8 +797,10 @@ function initContactDrawer() {
               "Thank you. A member of our team will be in touch shortly.";
           }
           form.reset();
+          release();
         })
         .catch(function () {
+          release();
           if (note) {
             note.className = "is-error";
             note.textContent =
@@ -793,7 +845,7 @@ function initContactDrawer() {
       if (!isContactPage) closeDrawer();
     });
     document.addEventListener("keydown", function (e) {
-      if (e.key === "Escape") closeDrawer();
+      if (e.key === "Escape" && !isContactPage) closeDrawer();
     });
 
     built = true;
@@ -887,10 +939,12 @@ function initContactDrawer() {
     lastTrigger = triggerEl || document.activeElement;
     scrim.classList.add("is-open");
     drawer.classList.add("is-open");
-    drawer.setAttribute("role", "dialog");
-    drawer.setAttribute("aria-modal", "true");
-    drawer.setAttribute("aria-labelledby", "drawer-heading");
-    document.body.classList.add("contact-drawer-locked");
+    if (!isContactPage) {
+      drawer.setAttribute("role", "dialog");
+      drawer.setAttribute("aria-modal", "true");
+      drawer.setAttribute("aria-labelledby", "drawer-heading");
+      document.body.classList.add("contact-drawer-locked");
+    }
     if (purpose === "careers") {
       var heading = document.querySelector("#drawer-heading");
       var sub = document.querySelector("#client-panel .sub");
@@ -899,7 +953,7 @@ function initContactDrawer() {
       if (sub) sub.textContent = "Tell us about your background and the kind of engagements you're looking for.";
       if (purposeEl) purposeEl.value = "Joining SCL as a consultant";
     }
-    drawer.addEventListener("keydown", trapFocus);
+    if (!isContactPage) drawer.addEventListener("keydown", trapFocus);
     window.requestAnimationFrame(function () {
       var nameEl = document.querySelector("#name");
       if (nameEl) nameEl.focus({ preventScroll: true });

@@ -2,9 +2,9 @@
 
 This tracks what's done, what's deferred, and what needs a human decision before scl.us.com goes live on this codebase. It accompanies the `launch-final` branch/PR.
 
-## ⚠️ New finding this round — needs Farhad/JT/SJ decision before launch
+## Resolved: Meet Perry branding in the video poster
 
-**`thumb1.jpg`/`thumb1.png` (the "Leadership Counsel" video poster on index.html and musings.html) has "meetperry" branding burned into the image pixels** — visible in-frame: "meetperry" on a projection screen, plus "this is advancement" as on-screen text. This isn't an HTML/text mention (I'd already verified none of those exist); it's baked into the photo itself, so no grep or text search catches it. Per the real Sep 25 note, Meet Perry's branding/positioning on the site is still undecided ("no decision made, needs further thought"). I did not remove or hide this card myself — Ayal has, in this same working session, repeatedly and explicitly asked me to keep, enlarge, and refine this exact video card system, which reads as current direction overriding the older meeting note. But the team should know this specific image is sitting on the live site with third-party branding in it while that branding question is still open. **Owner: Farhad/JT/SJ** — decide whether this poster is acceptable as-is, needs a different frame grab, or should come down until the Meet Perry branding question is resolved.
+`thumb1.jpg` (Meet Perry logo and "this is advancement" burned into the frame) is removed from the repo. The second "Insights in Motion" card now plays a self-hosted SCL clip, `scl-develop-layer-hire.mp4` (Farhad on "develop, layer, or hire", cut from the Advancement recording with all Meet Perry material excluded), behind a new designed poster. The old Vimeo video `1227002649` is no longer linked anywhere on the site.
 
 ## Important: scope of this pass
 
@@ -19,6 +19,31 @@ Before starting, I pulled the actual Granola meeting notes (Sep 22 – Oct 16) r
 - Several other specifics in the pasted spec (an exact sound glitch at 0:24, a "leaders are born" dialogue slip, specific bio document filenames, specific email signatures) are not things I could verify in the notes available to me (30-day history limit on this Granola plan). I did not treat them as fact.
 
 ## Done this pass (verified by test)
+
+### Round 10: Monday-review polish (usability, readability, one primary action per view)
+
+A second agent audited every page at 375/768/1024/1440 from an executive reviewer's point of view (Farhad/JT/SJ), and this pass fixed what it found.
+
+- **Type and contrast.** Added a type scale (`--fs-label` 13px, `--fs-sm` 15px, `--fs-body` 17px, `--fs-lead` 18–21px) and remapped every hard-coded size to it. Body text was 15px and card copy, nav, labels and buttons were 10–13px. Secondary text colors are now solid tokens (`--ink-dim` about 9.6:1, `--ink-faint` about 6.6:1) instead of opacity-faded navy. Uppercase is now limited to short eyebrows. Nav, buttons, roles, form labels, footer links, stats and the service side-nav are sentence case.
+- **Text over the line-art.** The homepage and page heroes have a white scrim on the left, so headlines never sit on the lines. The canvas fades to 10% as you scroll past the hero, so it no longer runs through cards, the side-nav or body copy. On mobile it renders at 45%.
+- **One primary action per view.** `.btn-highlight` is now a filled navy button (white on the dark Musings band). Each page's closing CTA band uses it, says "Start a conversation", and sits in a tinted card. The homepage "Meet the full team / Explore everything we do / …" bars are now quiet text links. In the hero, "Start a conversation" is primary and "See what we do" is a text link.
+- **Homepage hero.** Restored "intended" ("Aligning communication with intended results."). Added a plain-English line on who SCL serves. Removed the absolutely positioned blurb that collided with the scroll cue.
+- **Copy reviewers would flag.** Replaced "young and old, naive and wise" and the three "deployed" phrasings. The What We Do intro is no longer a list of fragments. "Stay up to date with SCL" has been replaced on both pages where it appeared, since there is no newsletter. The second "fast-growing start-ups…" repeat on Our Clients is cut. The unexplained Judy Adler pull-quote is removed from Executive Coaching.
+- **Stats.** Removed "3 core disciplines / 1:1 confidential engagements". Shows **20+ years · 4 continents · 14 industries**. *Confirm "20+ years": it's based on the "2025 20th Anniversary" holiday folder in SharePoint.*
+- **Farhad's title.** Set to "Founder" in `team.js`, so the grid, teaser and dialog all match. Every other title is still unconfirmed (see below).
+- **Team grid.** Four columns on desktop (4 + 3), three on laptop, two on phones (it was one tall column of seven photos). The bio dialog is two-column at 768px and up, so the bio is readable without scrolling past a full-width photo.
+- **Video cards.** Both posters are now designed title cards (navy title plus photo, rendered at 2×), not a pillarboxed portrait with chevrons. The duplicate floating "Who We Are"/"Insights in Motion" labels are removed. `main.js` plays `.mp4` sources in a native `<video>`.
+- **Mobile menu.** Full-screen panel with links starting at the top. The toggle is 44×44 and turns into an ✕ above the panel (it used to be hidden under it). The page no longer scrolls behind it, and the off-screen shadow that leaked a dark strip down the right edge on every mobile page is gone.
+- **Contact page.** The form is the page itself now, not a full-screen modal covering the header. Navigation and footer are back. Fields are labeled in sentence case, invalid fields are highlighted inline (`aria-invalid`), email format is checked, the send button is disabled while sending, and the phone number is offered right in the intro. Escape and the focus trap apply only to the pop-out drawer on other pages.
+- **Touch targets.** Nav links, buttons, Learn more/Read links, breadcrumbs, side-nav, footer links (on touch), the dialog close button and the consent checkbox are all at least 44px tall or are 20px controls inside a full-row label.
+- **Layout.** Pillar cards are flex columns with "Learn more" pinned to the bottom. The framework diagrams share one 230px stage, so the three card titles align. Service and article paragraphs are capped at 60ch (about 75 characters of Inter). The `.flow-scroll` pin track is shortened (55rem to 32rem of extra scroll) to reduce the blank-looking band.
+- **Verified.** `npm run qa` with `QA_CHROMIUM_PATH=/usr/bin/google-chrome`: every page × 3 viewports clean except the long-documented `index.html` desktop flow-scroll spotlight opacity (2 nodes). Separately, a DOM sweep at 375 and 1440 found no horizontal overflow, no text under 13px, no tap target under 44px on mobile, and no console errors.
+
+**Still needs people, not code:**
+- `jennifer-tarsitano.jpg` (397×398) and `MeganBroker.jpg` (380×475) are below 2× for their display size and look soft on retina. Request originals of at least 800×1000. Jim Zarvos's photo is still a candid event shot.
+- Confirm every title other than Farhad's ("Communication Specialist", "Senior Communications Consultant", "Leadership Counsel", "Consultant").
+- The Executive Presence poster uses `leader-portrait.jpg`, whose background has a few cropped letters from the event slide (no logo). The Develop/Layer/Hire poster uses the 600px headshot, which is soft at 2×.
+
 
 ### Round 9 (follow-up): old-site content audit, diffed against the new site
 
