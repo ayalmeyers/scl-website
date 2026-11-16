@@ -2650,3 +2650,120 @@ body[data-contact-page] .contact-drawer { min-height: 100svh; }
 }
 [aria-invalid="true"], [aria-invalid="true"]:focus { border-color: #b3261e; }
 [aria-invalid="true"]:focus { box-shadow: 0 2px 0 0 #b3261e; }
+
+/* =========================================================
+   Round 12 — event clips, ambient stage video
+   ========================================================= */
+
+/* Insights in Motion heading band (homepage): a muted, looping wide
+   stage shot under a navy scrim. The scrim keeps the heading at full
+   contrast whatever frame is showing; under reduced motion only the
+   still poster shows (main.js never loads the video). */
+.ambient-band {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: var(--paper);
+  color: var(--paper-ink);
+  min-height: clamp(22rem, 46vw, 34rem);
+  display: flex;
+  align-items: flex-end;
+  padding: var(--section-pad) 0 clamp(var(--space-5), 6vw, var(--space-6));
+}
+.ambient-media { position: absolute; inset: 0; z-index: -2; background: var(--paper); }
+.ambient-video {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  object-position: 50% 40%;
+  filter: saturate(0.85);
+  opacity: 0.92;
+}
+.ambient-band::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(15, 36, 64, 0.94) 0%, rgba(15, 36, 64, 0.82) 42%, rgba(15, 36, 64, 0.4) 100%),
+    linear-gradient(0deg, rgba(15, 36, 64, 0.7) 0%, rgba(15, 36, 64, 0) 60%);
+}
+.ambient-band > .container { width: 100%; }
+/* id selectors: outrank the generic same-colour section spacing reset. */
+main > #insights-band { padding-top: var(--section-pad); }
+@media (max-width: 860px) { main > #insights-band { padding-top: var(--space-7); } }
+.ambient-band .section-head { margin-bottom: 0; }
+.ambient-band h2 { color: var(--paper-ink); }
+.ambient-band .eyebrow { color: var(--paper-dim); }
+.ambient-band .lede { color: var(--paper-dim); }
+.ambient-toggle {
+  position: absolute;
+  right: var(--pad);
+  bottom: var(--space-3);
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid rgba(245, 248, 252, 0.55);
+  border-radius: 50%;
+  background: rgba(15, 36, 64, 0.55);
+  color: var(--paper-ink);
+  cursor: pointer;
+  transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+.ambient-toggle:hover { background: rgba(15, 36, 64, 0.85); border-color: var(--paper-ink); }
+.ambient-toggle:focus-visible { outline: 2px solid var(--paper-ink); outline-offset: 3px; }
+.ambient-toggle[hidden] { display: none; }
+.ambient-toggle svg { width: 18px; height: 18px; }
+.ambient-toggle .i-play,
+.ambient-band.is-paused .ambient-toggle .i-pause { display: none; }
+.ambient-band.is-paused .ambient-toggle .i-play { display: block; }
+@media (max-width: 860px) {
+  .ambient-band { min-height: 0; align-items: flex-start; padding-top: var(--space-7); padding-bottom: calc(var(--space-7) + var(--space-2)); }
+  .ambient-band::before { background: rgba(15, 36, 64, 0.82); }
+  .ambient-toggle { bottom: var(--space-2); }
+}
+/* id selector: outranks the generic same-colour section spacing reset above. */
+main > .ambient-band + #insights-motion { padding-top: clamp(var(--space-5), 6vw, var(--space-6)); }
+
+/* Video library: three across on wide screens, two on tablets, one on
+   phones. Each card carries a speaker and running-time line. */
+.video-library .stack-track { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-5) var(--space-4); }
+@media (max-width: 1100px) {
+  .video-library .stack-track { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+  .video-library .stack-track { grid-template-columns: 1fr; gap: var(--space-5); }
+}
+.video-library .video-card-poster.is-designed .video-card-playbtn { width: 3.4rem; height: 3.4rem; }
+/* In the library grid the title fills the navy panel, so the play
+   button moves to the photo's lower-right corner instead of under it. */
+.video-library .video-card-poster.is-designed,
+.service-video .video-card-poster.is-designed { justify-content: flex-end; padding: 0 4% 4% 0; }
+.video-meta {
+  margin: var(--space-1) 0 0;
+  font-size: var(--fs-label);
+  line-height: 1.4;
+  color: var(--ink-faint);
+  font-variant-numeric: tabular-nums;
+}
+.video-library-more { margin-top: calc(-1 * var(--section-pad) + var(--space-4)); padding-bottom: var(--section-pad); }
+.video-library-more .teaser-cta { margin-top: 0; }
+
+/* Service-page clip: same frame as the consulting video, with a meta line.
+   Figures carry a default 40px side margin; the video should sit on the
+   content edge like the heading above it. */
+.consulting-video { margin: 0; }
+.service-video { max-width: 900px; }
+.service-video .video-card-poster { margin-bottom: var(--space-2); }
+.consulting-video video:focus-visible,
+.video-card-poster video:focus-visible { outline: 2px solid var(--green); outline-offset: 3px; }
+.video-card-poster video:focus:not(:focus-visible) { outline: none; }
+
+@media print {
+  .ambient-media, .ambient-toggle { display: none !important; }
+  .ambient-band { background: none; color: #000; min-height: 0; }
+}
