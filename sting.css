@@ -1,4 +1,4 @@
-/* Logo sting (variant D): a short reveal of the SCL mark and wordmark on a
+/* Logo sting (variant D): a short reveal of the SCL mark, full name and tagline on a
    navy field, then a dissolve into the page. Whole sequence is 1.5s.
    Markup is created by sting.js; nothing here applies without it. */
 .sting {
@@ -24,13 +24,25 @@
   clip-path: inset(0 100% 0 0);
   animation: sting-draw 1s cubic-bezier(0.65, 0, 0.35, 1) 0.05s forwards;
 }
-.sting__word {
-  width: min(16vw, 76px);
-  height: auto;
+.sting__name, .sting__tag {
+  margin: 0;
+  color: #fff;
+  text-align: center;
   opacity: 0;
   transform: translateY(6px);
-  filter: brightness(0) invert(1); /* navy wordmark, shown white on the dark field */
   animation: sting-word 0.55s ease-out 0.55s forwards;
+}
+.sting__name {
+  font-size: clamp(1.15rem, 3.6vw, 1.6rem);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+.sting__tag {
+  font-size: clamp(0.72rem, 2.2vw, 0.9rem);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.72);
+  animation-delay: 0.7s;
 }
 @keyframes sting-draw {
   0%   { opacity: 0; clip-path: inset(0 100% 0 0); }
