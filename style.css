@@ -2766,8 +2766,10 @@ main > .ambient-band + #insights-motion { padding-top: clamp(var(--space-5), 6vw
 @media print {
   .ambient-media, .ambient-toggle { display: none !important; }
   .ambient-band { background: none; color: #000; min-height: 0; }
+}
+
 /* ---------- footer: legal links (Privacy, Team) ---------- */
-.footer-legal { display: inline-flex; gap: 1.5rem; flex-wrap: wrap; }
+.footer-legal { display: inline-flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; }
 
 /* ---------- team access page (team.html + team-access.js) ----------
    Same hero, type and button system as the rest of the site. The form
@@ -2883,4 +2885,24 @@ main > .ambient-band + #insights-motion { padding-top: clamp(var(--space-5), 6vw
 }
 @media (max-width: 860px) {
   .team-panel { grid-template-columns: 1fr; }
+}
+
+/* Footer entry to the team page */
+.site-footer .footer-legal .footer-lab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 44px;
+  padding: 0 1.1rem;
+  border: 1px solid var(--paper-dim);
+  border-radius: 2px;
+  text-decoration: none;
+  color: var(--paper-ink);
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+}
+.site-footer .footer-legal .footer-lab:hover,
+.site-footer .footer-legal .footer-lab:focus-visible {
+  background: var(--paper-ink);
+  border-color: var(--paper-ink);
+  color: #0f2442;
 }
