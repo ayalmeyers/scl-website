@@ -38,6 +38,7 @@ const PAGES = [
   "strategic-communication-consulting.html",
   "privacy.html",
   "team.html",
+  "gifts.html",
   "404.html"
 ];
 
