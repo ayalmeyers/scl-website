@@ -2650,3 +2650,237 @@ body[data-contact-page] .contact-drawer { min-height: 100svh; }
 }
 [aria-invalid="true"], [aria-invalid="true"]:focus { border-color: #b3261e; }
 [aria-invalid="true"]:focus { box-shadow: 0 2px 0 0 #b3261e; }
+
+/* =========================================================
+   Round 12 — event clips, ambient stage video
+   ========================================================= */
+
+/* Insights in Motion heading band (homepage): a muted, looping wide
+   stage shot under a navy scrim. The scrim keeps the heading at full
+   contrast whatever frame is showing; under reduced motion only the
+   still poster shows (main.js never loads the video). */
+.ambient-band {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: var(--paper);
+  color: var(--paper-ink);
+  min-height: clamp(22rem, 46vw, 34rem);
+  display: flex;
+  align-items: flex-end;
+  padding: var(--section-pad) 0 clamp(var(--space-5), 6vw, var(--space-6));
+}
+.ambient-media { position: absolute; inset: 0; z-index: -2; background: var(--paper); }
+.ambient-video {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  object-position: 50% 40%;
+  filter: saturate(0.85);
+  opacity: 0.92;
+}
+.ambient-band::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(15, 36, 64, 0.94) 0%, rgba(15, 36, 64, 0.82) 42%, rgba(15, 36, 64, 0.4) 100%),
+    linear-gradient(0deg, rgba(15, 36, 64, 0.7) 0%, rgba(15, 36, 64, 0) 60%);
+}
+.ambient-band > .container { width: 100%; }
+/* id selectors: outrank the generic same-colour section spacing reset. */
+main > #insights-band { padding-top: var(--section-pad); }
+@media (max-width: 860px) { main > #insights-band { padding-top: var(--space-7); } }
+.ambient-band .section-head { margin-bottom: 0; }
+.ambient-band h2 { color: var(--paper-ink); }
+.ambient-band .eyebrow { color: var(--paper-dim); }
+.ambient-band .lede { color: var(--paper-dim); }
+.ambient-toggle {
+  position: absolute;
+  right: var(--pad);
+  bottom: var(--space-3);
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid rgba(245, 248, 252, 0.55);
+  border-radius: 50%;
+  background: rgba(15, 36, 64, 0.55);
+  color: var(--paper-ink);
+  cursor: pointer;
+  transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+.ambient-toggle:hover { background: rgba(15, 36, 64, 0.85); border-color: var(--paper-ink); }
+.ambient-toggle:focus-visible { outline: 2px solid var(--paper-ink); outline-offset: 3px; }
+.ambient-toggle[hidden] { display: none; }
+.ambient-toggle svg { width: 18px; height: 18px; }
+.ambient-toggle .i-play,
+.ambient-band.is-paused .ambient-toggle .i-pause { display: none; }
+.ambient-band.is-paused .ambient-toggle .i-play { display: block; }
+@media (max-width: 860px) {
+  .ambient-band { min-height: 0; align-items: flex-start; padding-top: var(--space-7); padding-bottom: calc(var(--space-7) + var(--space-2)); }
+  .ambient-band::before { background: rgba(15, 36, 64, 0.82); }
+  .ambient-toggle { bottom: var(--space-2); }
+}
+/* id selector: outranks the generic same-colour section spacing reset above. */
+main > .ambient-band + #insights-motion { padding-top: clamp(var(--space-5), 6vw, var(--space-6)); }
+
+/* Video library: three across on wide screens, two on tablets, one on
+   phones. Each card carries a speaker and running-time line. */
+.video-library .stack-track { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-5) var(--space-4); }
+@media (max-width: 1100px) {
+  .video-library .stack-track { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+  .video-library .stack-track { grid-template-columns: 1fr; gap: var(--space-5); }
+}
+.video-library .video-card-poster.is-designed .video-card-playbtn { width: 3.4rem; height: 3.4rem; }
+/* In the library grid the title fills the navy panel, so the play
+   button moves to the photo's lower-right corner instead of under it. */
+.video-library .video-card-poster.is-designed,
+.service-video .video-card-poster.is-designed { justify-content: flex-end; padding: 0 4% 4% 0; }
+.video-meta {
+  margin: var(--space-1) 0 0;
+  font-size: var(--fs-label);
+  line-height: 1.4;
+  color: var(--ink-faint);
+  font-variant-numeric: tabular-nums;
+}
+.video-library-more { margin-top: calc(-1 * var(--section-pad) + var(--space-4)); padding-bottom: var(--section-pad); }
+.video-library-more .teaser-cta { margin-top: 0; }
+
+/* Service-page clip: same frame as the consulting video, with a meta line.
+   Figures carry a default 40px side margin; the video should sit on the
+   content edge like the heading above it. */
+.consulting-video { margin: 0; }
+.service-video { max-width: 900px; }
+.service-video .video-card-poster { margin-bottom: var(--space-2); }
+.consulting-video video:focus-visible,
+.video-card-poster video:focus-visible { outline: 2px solid var(--green); outline-offset: 3px; }
+.video-card-poster video:focus:not(:focus-visible) { outline: none; }
+
+@media print {
+  .ambient-media, .ambient-toggle { display: none !important; }
+  .ambient-band { background: none; color: #000; min-height: 0; }
+/* ---------- footer: legal links (Privacy, Team) ---------- */
+.footer-legal { display: inline-flex; gap: 1.5rem; flex-wrap: wrap; }
+
+/* ---------- team access page (team.html + team-access.js) ----------
+   Same hero, type and button system as the rest of the site. The form
+   is a single card; once unlocked, a two-column panel: the hub on the
+   left, deep links on the right. */
+.team-section { padding-top: 0; }
+.team-card {
+  max-width: 30rem;
+  background: var(--bg-alt);
+  border: 1px solid var(--line);
+  padding: clamp(1.8rem, 4vw, 3rem);
+}
+.team-card-title {
+  font-size: 1.75rem;
+  margin-bottom: 1.6rem;
+}
+.team-card input[type="password"] { margin-bottom: 1.4rem; }
+.team-check {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 44px;
+  margin: 0;
+  font-weight: 500;
+  cursor: pointer;
+}
+.team-check input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  padding: 0;
+  flex: none;
+  accent-color: var(--ink);
+  cursor: pointer;
+}
+.team-hint {
+  font-size: var(--fs-sm);
+  color: var(--ink-faint);
+  margin: 0.1rem 0 1.6rem;
+}
+.team-error {
+  margin: 1.2rem 0 0;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: #b3261e;
+}
+.team-aside {
+  margin-top: 1.4rem;
+  font-size: var(--fs-sm);
+  color: var(--ink-faint);
+}
+.team-panel {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+.team-hub {
+  background: var(--paper);
+  color: var(--paper-ink);
+  padding: clamp(2rem, 4vw, 3.5rem);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.team-hub .eyebrow { color: var(--paper-dim); margin-bottom: 1.1rem; }
+.team-hub h2 {
+  color: var(--paper-ink);
+  font-size: clamp(2rem, 3.6vw, 2.8rem);
+  max-width: 16ch;
+  margin-bottom: 1.2rem;
+}
+.team-hub h2:focus { outline: none; }
+.team-hub h2:focus-visible { outline: 2px solid var(--green-on-dark); outline-offset: 4px; }
+.team-hub p { color: var(--paper-dim); max-width: 44ch; margin-bottom: 2rem; }
+.team-hub .btn-highlight { background: #fff; color: var(--ink); }
+.team-hub .btn-highlight:hover { background: var(--green-highlight); color: var(--ink); }
+.team-hub a:focus-visible { outline-color: var(--green-on-dark); }
+.team-go { padding: clamp(2rem, 4vw, 3rem); }
+.team-go h3 {
+  font-family: var(--mono);
+  font-size: var(--fs-label);
+  font-weight: 600;
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 0.8rem;
+}
+.team-links li { border-bottom: 1px solid var(--line); }
+.team-links li:last-child { border-bottom: none; }
+.team-link {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-height: 44px;
+  padding: 0.9rem 0;
+}
+.team-link-label { font-weight: 600; color: var(--green); }
+.team-link-label .arrow { display: inline-block; margin-left: 0.4em; transition: transform var(--dur) ease; }
+.team-link:hover .team-link-label { color: var(--ink); }
+.team-link:hover .arrow { transform: translateX(4px); }
+.team-link-note { font-size: var(--fs-sm); color: var(--ink-dim); }
+.team-embed { margin-top: var(--space-4); border: 1px solid var(--line); }
+.team-embed-frame { display: block; width: 100%; height: calc(100vh - 140px); min-height: 640px; border: 0; }
+.team-signout-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.5rem;
+  margin-top: var(--space-3);
+  font-size: var(--fs-sm);
+  color: var(--ink-faint);
+}
+@media (max-width: 860px) {
+  .team-panel { grid-template-columns: 1fr; }
+}

@@ -221,6 +221,7 @@ document.addEventListener("DOMContentLoaded", function () {
   initAttractorBackground();
   initContactDrawer();
   initVideoCards();
+  initAmbientVideo();
   initTestimonials();
 });
 
@@ -307,14 +308,36 @@ function initVideoCards() {
       // controls; anything else (Vimeo/YouTube) loads as an iframe.
       if (/\.mp4(\?|$)/i.test(src)) {
         var video = document.createElement("video");
-        video.src = src;
         video.controls = true;
         video.autoplay = true;
         video.playsInline = true;
+        video.preload = "auto";
+        var still = poster.querySelector(".video-card-photo");
+        if (still) video.poster = still.getAttribute("src");
         video.setAttribute("aria-label", label.replace(/^Play video:\s*/, ""));
+        var source = document.createElement("source");
+        source.src = src;
+        source.type = "video/mp4";
+        video.appendChild(source);
+        // Captions (WebVTT) are on by default; viewers can switch them
+        // off from the player's own captions control.
+        var captions = poster.getAttribute("data-video-captions");
+        if (captions) {
+          var track = document.createElement("track");
+          track.kind = "captions";
+          track.srclang = "en";
+          track.label = "English";
+          track.src = captions;
+          track.default = true;
+          video.appendChild(track);
+        }
         poster.classList.add("has-embed");
         poster.innerHTML = "";
         poster.appendChild(video);
+        // Keep keyboard focus with the player that replaced the button
+        // (tabindex -1: focusable from script, no extra tab stop).
+        video.setAttribute("tabindex", "-1");
+        video.focus({ preventScroll: true });
         return;
       }
       var iframe = document.createElement("iframe");
@@ -326,6 +349,72 @@ function initVideoCards() {
       poster.innerHTML = "";
       poster.appendChild(iframe);
     });
+  });
+}
+
+// ---------------------------------------------------------------------
+// Ambient video band: a muted, looping stage shot behind a section
+// heading. Nothing downloads until the band is near the viewport (the
+// <video> ships with no src, only a data-ambient-src), it pauses while
+// off screen, and visitors can pause it with the band's own button.
+// Under prefers-reduced-motion the video never loads and the still
+// poster image stays in place.
+// ---------------------------------------------------------------------
+function initAmbientVideo() {
+  var bands = document.querySelectorAll("[data-ambient]");
+  if (!bands.length) return;
+  var reduceMotion =
+    window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  bands.forEach(function (band) {
+    var video = band.querySelector("video[data-ambient-src]");
+    var toggle = band.querySelector("[data-ambient-toggle]");
+    if (!video) return;
+    if (reduceMotion || !("IntersectionObserver" in window)) {
+      if (toggle) toggle.hidden = true;
+      return;
+    }
+    var loaded = false, userPaused = false, inView = false;
+
+    function play() {
+      var p = video.play();
+      if (p && typeof p.catch === "function") p.catch(function () {});
+    }
+    function load() {
+      if (loaded) return;
+      loaded = true;
+      var source = document.createElement("source");
+      source.src = video.getAttribute("data-ambient-src");
+      source.type = "video/mp4";
+      video.appendChild(source);
+      video.load();
+    }
+    video.addEventListener("playing", function () { band.classList.add("is-playing"); });
+
+    if (toggle) {
+      toggle.hidden = false;
+      toggle.addEventListener("click", function () {
+        userPaused = !userPaused;
+        toggle.setAttribute("aria-pressed", userPaused ? "true" : "false");
+        toggle.setAttribute("aria-label", userPaused ? "Play background video" : "Pause background video");
+        band.classList.toggle("is-paused", userPaused);
+        if (userPaused) video.pause();
+        else { load(); play(); }
+      });
+    }
+
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        inView = entry.isIntersecting;
+        if (inView) {
+          load();
+          if (!userPaused) play();
+        } else if (loaded) {
+          video.pause();
+        }
+      });
+    }, { rootMargin: "200px 0px" });
+    io.observe(band);
   });
 }
 

@@ -28,6 +28,7 @@ great-leadership.html
 learn-to-listen.html
 contact.html                                 Contact form + phone/LinkedIn
 privacy.html                                 Privacy page
+team.html, team-access.js                    Password-protected team page (see docs/TEAM-ACCESS.md)
 404.html                                     Not-found page
 style.css                                    Shared stylesheet
 main.js                                      Nav, scroll-reveal, form handling, etc.
@@ -66,6 +67,20 @@ photo before adding it to `team.js` — it keeps file sizes and encoding
 consistent across a roster whose source photos otherwise arrive in every
 dimension and compression setting imaginable. It prints the final
 dimensions; put those in the person's `photoWidth`/`photoHeight`.
+
+## Videos
+
+Self-hosted clips live at the repo root as `scl-<name>.mp4` with a
+matching `scl-<name>.vtt` caption file and a `poster-<name>.jpg` title
+card. A video card (`.video-card`) points at them with
+`data-video-embed="scl-<name>.mp4"` and
+`data-video-captions="scl-<name>.vtt"`; `main.js` (`initVideoCards`)
+swaps in a native `<video>` with the caption track when the visitor
+presses play. `scl-stage-loop.mp4` is the muted background loop behind
+the homepage's Insights in Motion heading (`initAmbientVideo`); it loads
+only near the viewport and never under reduced motion. The edit masters,
+the same web files and the logo stings are kept in Ayal's
+`ADM SCL/SCL Clips/` folder (`Website v2/`, `Brand intro-outro v2/`).
 
 ## Adding a musing
 

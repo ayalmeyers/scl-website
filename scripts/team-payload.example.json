@@ -1,0 +1,14 @@
+{
+  "hubUrl": "https://claude.ai/artifact/REPLACE_WITH_HUB_ID",
+  "embedUrl": null,
+  "links": [
+    { "label": "Today", "hash": "home", "note": "Contracts, billing and alerts at a glance" },
+    { "label": "Register", "hash": "contracts", "note": "Every contract with its version and status" },
+    { "label": "Billing queue", "hash": "invoicing/queue", "note": "Lines to invoice, with each client's routing" },
+    { "label": "Checks", "hash": "book/checks", "note": "Data to fix in the rev sheet and Notion" },
+    { "label": "Open questions", "hash": "ops/requests", "note": "Ops questions waiting on an answer" },
+    { "label": "Draft a contract", "hash": "draft", "note": "Start a new engagement letter" },
+    { "label": "Example outside link", "url": "https://example.com/", "note": "Links can also point anywhere else (https only)" }
+  ],
+  "note": "The hub opens in Claude. It reads SharePoint and Notion with your own Claude sign-in, so you see what your accounts can see."
+}

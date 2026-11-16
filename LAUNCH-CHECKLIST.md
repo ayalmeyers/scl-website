@@ -20,6 +20,30 @@ Before starting, I pulled the actual Granola meeting notes (Sep 22 – Oct 16) r
 
 ## Done this pass (verified by test)
 
+### Round 12: event clips, ambient stage video, new logo stings
+
+Ayal asked for more of the good clips from the Farhad Motiwalla / Tim Donahue conversation on the site, without the old intro and outro bumpers.
+
+- **Clean re-cuts.** Every clip was re-cut from the full 55-minute recording at the cut-list timecodes (silence-snapped), instead of trimming the finished `SCL Clips/Website 16x9` files, which have the old bumpers, burned-in captions and lower thirds baked in. Light denoise, short fades, loudness levelled to -16 LUFS, H.264 High 1280x720 with fast start, AAC 128k. The source recording is 640x360, so these are clean upscales; there is no sharper master. All clips are under 10 MB.
+- **Captions.** Each clip has a WebVTT file built from the iTT transcript (sentence-aware cues, at most two lines, transcription slips fixed, e.g. "hire and fire", "Lencioni", "y-axis, on the x-axis"). Captions are on by default and can be switched off in the player. Cue timing comes from the iTT timecodes; spot-checked on screen in a playing clip.
+- **`scl-develop-layer-hire.mp4` replaced** with a clean cut (no bumper, no burned-in captions) and a new poster; it now carries a caption track like the others.
+- **Placement.**
+  - Homepage, Insights in Motion: a muted, looping wide stage shot (B-roll 07, 08, 11, 09, no audience shots, crossfaded into a seamless 18-second loop, 1.3 MB, no audio track) sits behind the section heading under a navy scrim. Below it, six cards: Executive presence, Develop/layer/hire, Hard decisions involve people, Recognition vs. a bigger bonus, It comes down to trust, Teamwork is the edge. "Watch all videos" links to Musings.
+  - Musings, Insights in Motion: all nine videos (the six above plus What empowerment means, The tough love continuum, Connection is the work).
+  - Executive Coaching: The tough love continuum ("Leadership requires a high degree of versatility.", the line already quoted in the homepage hero).
+  - Leadership Counsel: What empowerment means.
+- **Cards.** Each card has its title, a one-line description, the speaker, and the running time. In the library grid the play button sits on the photo, so it never covers the poster title. Posters are designed title cards in the same style as the existing two, using a frame from each clip (eyes open, checked frame by frame).
+- **Ambient video behaviour.** Nothing downloads until the band is near the viewport, it pauses off screen, it has a 44px pause/play button with a label and pressed state, and under `prefers-reduced-motion` the video never loads and the still poster shows. `playsinline muted loop autoplay`, no sound.
+- **Accessibility.** Play buttons name the video, speaker and length. Focus moves to the player that replaces the button. Captions on by default. No autoplay with sound anywhere.
+- **Weight.** About 44 MB of video added in total (nine clips plus the loop), loaded only when a visitor presses play, except the 1.3 MB loop.
+- **Logo stings.** Three new options modernizing `SCL Logo Vid.mov` are in `SCL Clips/Brand intro-outro v2/` on Ayal's Mac (with a README). They are not used on the site: the site already opens with the logo and the line-art hero, so a sting would repeat it.
+- QA: `npm run qa` passes on every page at mobile, tablet and desktop. Screenshots at 375/768/1024/1440 checked by eye. Every self-hosted clip plays in headless Chrome (readyState 4, time advancing, caption track showing with cues loaded); the loop plays muted and the pause button works; under reduced motion the loop is never requested; no video is requested at page load.
+
+**For the team to confirm before launch:**
+- The clips come from a Meet Perry Advancement Series event. No Meet Perry or "Advancement" name appears on the site, in the captions or on the posters; the copy says only that the videos come from a conversation between Farhad and Tim Donahue of Lazard. Confirm Meet Perry is comfortable with SCL hosting these cuts, and that Tim is happy to appear (he speaks in "Recognition vs. a bigger bonus" and is on screen in the stage loop and "It comes down to trust").
+- Confirm the card wording and the homepage heading, "Leadership, people, and trust."
+- "It comes down to trust" (10 seconds) cuts to Tim listening for part of Farhad's answer. That is how the event edit was cut.
+
 ### Round 11: craft pass (type, spacing, word choice, seamlessness)
 
 Three agents worked this round: a design-direction agent studying Awwwards Sites of the Year for what makes a site feel human, a copy agent that compared every line against the old scl.us.com and restored SCL's own wording, and a micro-detail agent. A separate verifier then reviewed the result cold, and its findings are fixed below.
