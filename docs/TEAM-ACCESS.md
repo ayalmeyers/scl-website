@@ -191,3 +191,42 @@ artifact): `/home/claude/cb-site/index.html`, theme alone in
 `/home/claude/cb-site/site-theme.css`, screenshots in `/home/claude/cb-site/shots/`
 (`before-*`, `after-*`, `afterhub-*` at 1440 and 390 for Today, Engagements board
 and Billing queue).
+
+## 7. Gifts page (gifts.html)
+
+The client gifting store sits behind the same kind of password page as the
+team page. Its catalog (40 gifts), the order settings (the notification
+addresses) and the copy are stored as AES-256-GCM ciphertext in
+`gifts.html`, in `<script id="gifts-vault">`. After a correct password,
+`gifts-access.js` decrypts the payload and loads `gifts-app.js`, the store
+from the `ayalmeyers/scl-gifts` repo, styled by `gifts.css` in the site's
+type and colors. Orders go by email through FormSubmit, which the Power
+Automate flow reads into Excel. There is no HTTP trigger.
+
+Files: `gifts.html`, `gifts-access.js`, `gifts-app.js`, `gifts.css`,
+`gifts-images/` (photos for the five items with local photos),
+`scripts/gifts-payload.mjs`, and the `--page gifts` option in
+`scripts/encrypt-team.mjs`. The sign-in key is stored under `scl-gifts-key`,
+separate from the team page, so the two passwords can differ. Signing out also
+clears the saved selection and delivery details from that browser.
+
+**The password is not in the repo.** `gifts.html` holds only ciphertext. To
+change the password or the catalog, rebuild the payload and encrypt again. The
+plain-text payload stays outside the repo:
+
+```sh
+node scripts/gifts-payload.mjs ../scl-gifts > ~/scl-gifts-payload.json
+GIFTS_PASSWORD='<password>' node scripts/encrypt-team.mjs --page gifts --in ~/scl-gifts-payload.json
+# or leave GIFTS_PASSWORD unset and type it at the prompt
+```
+
+Commit `gifts.html` and push. Change the password only: `node scripts/encrypt-team.mjs --page gifts --rotate`.
+Change the catalog: edit `js/products.js` in scl-gifts, rebuild the payload as
+above and encrypt again. The encrypt step refuses a payload with prices, an
+`orderEndpoint`, or duplicate product ids. `npm run qa` covers `gifts.html` in
+its locked state; the unlocked store needs a sign-in, so check it by hand after
+re-encrypting.
+
+All gift photos, including one per color for the 35 checkoutstores items, are
+copies stored in `gifts-images/`. Copy any new photo there from scl-gifts
+`images/products/`.
