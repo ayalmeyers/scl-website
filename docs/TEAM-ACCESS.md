@@ -210,12 +210,13 @@ Files: `gifts.html`, `gifts-access.js`, `gifts-app.js`, `gifts.css`,
 separate from the team page, so the two passwords can differ. Signing out also
 clears the saved selection and delivery details from that browser.
 
-**The password in this branch is a throwaway.** Re-encrypt with the real one
-before launch. The plain-text payload stays outside the repo:
+**The password is not in the repo.** `gifts.html` holds only ciphertext. To
+change the password or the catalog, rebuild the payload and encrypt again. The
+plain-text payload stays outside the repo:
 
 ```sh
 node scripts/gifts-payload.mjs ../scl-gifts > ~/scl-gifts-payload.json
-GIFTS_PASSWORD='the real password' node scripts/encrypt-team.mjs --page gifts --in ~/scl-gifts-payload.json
+GIFTS_PASSWORD='<password>' node scripts/encrypt-team.mjs --page gifts --in ~/scl-gifts-payload.json
 # or leave GIFTS_PASSWORD unset and type it at the prompt
 ```
 
@@ -226,5 +227,6 @@ above and encrypt again. The encrypt step refuses a payload with prices, an
 its locked state; the unlocked store needs a sign-in, so check it by hand after
 re-encrypting.
 
-Store photos for the 35 checkoutstores items load from that store's image
-host. Copy them into `gifts-images/` before the store closes.
+All gift photos, including one per color for the 35 checkoutstores items, are
+copies stored in `gifts-images/`. Copy any new photo there from scl-gifts
+`images/products/`.
