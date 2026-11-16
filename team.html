@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="referrer" content="no-referrer" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Team — Strategic Communication Lab</title>
+<meta name="description" content="Sign-in for the Strategic Communication Lab team." />
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="icon" href="favicon.ico" sizes="any" />
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+<link rel="manifest" href="site.webmanifest" />
+<meta name="theme-color" content="#0f2440" />
+<script>document.documentElement.classList.add('js')</script>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<a href="#main" class="skip-link">Skip to content</a>
+
+
+<header class="site-header">
+  <div class="nav-inner">
+    <a href="index.html" class="brand">
+      <img src="logo-mark-64.png" alt="" class="brand-icon" width="64" height="55" />
+      <strong>Strategic Communication Lab</strong>
+      <span>Coaches · Counsel · Consultants</span>
+    </a>
+    <nav class="nav-links">
+      <a href="who-we-are.html" data-nav>Who We Are</a>
+      <a href="what-we-do.html" data-nav>What We Do</a>
+      <a href="our-clients.html" data-nav>Our Clients</a>
+      <a href="musings.html" data-nav>Musings</a>
+      <a href="contact.html" class="nav-cta" data-nav>Contact Us</a>
+    </nav>
+    <button class="nav-toggle" type="button" aria-label="Open menu"><span></span><span></span><span></span></button>
+  </div>
+</header>
+
+<main id="main">
+  <section class="page-hero team-hero">
+    <div class="container">
+      <span class="eyebrow">Team access</span>
+      <h1>SCL team</h1>
+      <p class="lede" id="team-lede" data-locked="For SCL partners and staff. Enter the team password to reach the operations hub." data-open="Contracts, billing and operations for the firm, in one place.">For SCL partners and staff. Enter the team password to reach the operations hub.</p>
+    </div>
+  </section>
+
+  <section class="team-section">
+    <div class="container">
+      <div id="team-locked">
+        <form id="team-form" class="team-card" novalidate>
+          <h2 class="team-card-title">Sign in</h2>
+          <input type="text" name="username" autocomplete="username" value="SCL team" class="visually-hidden" tabindex="-1" aria-hidden="true" readonly />
+          <label for="team-password">Team password</label>
+          <input id="team-password" name="password" type="password" autocomplete="current-password" autocapitalize="off" spellcheck="false" required aria-describedby="team-error" />
+          <label class="team-check" for="team-remember">
+            <input id="team-remember" type="checkbox" />
+            <span>Remember me on this device</span>
+          </label>
+          <p class="team-hint">Leave this off on a shared computer.</p>
+          <button class="btn btn-highlight" type="submit">Sign in <span class="arrow">→</span></button>
+          <p id="team-error" class="team-error" role="alert" hidden></p>
+          <noscript><p class="team-error">This page needs JavaScript turned on.</p></noscript>
+        </form>
+        <p class="team-aside">Need the password? Ask Ayal Meyers.</p>
+      </div>
+
+      <div id="team-open" hidden>
+        <div class="team-panel">
+          <div class="team-hub">
+            <span class="eyebrow">Operations hub</span>
+            <h2 id="team-hub-title" tabindex="-1">Contracts, billing and operations</h2>
+            <p id="team-hub-note"></p>
+            <a id="team-hub-link" class="btn btn-highlight" target="_blank" rel="noopener noreferrer">Open the hub <span class="arrow">→</span><span class="visually-hidden"> (opens in a new tab)</span></a>
+          </div>
+          <div class="team-go">
+            <h3>Go straight to</h3>
+            <ul id="team-links" class="team-links"></ul>
+          </div>
+        </div>
+        <div id="team-embed" class="team-embed" hidden></div>
+        <div class="team-signout-row">
+          <button class="btn btn-primary" id="team-signout" type="button">Sign out</button>
+          <span id="team-remembered" hidden>Remembered on this device until you sign out.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+<script type="application/json" id="team-vault">{"v":1,"kdf":{"name":"PBKDF2","hash":"SHA-256","iterations":600000,"salt":"QAhp0A5SJNVBqsJNxt3XAA=="},"cipher":{"name":"AES-GCM","iv":"aLHh9OMRyZsqjCmZ"},"ct":"8S8EZXTK5rZkTSlYU1iq00CUmI6nIUgpOYZ6fpQo53kXXFhpY81cuTwv4KqZxjW06CrbwDAC8zk9kprHZEkbacHSQsAC3XuKXkXFIO9ryniHrXcFq92/VS/w6qSFoWIum8v7GYX4nKVOqwKyiPse47hXR0CF5I/7bnnaPzw4BSeKxOauZTBsZY8x0nN4ko4kKIKW68wqfdXP2F3xp3fuZZXaKecJkmJnF8rUPXCbr+/oyocdFl94BhAPiib0p2XV4VWDz2k1OLXCIFrBTyMz889P1WfzW1mQpk0/f9C8gRVRNASKMRXmLg3Zu6F+C/V+5i271L2tHNrgUflpy71O9tm7prT48DE1vgN1z3E+I/0VVS8aWvLZDKZ1Kn1HIGgJ8M2ZZ/FFCt27ejBiAE0HT3YVNpy1wcsVgTRB+geWuT/Xn4xOUv3il8NwtoP03jaLz5mMA20U1u8fZK7CHPiJFd5Ul+UZ/N5/ahJLATcK5cuuiR46iK9sDuF5eQ5SrUTL8Geq4kx+k6J1q/u6Byq+/XRM8hQqZrBm6YTiNOKTIBeEeOeNy0ihUKJfQyn3QRqP7v81znDgYw3YIiVZ+jJfAYAu1m8iRhM3V7zSVJA+u7sufzafChyLBALapjxVGB+CHEIiH6VaGA4BnVGVVnzBT1vFaRomnF3wBT+0+5SV6WZtCcNIA7og8U+cSKOmzwllr5J49Y1Cxzef7YNEeHCuCsil3eHGCFx72hlpD90ceJNtF1+c/reQL5cDlRxibNvAtOAXwaCfvo2LoBZgz92jfxoJng8Un9MhDRy2izvtcEOUz7ld0hKBzbMuS1ogaTTVbD8p5prBoQPFl5isMVe9div922tZ0kHn5Bu9s0mXm5VBePbO/wH+K3/IYsNQg8n45J5lmi0pNE/i7zZRu3IWLBPLXnDoxzylnGsGvEoM8q8B6XXyD+HeuO62n6ukBY3DhcBicquei3u3LW8uBEz6NC6p1Jjrglc7NIALZCZBgStnEmLj90kvZYXaTw3ymHU160dIo3KTCiN1J8Zht+K8"}</script>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-lead">
+      <p class="footer-lead-line">Aligning communication with intended results.</p>
+      <div class="footer-lead-contact">
+        <a href="tel:18772666522" class="footer-phone">1-877-266-6522</a>
+      </div>
+    </div>
+    <div class="footer-top">
+      <div>
+        <div class="footer-brand"><img src="logo-mark-64.png" alt="" width="64" height="55" loading="lazy" />Strategic Communication Lab</div>
+      </div>
+      <div class="footer-col">
+        <h4>Explore</h4>
+        <a href="who-we-are.html">Who We Are</a>
+        <a href="what-we-do.html">What We Do</a>
+        <a href="our-clients.html">Our Clients</a>
+        <a href="musings.html">Musings</a>
+      </div>
+      <div class="footer-col">
+        <h4>Services</h4>
+        <a href="executive-coaching.html">Executive Coaching</a>
+        <a href="leadership-counsel.html">Leadership Counsel</a>
+        <a href="strategic-communication-consulting.html">Strategic Communication Consulting</a>
+      </div>
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <a href="tel:18772666522">1-877-266-6522</a>
+        <a href="contact.html">Contact Form</a>
+        <a href="https://www.linkedin.com/company/independent-coach-and-leadership-development-specialist/" target="_blank" rel="noopener">LinkedIn</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Strategic Communication Lab. All rights reserved.</span>
+      <span>Coaches · Counsel · Consultants</span>
+      <span class="footer-legal"><a href="privacy.html">Privacy</a><a href="team.html" rel="nofollow">Team</a></span>
+    </div>
+  </div>
+</footer>
+
+<script src="main.js"></script>
+<script src="team-access.js"></script>
+</body>
+</html>

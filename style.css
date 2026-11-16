@@ -2650,3 +2650,122 @@ body[data-contact-page] .contact-drawer { min-height: 100svh; }
 }
 [aria-invalid="true"], [aria-invalid="true"]:focus { border-color: #b3261e; }
 [aria-invalid="true"]:focus { box-shadow: 0 2px 0 0 #b3261e; }
+
+/* ---------- footer: legal links (Privacy, Team) ---------- */
+.footer-legal { display: inline-flex; gap: 1.5rem; flex-wrap: wrap; }
+
+/* ---------- team access page (team.html + team-access.js) ----------
+   Same hero, type and button system as the rest of the site. The form
+   is a single card; once unlocked, a two-column panel: the hub on the
+   left, deep links on the right. */
+.team-section { padding-top: 0; }
+.team-card {
+  max-width: 30rem;
+  background: var(--bg-alt);
+  border: 1px solid var(--line);
+  padding: clamp(1.8rem, 4vw, 3rem);
+}
+.team-card-title {
+  font-size: 1.75rem;
+  margin-bottom: 1.6rem;
+}
+.team-card input[type="password"] { margin-bottom: 1.4rem; }
+.team-check {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 44px;
+  margin: 0;
+  font-weight: 500;
+  cursor: pointer;
+}
+.team-check input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  padding: 0;
+  flex: none;
+  accent-color: var(--ink);
+  cursor: pointer;
+}
+.team-hint {
+  font-size: var(--fs-sm);
+  color: var(--ink-faint);
+  margin: 0.1rem 0 1.6rem;
+}
+.team-error {
+  margin: 1.2rem 0 0;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: #b3261e;
+}
+.team-aside {
+  margin-top: 1.4rem;
+  font-size: var(--fs-sm);
+  color: var(--ink-faint);
+}
+.team-panel {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+.team-hub {
+  background: var(--paper);
+  color: var(--paper-ink);
+  padding: clamp(2rem, 4vw, 3.5rem);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.team-hub .eyebrow { color: var(--paper-dim); margin-bottom: 1.1rem; }
+.team-hub h2 {
+  color: var(--paper-ink);
+  font-size: clamp(2rem, 3.6vw, 2.8rem);
+  max-width: 16ch;
+  margin-bottom: 1.2rem;
+}
+.team-hub h2:focus { outline: none; }
+.team-hub h2:focus-visible { outline: 2px solid var(--green-on-dark); outline-offset: 4px; }
+.team-hub p { color: var(--paper-dim); max-width: 44ch; margin-bottom: 2rem; }
+.team-hub .btn-highlight { background: #fff; color: var(--ink); }
+.team-hub .btn-highlight:hover { background: var(--green-highlight); color: var(--ink); }
+.team-hub a:focus-visible { outline-color: var(--green-on-dark); }
+.team-go { padding: clamp(2rem, 4vw, 3rem); }
+.team-go h3 {
+  font-family: var(--mono);
+  font-size: var(--fs-label);
+  font-weight: 600;
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 0.8rem;
+}
+.team-links li { border-bottom: 1px solid var(--line); }
+.team-links li:last-child { border-bottom: none; }
+.team-link {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-height: 44px;
+  padding: 0.9rem 0;
+}
+.team-link-label { font-weight: 600; color: var(--green); }
+.team-link-label .arrow { display: inline-block; margin-left: 0.4em; transition: transform var(--dur) ease; }
+.team-link:hover .team-link-label { color: var(--ink); }
+.team-link:hover .arrow { transform: translateX(4px); }
+.team-link-note { font-size: var(--fs-sm); color: var(--ink-dim); }
+.team-embed { margin-top: var(--space-4); border: 1px solid var(--line); }
+.team-embed-frame { display: block; width: 100%; height: calc(100vh - 140px); min-height: 640px; border: 0; }
+.team-signout-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.5rem;
+  margin-top: var(--space-3);
+  font-size: var(--fs-sm);
+  color: var(--ink-faint);
+}
+@media (max-width: 860px) {
+  .team-panel { grid-template-columns: 1fr; }
+}

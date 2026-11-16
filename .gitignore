@@ -1,3 +1,5 @@
 node_modules/
 qa/report/
 .DS_Store
+scripts/team-payload.local.json
+*.payload.json

@@ -28,6 +28,7 @@ great-leadership.html
 learn-to-listen.html
 contact.html                                 Contact form + phone/LinkedIn
 privacy.html                                 Privacy page
+team.html, team-access.js                    Password-protected team page (see docs/TEAM-ACCESS.md)
 404.html                                     Not-found page
 style.css                                    Shared stylesheet
 main.js                                      Nav, scroll-reveal, form handling, etc.
