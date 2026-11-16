@@ -17,7 +17,8 @@
   el.className = 'sting';
   el.setAttribute('aria-hidden', 'true');
   el.innerHTML = '<img class="sting__mark" src="logo-mark.png" alt="" width="540" height="467">' +
-                 '<img class="sting__word" src="logo-wordmark.png" alt="" width="651" height="275">';
+                 '<div class="sting__name">Strategic Communication Lab</div>' +
+                 '<div class="sting__tag">Coaches \u00b7 Counsel \u00b7 Consultants</div>';
   document.documentElement.appendChild(el);
 
   var done = false, t1;
