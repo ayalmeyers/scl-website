@@ -29,6 +29,7 @@ learn-to-listen.html
 contact.html                                 Contact form + phone/LinkedIn
 privacy.html                                 Privacy page
 team.html, team-access.js                    Password-protected team page (see docs/TEAM-ACCESS.md)
+site-gate.js                                 Review-site password on every other page (same password; docs/TEAM-ACCESS.md §8)
 404.html                                     Not-found page
 style.css                                    Shared stylesheet
 main.js                                      Nav, scroll-reveal, form handling, etc.
@@ -45,11 +46,13 @@ No build step — plain HTML/CSS/JS, ready to serve as-is via GitHub Pages.
 ## Editing the roster
 
 Team entries live in one place: `team.js`. Each person is one object with
-`id`, `name`, `role`, `photo`, `photoWidth`/`photoHeight`, and (optional)
-`bio` — an array of paragraph strings. `main.js`'s `renderTeam()` renders
-that single list into both index.html's homepage teaser grid and
-who-we-are.html's full roster grid + bio dialogs on page load, so there's
-nothing to duplicate by hand. To add, remove, or edit someone, change only
+`id`, `name`, `role`, `photo`, `photoWidth`/`photoHeight`, (optional)
+`core`, and (optional) `bio` — an array of paragraph strings. `main.js`'s
+`renderTeam()` renders that single list into both index.html's homepage
+teaser grid (people with `core: true` only: Farhad, SJ, Jen, Ayal) and
+who-we-are.html's full roster grid + bio dialogs (everyone) on page load,
+so there's nothing to duplicate by hand. Someone without a photo yet uses
+`headshot-placeholder.jpg` (600×750). To add, remove, or edit someone, change only
 `team.js`.
 
 Adding a new person's photo: drop the image in the repo root, then run

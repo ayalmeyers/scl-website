@@ -13,12 +13,16 @@
 //           browser reserves the right space before it loads and
 //           nothing shifts. Re-run the script and update these two
 //           numbers if a person's photo is ever replaced.
+//   core  — true for the core team (Farhad, Jen, SJ, Ayal). Only core
+//           members show in index.html's homepage teaser; everyone shows
+//           on who-we-are.html.
 //   bio   — array of bio paragraphs (HTML allowed for the rare <em>/&amp;),
 //           shown only on who-we-are.html. Omit (or leave empty) for
 //           roster members who appear in the grid but have no bio copy yet.
 window.SCL_TEAM = [
   {
     id: "farhad",
+    core: true,
     name: "Farhad Motiwalla",
     role: "Founder",
     photo: "farhad-motiwalla.jpg",
@@ -33,6 +37,7 @@ window.SCL_TEAM = [
   },
   {
     id: "sarah-jane",
+    core: true,
     name: "Sarah-Jane Campbell",
     role: "Communication Specialist",
     photo: "sarah-jane-campbell.jpg",
@@ -47,6 +52,7 @@ window.SCL_TEAM = [
   },
   {
     id: "jennifer",
+    core: true,
     name: "Jennifer Tarsitano",
     role: "Senior Communications Consultant",
     photo: "jennifer-tarsitano.jpg",
@@ -58,6 +64,16 @@ window.SCL_TEAM = [
       "Having worked with leaders across the globe, Jennifer brings deep cross-industry experience helping professionals navigate high-stakes communication situations — from media training and skill development to strategic counsel and pitch consulting. Her clients span financial services, education, insurance, retail, telecommunications, healthcare, advertising, and the nonprofit sector.",
       "Prior to joining SCL, Jennifer served as Vice President of Customer Experience at VEIL Global Technologies, and was Vice President of Marketing for Digitas, one of the world's leading digital marketing and media agencies. Jennifer holds a Bachelor's in Communication Studies from the University of Rhode Island. A Rhode Island native, she resides there with her children."
     ]
+  },
+  {
+    // TODO: real headshot and title (placeholders until supplied).
+    id: "ayal",
+    core: true,
+    name: "Ayal Meyers",
+    role: "Title TBD",
+    photo: "headshot-placeholder.jpg",
+    photoWidth: 600,
+    photoHeight: 750
   },
   {
     id: "jeff",
@@ -110,5 +126,14 @@ window.SCL_TEAM = [
     bio: [
       "Megan Broker is a consultant with SCL, working with leaders and teams on the communication and strategy challenges that come with high-stakes engagements."
     ]
+  },
+  {
+    // TODO: real headshot and title (placeholders until supplied).
+    id: "stephanie",
+    name: "Stephanie Dua",
+    role: "Title TBD",
+    photo: "headshot-placeholder.jpg",
+    photoWidth: 600,
+    photoHeight: 750
   }
 ];

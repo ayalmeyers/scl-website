@@ -2906,3 +2906,45 @@ main > .ambient-band + #insights-motion { padding-top: clamp(var(--space-5), 6vw
   border-color: var(--paper-ink);
   color: #0f2442;
 }
+
+/* ---------- site gate (site-gate.js) ----------
+   While the review site is password protected, site-gate.js puts
+   html.site-gated on every page (except team.html) until the team
+   password is entered. The page underneath stays rendered but hidden,
+   so nothing shifts when it opens. Remove with the script at cutover. */
+html.site-gated { overflow: hidden; }
+html.site-gated body > :not(.site-gate) { visibility: hidden !important; }
+.site-gate {
+  position: fixed;
+  inset: 0;
+  z-index: 5000;
+  overflow-y: auto;
+  background: var(--bg);
+  color: var(--ink);
+  font: 400 var(--fs-body)/1.6 var(--mono);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(1.5rem, 5vw, 4rem) var(--pad);
+}
+.site-gate-inner { width: 100%; max-width: 30rem; }
+.site-gate-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: clamp(1.6rem, 4vh, 2.6rem);
+  font-family: var(--display);
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+.site-gate-brand img { width: 40px; height: auto; }
+.site-gate-title {
+  font-size: clamp(2.2rem, 5vw, 3rem);
+  margin-bottom: 0.8rem;
+}
+.site-gate-lede {
+  color: var(--ink-dim);
+  margin: 0 0 1.8rem;
+  max-width: 40ch;
+}
