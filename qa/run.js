@@ -39,8 +39,13 @@ const PAGES = [
   "privacy.html",
   "team.html",
   "gifts.html",
-  "404.html"
+  "404.html",
+  // The site gate itself (site-gate.js), locked. Every other entry above
+  // is checked signed in, as a visitor sees it after the password.
+  "index.html (site gate)"
 ];
+const GATE_SUFFIX = " (site gate)";
+const pagePath = (pg) => pg.replace(GATE_SUFFIX, "");
 
 const VIEWPORTS = [
   { name: "mobile", width: 390, height: 844 },
@@ -72,6 +77,12 @@ async function regressionAndAxe(browser, results) {
     results.pages[pg] = results.pages[pg] || {};
     for (const vp of VIEWPORTS) {
       const context = await browser.newContext({ viewport: { width: vp.width, height: vp.height } });
+      if (!pg.endsWith(GATE_SUFFIX)) {
+        // Signed in for this tab, the way site-gate.js marks it.
+        await context.addInitScript(() => {
+          try { sessionStorage.setItem("scl-site-ok", "qa"); } catch (e) {}
+        });
+      }
       const page = await context.newPage();
       const consoleErrors = [];
       const brokenResources = [];
@@ -85,7 +96,7 @@ async function regressionAndAxe(browser, results) {
         }
       });
 
-      await page.goto(`${BASE}/${pg}`, { waitUntil: "networkidle" });
+      await page.goto(`${BASE}/${pagePath(pg)}`, { waitUntil: "networkidle" });
       await page.waitForTimeout(250);
       const scrollHeight = await page.evaluate(() => document.documentElement.scrollHeight);
       // Scroll-reveal (.reveal) elements fade in over a 0.9s CSS
@@ -142,7 +153,9 @@ async function lighthouseAudit(results) {
   });
 
   try {
-    for (const pg of PAGES) {
+    // Lighthouse can't sign in, so every page it loads shows the site
+    // gate; its scores describe the gate until site-gate.js is removed.
+    for (const pg of PAGES.filter((p) => !p.endsWith(GATE_SUFFIX))) {
       const runnerResult = await lighthouse(`${BASE}/${pg}`, {
         port: chrome.port,
         output: "json",

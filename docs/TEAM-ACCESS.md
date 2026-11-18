@@ -230,3 +230,39 @@ re-encrypting.
 All gift photos, including one per color for the 35 checkoutstores items, are
 copies stored in `gifts-images/`. Copy any new photo there from scl-gifts
 `images/products/`.
+
+## 8. The whole review site behind the team password (site-gate.js)
+
+Every page except `team.html` loads `site-gate.js` in its `<head>`. Until the
+visitor signs in, the page renders underneath but stays hidden, and a sign-in
+screen in the site's style asks for the team password.
+
+There is no separate site password. The gate fetches `team.html`, reads its
+`team-vault`, and checks the typed password by deriving the key and decrypting
+that vault, exactly as `team-access.js` does. So:
+
+- The password is the SCL Lab password, and `node scripts/encrypt-team.mjs --rotate`
+  changes both at once. Nothing else to update.
+- A correct password stores the same derived key the team page stores
+  (`scl-team-key`, in localStorage with "Remember me", otherwise for the tab).
+  Signing in on the site opens team.html without asking again, and signing in
+  on team.html opens the site.
+- After a sign-in the tab is marked open (`scl-site-ok` in sessionStorage), so
+  later pages open without another check. A remembered device re-checks its
+  stored key against the vault once per new tab; after a rotation it is asked
+  for the new password.
+- "Sign out" on team.html clears the key and closes the site for that tab.
+- gifts.html is behind the site gate and then its own gifts sign-in.
+
+**What this does not do.** The gate hides pages from people who open the review
+link. It does not encrypt them. The repo is public, so every page's HTML is on
+GitHub, and a browser with JavaScript turned off shows the page. Treat the
+review site as unlisted, not secret. Real protection would mean a private repo
+with access-controlled Pages, or a host with an access layer in front (for
+example Cloudflare Access).
+
+QA: `npm run qa` checks every page signed in (it marks the tab open before
+loading) and checks the gate itself as `index.html (site gate)`. Lighthouse
+can't sign in, so its scores describe the gate until the gate is removed.
+
+**At the scl.us.com cutover**, remove the gate: see LAUNCH-CHECKLIST.md.

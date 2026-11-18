@@ -15,7 +15,11 @@ function renderTeam() {
 
   var teaserGrid = document.querySelector("[data-team-teaser]");
   if (teaserGrid) {
+    // Homepage shows the core team only; who-we-are.html shows everyone.
     teaserGrid.innerHTML = team
+      .filter(function (p) {
+        return p.core;
+      })
       .map(function (p) {
         return (
           '<a class="team-teaser-card" href="who-we-are.html#dlg-' + p.id + '">' +
@@ -206,7 +210,9 @@ document.addEventListener("DOMContentLoaded", function () {
     // Deep link: the homepage's "Our Team" cards link straight to a
     // person's bio via who-we-are.html#dlg-<id>, so open that dialog
     // immediately if the URL names one.
-    if (window.location.hash) {
+    // While the site gate is up (site-gate.js), wait for sign-in: a
+    // modal dialog would otherwise sit on top of the gate.
+    var openDeepLink = function () {
       var targetDialog = document.getElementById(window.location.hash.slice(1));
       if (targetDialog && targetDialog.classList.contains("roster-dialog")) {
         if (typeof targetDialog.showModal === "function") {
@@ -214,6 +220,13 @@ document.addEventListener("DOMContentLoaded", function () {
         } else {
           targetDialog.setAttribute("open", "");
         }
+      }
+    };
+    if (window.location.hash) {
+      if (window.SCL_SITE_GATED) {
+        document.addEventListener("scl:site-unlocked", openDeepLink, { once: true });
+      } else {
+        openDeepLink();
       }
     }
   }
