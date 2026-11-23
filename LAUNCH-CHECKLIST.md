@@ -2,6 +2,14 @@
 
 This tracks what's done, what's deferred, and what needs a human decision before scl.us.com goes live on this codebase. It accompanies the `launch-final` branch/PR.
 
+## Before cutover: remove the review-site password
+
+The whole review site sits behind the SCL Lab team password (`site-gate.js`, see `docs/TEAM-ACCESS.md` section 8). At the scl.us.com cutover, delete the `<script src="site-gate.js"></script>` line from every page, delete `site-gate.js`, the "site gate" block at the end of `style.css`, and the `"index.html (site gate)"` entry in `qa/run.js`. team.html and gifts.html keep their own sign-ins. **Owner: Ayal.**
+
+## Team roster placeholders
+
+Ayal Meyers and Stephanie Dua are on the roster with `headshot-placeholder.jpg` and the role "Title TBD", and no bio. Each needs a real headshot (run `scripts/normalize-headshot.sh`), an approved title, and a bio if one is wanted. Jim and Jeff are unchanged pending confirmation of their status. **Owner: Ayal (own entry), Stephanie (hers).**
+
 ## Resolved: Meet Perry branding in the video poster
 
 `thumb1.jpg` (Meet Perry logo and "this is advancement" burned into the frame) is removed from the repo. The second "Insights in Motion" card now plays a self-hosted SCL clip, `scl-develop-layer-hire.mp4` (Farhad on "develop, layer, or hire", cut from the Advancement recording with all Meet Perry material excluded), behind a new designed poster. The old Vimeo video `1227002649` is no longer linked anywhere on the site.

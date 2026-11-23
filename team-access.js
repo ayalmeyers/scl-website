@@ -158,6 +158,8 @@
 
   function lock(message) {
     clearKeys();
+    // Signing out here also closes the site gate (site-gate.js) for this tab.
+    try { sessionStorage.removeItem("scl-site-ok"); } catch (e) {}
     open.hidden = true;
     locked.hidden = false;
     document.body.classList.remove("team-is-open");
