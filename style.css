@@ -56,6 +56,7 @@
   --display: "EB Garamond", Garamond, "Times New Roman", serif;
   --sans:    "Inter", -apple-system, "Helvetica Neue", Arial, sans-serif;
   --mono:    "Inter", -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --din:     "D-DIN", "DIN Next", "DIN Alternate", "DIN", "Helvetica Neue", Arial, sans-serif;
 
   /* ---- type scale (rem = 16px). Nothing on the site renders below
          --fs-label; running text never below --fs-body. ---- */
@@ -2948,3 +2949,8 @@ html.site-gated body > :not(.site-gate) { visibility: hidden !important; }
   margin: 0 0 1.8rem;
   max-width: 40ch;
 }
+
+/* Private content: Musings and the Insights in Motion videos stay hidden until
+   Tim Donahue (Lazard) and Jamie Beaton permissions are confirmed and the library
+   is broader. To publish, delete this rule and restore the sitemap and robots.txt lines. */
+[data-private] { display: none !important; }
