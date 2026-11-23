@@ -25,3 +25,21 @@
   font-display: swap;
   src: url("inter.woff2") format("woff2");
 }
+
+/* D-DIN (Datto, SIL Open Font License, see D-DIN-OFL.txt). SCL's brand
+   type is DIN; D-DIN is the openly licensed DIN cut, used for the logo
+   sting's name and tagline in place of the phased-out Barlow. */
+@font-face {
+  font-family: "D-DIN";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("d-din-400.woff2") format("woff2");
+}
+@font-face {
+  font-family: "D-DIN";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("d-din-700.woff2") format("woff2");
+}

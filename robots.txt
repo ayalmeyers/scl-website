@@ -1,4 +1,9 @@
 User-agent: *
 Allow: /
+# Musings and its articles are private until video permissions are confirmed.
+Disallow: /musings.html
+Disallow: /managing-virtual-impressions.html
+Disallow: /great-leadership.html
+Disallow: /learn-to-listen.html
 
 Sitemap: https://scl.us.com/sitemap.xml
