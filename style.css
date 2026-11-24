@@ -2950,7 +2950,3 @@ html.site-gated body > :not(.site-gate) { visibility: hidden !important; }
   max-width: 40ch;
 }
 
-/* Private content: Musings and the Insights in Motion videos stay hidden until
-   Tim Donahue (Lazard) and Jamie Beaton permissions are confirmed and the library
-   is broader. To publish, delete this rule and restore the sitemap and robots.txt lines. */
-[data-private] { display: none !important; }
